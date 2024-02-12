@@ -5,25 +5,37 @@ import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
-class CurrentPlayListPage extends StatelessWidget {
-  const CurrentPlayListPage({super.key});
+class AlbumSongListPage extends StatelessWidget {
+  const AlbumSongListPage({super.key});
+  // final String songTitle;
+  // final String artistName;
+  // final String albumName;
+  // final String songFormat;
+  // final String songSize;
+  // final String songPathIndevice;
 
   @override
   Widget build(BuildContext context) {
-    final kScreenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: SideTitleAppBarCommon(
-          appBarText: "Current Playlist",
+          appBarText: "Unknown Album",
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.pop(context);
+                // need to send the song details list to song edit page
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const SongEditPage(pageType: PageTypeEnum.albumPage),
+                  ),
+                );
               },
               child: TextWidgetCommon(
-                text: "Done",
+                text: "Edit",
                 color: kRed,
                 fontSize: 16.sp,
               ),
@@ -32,16 +44,18 @@ class CurrentPlayListPage extends StatelessWidget {
         ),
       ),
       body: ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 10.w),
+        itemCount: 5,
+        padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
           return MusicTileWidget(
             onTap: () {},
-            albumName: "Unkown album",
+            pageType: PageTypeEnum.normalPage,
+            albumName: "Unknown album",
             artistName: "Unknown artist",
             songTitle: "Vaaranam Aayiram_Oh_Shanti",
-            pageType: PageTypeEnum.currentPlayListPage,
             songFormat: "mp3",
-            songPathIndevice: "",
+            songPathIndevice:
+                "Phone/Vidmate/download/Vaaranam_Aayiram_-_Oh_Shanti_Shanti_Video_|_Suriya_|_Harris_Jayaraj(128k)",
             songSize: "3.80MB",
           );
         },

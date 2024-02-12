@@ -32,9 +32,10 @@ class MenuBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+            topLeft: Radius.circular(20), topRight: Radius.circular(20),),
         color: kMenuBtmSheetColor,
         boxShadow: [
           BoxShadow(
@@ -46,7 +47,7 @@ class MenuBottomSheet extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.symmetric(vertical: 20),
-      height: kScreenHeight / 2.5,
+      height: pageType==PageTypeEnum.playListPage?kScreenHeight/2.2: kScreenHeight / 2.5,
       child: Column(
         children: [
           OnTapTextWidget(

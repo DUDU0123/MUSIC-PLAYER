@@ -9,7 +9,7 @@ class RootWidgetPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      builder: (BuildContext context, Widget?_) {
+      builder: (BuildContext context, Widget? _) {
         return MaterialApp(
           theme: ThemeData(
               scaffoldBackgroundColor: kBlack,

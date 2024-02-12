@@ -9,24 +9,21 @@ class MusicHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final kScreenWidth = MediaQuery.of(context).size.width;
-   // final kScreenHeight = MediaQuery.of(context).size.height;
+    // final kScreenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
       body: ListView.builder(
         itemCount: 5,
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
           return MusicTileWidget(
-
-            onTap: () {
-              
-            },
+            onTap: () {},
             pageType: PageTypeEnum.normalPage,
-            kScreenWidth: kScreenWidth,
             albumName: "Unknown album",
             artistName: "Unknown artist",
             songTitle: "Vaaranam Aayiram_Oh_Shanti",
             songFormat: "mp3",
-            songPathIndevice: "Phone/Vidmate/download/Vaaranam_Aayiram_-_Oh_Shanti_Shanti_Video_|_Suriya_|_Harris_Jayaraj(128k)",
+            songPathIndevice:
+                "Phone/Vidmate/download/Vaaranam_Aayiram_-_Oh_Shanti_Shanti_Video_|_Suriya_|_Harris_Jayaraj(128k)",
             songSize: "3.80MB",
           );
         },

@@ -12,6 +12,7 @@ enum PageTypeEnum{
   albumPage,
   musicViewPage,
   playListPage,
+  songEditPage,
   normalPage,
   currentPlayListPage,
 }

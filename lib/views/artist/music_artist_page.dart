@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:music_player/views/artist/artist_song_list_page.dart';
 import 'package:music_player/views/common_widgets/container_tile_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 
@@ -15,7 +16,11 @@ class MusicArtistPage extends StatelessWidget {
         itemBuilder: (context, index) {
           return ContainerTileWidget(
             onTap: () {
-              
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ArtistSongListPage(),
+                ),
+              );
             },
             pageType: PageTypeEnum.artistPage,
             songLength: 5,
@@ -26,5 +31,3 @@ class MusicArtistPage extends StatelessWidget {
     );
   }
 }
-
-
