@@ -6,7 +6,7 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 
 class MusicAlbumPage extends StatelessWidget {
   const MusicAlbumPage({super.key});
-
+  // need to ask for a list of album song according to album
   @override
   Widget build(BuildContext context) {
     return Scaffold(

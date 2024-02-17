@@ -43,6 +43,7 @@ class ArtistSongListPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
           return MusicTileWidget(
+            songId: 0,
             onTap: () {},
             pageType: PageTypeEnum.normalPage,
             albumName: "Unknown album",

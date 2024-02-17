@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 Color kBlack = Colors.black;
 Color kWhite = Colors.white;
+Color kBlue = Colors.blue;
 Color kGrey = Colors.grey;
 Color kTileColor = const Color.fromARGB(255, 30, 30, 30);
 Color kRed = Colors.red;

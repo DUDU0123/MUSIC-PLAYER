@@ -8,13 +8,14 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class PlaylistSongListPage extends StatelessWidget {
-  const PlaylistSongListPage({super.key});
+  const PlaylistSongListPage({super.key, required this.isPlaying});
   // final String songTitle;
   // final String artistName;
   // final String albumName;
   // final String songFormat;
   // final String songSize;
   // final String songPathIndevice;
+  final bool isPlaying;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +52,8 @@ class PlaylistSongListPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
           return MusicTileWidget(
+            songId: 0,
+            isPlaying: isPlaying,
             onTap: () {},
             pageType: PageTypeEnum.playListPage,
             albumName: "Unknown album",

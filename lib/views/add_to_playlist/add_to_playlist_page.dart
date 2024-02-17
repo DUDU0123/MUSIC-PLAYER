@@ -11,14 +11,15 @@ class AddToPlaylistPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(
-              Icons.arrow_back_outlined,
-              color: kRed,
-              size: 28.sp,
-            )),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_outlined,
+            color: kRed,
+            size: 28.sp,
+          ),
+        ),
         automaticallyImplyLeading: false,
         title: TextWidgetCommon(
           text: "Add to Playlist",
@@ -40,7 +41,7 @@ class AddToPlaylistPage extends StatelessWidget {
         ],
       ),
       body: ListView.builder(
-        itemCount: 10+2,
+        itemCount: 10 + 2,
         itemBuilder: (context, index) {
           if (index == 0) {
             return ListTile(
@@ -64,7 +65,7 @@ class AddToPlaylistPage extends StatelessWidget {
           return ListTile(
             onTap: () {},
             title: TextWidgetCommon(
-              text: "Playlist ${index-1}",
+              text: "Playlist ${index - 1}",
               fontSize: 16.sp,
               color: kWhite,
             ),

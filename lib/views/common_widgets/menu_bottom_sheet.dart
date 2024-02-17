@@ -47,7 +47,7 @@ class MenuBottomSheet extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.symmetric(vertical: 20),
-      height: pageType==PageTypeEnum.playListPage?kScreenHeight/2.2: kScreenHeight / 2.5,
+      height: pageType==PageTypeEnum.playListPage?kScreenHeight/1.93: kScreenHeight / 2.2,
       child: Column(
         children: [
           OnTapTextWidget(
@@ -83,6 +83,12 @@ class MenuBottomSheet extends StatelessWidget {
               );
             },
           ),
+          OnTapTextWidget(
+                  text: "Add to Favorites",
+                  onTap: () {
+                    
+                  },
+                ),
           pageType == PageTypeEnum.playListPage
               ? OnTapTextWidget(
                   text: "Remove From Playlist",

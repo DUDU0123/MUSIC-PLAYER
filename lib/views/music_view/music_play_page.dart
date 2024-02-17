@@ -1,28 +1,87 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
+import 'package:music_player/controllers/music_play_page_controller.dart';
+import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/menu_bottom_sheet.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/current_playlist/current_playlist.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 
-class MusicViewPage extends StatelessWidget {
-  const MusicViewPage(
-      {super.key,
-      required this.songName,
-      required this.artistName,
-      required this.albumName,
-      required this.songFormat,
-      required this.songSize,
-      required this.songPathIndevice});
+class MusicPlayPage extends StatefulWidget {
+  MusicPlayPage({
+    super.key,
+    required this.isPlaying,
+    required this.audioPlayer,
+    required this.songModel,
+  });
 
-  final String songName;
-  final String artistName;
-  final String albumName;
-  final String songFormat;
-  final String songSize;
-  final String songPathIndevice;
+  final AllMusicsModel songModel;
+  final AudioPlayer audioPlayer;
+  bool isPlaying;
+  Duration totalDuration = Duration();
+  Duration currentPosition = Duration();
+  int? currentPlayingSongIndex;
+  // List<AudioSource> allSongsList = [];
+
+  @override
+  State<MusicPlayPage> createState() => _MusicPlayPageState();
+}
+
+class _MusicPlayPageState extends State<MusicPlayPage> {
+  void playSong([String? url, int? index]) {
+    try {
+      if (url != null) {
+        widget.audioPlayer.setAudioSource(
+          AudioSource.uri(
+            Uri.parse(widget.songModel.musicUri.toString()),
+            tag: MediaItem(
+              id: widget.songModel.id.toString(),
+              album: widget.songModel.musicAlbumName,
+              title: widget.songModel.musicName,
+              artUri: Uri.parse(widget.songModel.id.toString()),
+            ),
+          ),
+        );
+      }
+
+      widget.audioPlayer.play();
+      widget.currentPlayingSongIndex = index;
+    } on Exception {
+      print("Can't Play Song PlaySong Not Working Properly Let's fix it");
+    }
+
+    // listening to duration
+    widget.audioPlayer.durationStream.listen((totalDurationOfSong) {
+      setState(() {
+        widget.totalDuration = totalDurationOfSong!;
+      });
+    });
+    // listening to positing
+    widget.audioPlayer.positionStream.listen((currentPositionOfSong) {
+      setState(() {
+        widget.currentPosition = currentPositionOfSong;
+      });
+    });
+    widget.isPlaying = true;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    playSong();
+  }
+
+  void changeToSeconds(int seconds) {
+    Duration duration = Duration(seconds: seconds);
+    widget.audioPlayer.seek(duration);
+  }
+
   @override
   Widget build(BuildContext context) {
     final kScreenWidth = MediaQuery.of(context).size.width;
@@ -67,16 +126,10 @@ class MusicViewPage extends StatelessWidget {
                             blurRadius: 2,
                           )
                         ],
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(60),
                         color: kMusicIconContainerColor,
                       ),
-                      child: Center(
-                        child: Icon(
-                          Icons.music_note,
-                          size: 200.sp,
-                          color: kMusicIconMusicColor,
-                        ),
-                      ),
+                      child: const ArtWorkWidgetMusicPlayingPage(),
                     ),
                   ),
                   kHeight15,
@@ -85,8 +138,22 @@ class MusicViewPage extends StatelessWidget {
                     activeColor: kRed,
                     thumbColor: kRed,
                     inactiveColor: const Color.fromARGB(255, 53, 53, 53),
-                    value: 1,
-                    onChanged: (value) {},
+                    min: const Duration(microseconds: 0).inSeconds.toDouble(),
+                    max: widget.totalDuration.inSeconds.toDouble(),
+                    value: (widget.currentPosition != null &&
+                            widget.currentPosition.inSeconds >= 0 &&
+                            widget.currentPosition.inSeconds <=
+                                (widget.totalDuration != null
+                                    ? widget.totalDuration.inSeconds
+                                    : 1.0))
+                        ? widget.currentPosition.inSeconds.toDouble()
+                        : 0.0,
+                    onChanged: (value) {
+                      setState(() {
+                        changeToSeconds(value.toInt());
+                        value = value;
+                      });
+                    },
                   ),
                   Padding(
                     padding:
@@ -95,12 +162,12 @@ class MusicViewPage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         TextWidgetCommon(
-                          text: "00:00",
+                          text: widget.currentPosition.toString().split(".")[0],
                           fontSize: 10.sp,
                           color: kGrey,
                         ),
                         TextWidgetCommon(
-                          text: "04:00",
+                          text: widget.totalDuration.toString().split(".")[0],
                           fontSize: 10.sp,
                           color: kGrey,
                         ),
@@ -123,7 +190,7 @@ class MusicViewPage extends StatelessWidget {
                           child: TextWidgetCommon(
                             textAlign: TextAlign.center,
                             overflow: TextOverflow.ellipsis,
-                            text: songName,
+                            text: widget.songModel.musicName,
                             fontSize: 23.sp,
                             color: kWhite,
                             fontWeight: FontWeight.w500,
@@ -133,7 +200,7 @@ class MusicViewPage extends StatelessWidget {
                         // song artist name
                         TextWidgetCommon(
                           overflow: TextOverflow.ellipsis,
-                          text: artistName,
+                          text: widget.songModel.musicArtistName,
                           fontSize: 10.sp,
                           color: kGrey,
                           fontWeight: FontWeight.w400,
@@ -146,7 +213,11 @@ class MusicViewPage extends StatelessWidget {
                       children: [
                         // play back button
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            setState(() {
+                              widget.audioPlayer.seekToPrevious();
+                            });
+                          },
                           child: Image.asset(
                             'assets/play_back.png',
                             color: kRed,
@@ -155,6 +226,16 @@ class MusicViewPage extends StatelessWidget {
                         ),
                         // play pause button
                         GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              if (widget.isPlaying) {
+                                widget.audioPlayer.pause();
+                              } else {
+                                widget.audioPlayer.play();
+                              }
+                              widget.isPlaying = !widget.isPlaying;
+                            });
+                          },
                           child: Container(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 14.w, vertical: 6.h),
@@ -162,7 +243,7 @@ class MusicViewPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10),
                                 color: kRed),
                             child: Icon(
-                              Icons.play_arrow,
+                              widget.isPlaying ? Icons.pause : Icons.play_arrow,
                               size: 40,
                               color: kWhite,
                             ),
@@ -170,7 +251,11 @@ class MusicViewPage extends StatelessWidget {
                         ),
                         // play next button
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            setState(() {
+                              widget.audioPlayer.seekToNext();
+                            });
+                          },
                           child: Image.asset(
                             'assets/play_next.png',
                             color: kRed,
@@ -188,8 +273,16 @@ class MusicViewPage extends StatelessWidget {
                           onPressed: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    const CurrentPlayListPage(),
+                                builder: (context) => CurrentPlayListPage(
+                                  songId: widget.songModel.id,
+                                  isPlaying: widget.isPlaying,
+                                  songName: widget.songModel.musicName,
+                                  artistName: widget.songModel.musicArtistName,
+                                  albumName: widget.songModel.musicAlbumName,
+                                  songFormat: widget.songModel.musicFormat,
+                                  songSize: widget.songModel.musicFileSize.toString(),
+                                  songPathIndevice: widget.songModel.musicPathInDevice,
+                                ),
                               ),
                             );
                           },
@@ -224,12 +317,12 @@ class MusicViewPage extends StatelessWidget {
                                 return MenuBottomSheet(
                                   kScreenHeight: kScreenHeight,
                                   pageType: PageTypeEnum.musicViewPage,
-                                  songName: songName,
-                                  artistName: artistName,
-                                  albumName: albumName,
-                                  songFormat: songFormat,
-                                  songSize: songSize,
-                                  songPathIndevice: songPathIndevice,
+                                  songName: widget.songModel.musicName,
+                                  artistName: widget.songModel.musicArtistName,
+                                  albumName: widget.songModel.musicAlbumName,
+                                  songFormat: widget.songModel.musicFormat,
+                                  songSize: widget.songModel.musicFileSize.toString(),
+                                  songPathIndevice: widget.songModel.musicPathInDevice,
                                 );
                               },
                             );
@@ -250,5 +343,31 @@ class MusicViewPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class ArtWorkWidgetMusicPlayingPage extends StatelessWidget {
+  const ArtWorkWidgetMusicPlayingPage({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<MusicPlayPageController>(
+        init: MusicPlayPageController(),
+        builder: (controller) {
+          return QueryArtworkWidget(
+            id: controller.id,
+            type: ArtworkType.AUDIO,
+            artworkFit: BoxFit.cover,
+            nullArtworkWidget: Center(
+              child: Icon(
+                Icons.music_note,
+                size: 200,
+                color: kGrey,
+              ),
+            ),
+          );
+        });
   }
 }

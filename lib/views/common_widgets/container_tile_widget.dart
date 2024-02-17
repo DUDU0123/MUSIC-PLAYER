@@ -10,7 +10,8 @@ class ContainerTileWidget extends StatelessWidget {
     super.key,
     required this.title,
     required this.songLength,
-    required this.pageType, this.onTap,
+    required this.pageType,
+    this.onTap,
   });
   final String title;
   final int songLength;
@@ -27,24 +28,28 @@ class ContainerTileWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(10.sp),
           color: kTileColor,
         ),
-        padding: EdgeInsets.only(top: 10.h, bottom: 10.h, left: 15.w, right: 1.w),
+        padding:
+            EdgeInsets.only(top: 10.h, bottom: 10.h, left: 15.w, right: 1.w),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               children: [
-               pageType!= PageTypeEnum.artistPage? Container(
-                  padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 7.w),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5.sp),
-                    color: kLightGrey,
-                  ),
-                  child: Icon(
-                    Icons.music_note,
-                    color: kWhite,
-                    size: 24.sp,
-                  ),
-                ): const SizedBox(),
+                pageType != PageTypeEnum.artistPage
+                    ? Container(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 6.h, horizontal: 7.w),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5.sp),
+                          color: kLightGrey,
+                        ),
+                        child: Icon(
+                          Icons.music_note,
+                          color: kWhite,
+                          size: 24.sp,
+                        ),
+                      )
+                    : const SizedBox(),
                 kWidth10,
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,13 +70,35 @@ class ContainerTileWidget extends StatelessWidget {
                 ),
               ],
             ),
-            IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.arrow_forward_ios_sharp,
-                size: 20.sp,
-              ),
-            ),
+            pageType == PageTypeEnum.playListPage
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.edit,
+                          size: 28.sp,
+                          color: kMusicIconMusicColor,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          Icons.delete,
+                          size: 28.sp,
+                          color: kMusicIconMusicColor,
+                        ),
+                      )
+                    ],
+                  )
+                : IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.arrow_forward_ios_sharp,
+                      size: 20.sp,
+                    ),
+                  ),
           ],
         ),
       ),

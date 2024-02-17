@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
+import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/albums/music_album_page.dart';
 import 'package:music_player/views/artist/music_artist_page.dart';
-import 'package:music_player/views/common_widgets/text_widget_common.dart';
-import 'package:music_player/views/current_playlist/current_playlist.dart';
 import 'package:music_player/views/home/music_home_page.dart';
-import 'package:music_player/views/music_view/music_view_page.dart';
 import 'package:music_player/views/playlist/music_playlist_page.dart';
+import 'package:on_audio_query/on_audio_query.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,6 +20,51 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
+  final OnAudioQuery audioQuery = OnAudioQuery();
+  final AudioPlayer audioPlayer = AudioPlayer();
+  bool isPlaying = false;
+  int? currentPlayingSongIndex;
+  @override
+  void initState() {
+    requestPermission();
+    super.initState();
+  }
+
+  Future<List<SongModel>> requestPermission() async {
+    try {
+      var perm = await Permission.storage.request();
+      if (perm.isGranted) {
+        return audioQuery.querySongs(
+          sortType: null,
+          ignoreCase: true,
+          orderType: OrderType.ASC_OR_SMALLER,
+          uriType: UriType.EXTERNAL,
+        );
+      } else {
+        var reRequest = await Permission.storage.request();
+        if (reRequest.isGranted) {
+          return audioQuery.querySongs(
+            sortType: null,
+            ignoreCase: true,
+            orderType: OrderType.ASC_OR_SMALLER,
+            uriType: UriType.EXTERNAL,
+          );
+        } else {
+          print("Permission not granted.");
+          return [];
+        }
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+    return audioQuery.querySongs(
+      sortType: null,
+      ignoreCase: true,
+      orderType: OrderType.ASC_OR_SMALLER,
+      uriType: UriType.EXTERNAL,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final kScreenWidth = MediaQuery.of(context).size.width;
@@ -28,10 +75,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         actions: [
           GestureDetector(
             onTap: () {},
-            child: Image.asset(
-              "assets/search_icon.png",
-              color: kRed,
-              scale: 18.h,
+            child: SizedBox(
+              height: 22.h,
+              child: Image.asset(
+                "assets/search_icon.png",
+                color: kRed,
+                // scale: 18.h,
+              ),
             ),
           ),
           kWidth10,
@@ -85,100 +135,17 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       body: TabBarView(
         controller: tabController,
         children: [
-          MusicHomePage(),
+          MusicHomePage(
+            requestPermission: requestPermission,
+            audioQuery: audioQuery,
+            audioPlayer: audioPlayer,
+            isPlaying: isPlaying,
+            //playSong: playSong,
+          ),
           MusicArtistPage(),
           MusicAlbumPage(),
-          MusicPlaylistPage(),
+          MusicPlaylistPage(isPlaying: isPlaying),
         ],
-      ),
-      bottomNavigationBar: GestureDetector(
-        onTap: () {
-          showModalBottomSheet(
-            isScrollControlled: true,
-            context: context,
-            builder: (context) {
-              return const MusicViewPage(
-                songName: "Nothing",
-                artistName: 'Unknown artist',
-                albumName: 'Unknown album',
-                songFormat: 'mp3',
-                songSize: '4.0MB',
-                songPathIndevice: 'Phone/Vidmate/download/Vaaranam_Aayiram_-_Oh_Shanti_Shanti_Video_|_Suriya_|_Harris_Jayaraj(128k)',
-              );
-            },
-          );
-        },
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 15.w),
-          height: kScreenHeight / 10,
-          decoration: BoxDecoration(
-            color: kMusicBottomBarColor,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(18.w),
-              topRight: Radius.circular(18.w),
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    height: 46.h,
-                    width: 46.w,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10.w),
-                      color: kMusicNoteContainerColor,
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.music_note,
-                        color: kGrey,
-                      ),
-                    ),
-                  ),
-                  kWidth15,
-                  SizedBox(
-                    width: kScreenWidth / 2.5,
-                    child: TextWidgetCommon(
-                      overflow: TextOverflow.ellipsis,
-                      text: "Vaaranam Aayiram_Oh_Shanti",
-                      fontSize: 15.sp,
-                      color: kWhite,
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.play_circle_outline,
-                      color: kWhite,
-                      size: 30,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const CurrentPlayListPage(),
-                        ),
-                      );
-                    },
-                    icon: Icon(
-                      Icons.list,
-                      color: kWhite,
-                      size: 30,
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
       ),
     );
   }
