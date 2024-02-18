@@ -5,6 +5,7 @@ import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:music_player/views/playlist/add_songs_in_playlist_from_selecting_songs.dart.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class PlaylistSongListPage extends StatelessWidget {
@@ -26,7 +27,13 @@ class PlaylistSongListPage extends StatelessWidget {
           appBarText: "Playlist 1",
           actions: [
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => AddSongInPlaylistFromSelectingSongs(),
+                  ),
+                );
+              },
               icon: Icon(
                 Icons.add,
                 color: kRed,
@@ -36,7 +43,12 @@ class PlaylistSongListPage extends StatelessWidget {
             TextButton(
               onPressed: () {
                 // need to send the list of song in the playlist
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  SongEditPage(pageType: PageTypeEnum.playListPage, songList: []),),);
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => SongEditPage(
+                        pageType: PageTypeEnum.playListPage, songList: []),
+                  ),
+                );
               },
               child: TextWidgetCommon(
                 text: "Edit",

@@ -11,18 +11,19 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class ArtistSongListPage extends StatelessWidget {
-  const ArtistSongListPage({super.key, required this.artistName});
+  const ArtistSongListPage({super.key, required this.artistName, required this.artistSongs});
   final String artistName;
+  final List<AllMusicsModel> artistSongs;
 
   @override
   Widget build(BuildContext context) {
     final musicBox = Hive.box<AllMusicsModel>('musics');
-    final List<AllMusicsModel> artistSongs = artistOrAlbumSongsListGetting(
-      musicBox: musicBox,
-      callback: (music) {
-        return music.musicArtistName == artistName;
-      },
-    );
+    // final List<AllMusicsModel> artistSongs = artistOrAlbumSongsListGetting(
+    //   musicBox: musicBox,
+    //   callback: (music) {
+    //     return music.musicArtistName == artistName;
+    //   },
+    // );
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
@@ -55,7 +56,7 @@ class ArtistSongListPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
           return MusicTileWidget(
-            songId: 0,
+            songId: artistSongs[index].id,
             onTap: () {},
             pageType: PageTypeEnum.normalPage,
             albumName: artistSongs[index].musicAlbumName,

@@ -10,8 +10,6 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 class MusicArtistPage extends StatelessWidget {
   const MusicArtistPage({super.key});
 
- 
-
   @override
   Widget build(BuildContext context) {
     final musicBox = Hive.box<AllMusicsModel>('musics');
@@ -35,18 +33,20 @@ class MusicArtistPage extends StatelessWidget {
         itemBuilder: (context, index) {
           String artistName = artistMap.keys.elementAt(index);
           // Getting artistSongs
-         final List<AllMusicsModel> albumSongs = artistMap[artistName]!;
+          final List<AllMusicsModel> artistSongs = artistMap[artistName]!;
           return ContainerTileWidget(
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) =>
-                      ArtistSongListPage(artistName: artistName),
+                  builder: (context) => ArtistSongListPage(
+                    artistName: artistName,
+                    artistSongs: artistSongs,
+                  ),
                 ),
               );
             },
             pageType: PageTypeEnum.artistPage,
-            songLength: albumSongs.length,
+            songLength: artistSongs.length,
             title: artistName == '<unknown>' ? "Unknown Artist" : artistName,
           );
         },

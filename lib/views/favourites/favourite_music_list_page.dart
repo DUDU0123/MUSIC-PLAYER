@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/models/allmusics_model.dart';
+import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
@@ -15,7 +18,7 @@ class FavouriteMusicListPage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: SideTitleAppBarCommon(
-          appBarText: 'albumName',
+          appBarText: 'Favorites',
           actions: [
             TextButton(
               onPressed: () {
@@ -23,7 +26,7 @@ class FavouriteMusicListPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const SongEditPage(
-                      pageType: PageTypeEnum.favouritePage,
+                      pageType: PageTypeEnum.favoritePage,
                       songList: [],
                     ),
                   ),
@@ -37,6 +40,18 @@ class FavouriteMusicListPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      body: ListView.builder(
+        itemBuilder: (context, index) {
+          return const MusicTileWidget(
+            songTitle: "songTitle",
+            songFormat: "songFormat",
+            songSize: "songSize",
+            songPathIndevice: "songPathIndevice",
+            pageType: PageTypeEnum.favoritePage,
+            songId: 0,
+          );
+        },
       ),
     );
   }

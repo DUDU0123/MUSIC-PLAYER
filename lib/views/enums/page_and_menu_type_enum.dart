@@ -15,5 +15,5 @@ enum PageTypeEnum{
   songEditPage,
   normalPage,
   currentPlayListPage,
-  favouritePage,
+  favoritePage,
 }

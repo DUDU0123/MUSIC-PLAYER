@@ -15,21 +15,3 @@ List<AllMusicsModel> artistOrAlbumSongsListGetting({
 String capitalizeFirstLetter(String text) {
   return text[0].toUpperCase() + text.substring(1).toLowerCase();
 }
-
-// typedef albumOrArtistExtractor<T> = String Function(T);
-// groupingSongsByAlbumOrArtistName(
-//     {required Box<AllMusicsModel> musicBox,
-//     required albumOrArtistExtractor<AllMusicsModel> albumOrArtistExtractor}) {
-//   // getting a list of album song according to album
-//   final List<AllMusicsModel> allMusics = musicBox.values.toList();
-//   // Grouping songs by album name
-//   final Map<String, List<AllMusicsModel>> albumOrArtistMap = {};
-//   allMusics.forEach((music) {
-//     final albumOrArtistName = albumOrArtistExtractor(music);
-//     if (!albumOrArtistMap.containsKey(albumOrArtistName)) {
-//       albumOrArtistMap[albumOrArtistName] = [];
-//     }
-//     albumOrArtistMap[albumOrArtistName]!.add(music);
-//   });
-//   return albumOrArtistMap.values.expand((element) => element).toList();
-// }

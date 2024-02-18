@@ -20,6 +20,7 @@ class ContainerTileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final kScreenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -54,10 +55,14 @@ class ContainerTileWidget extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextWidgetCommon(
-                      text: title,
-                      fontSize: 16.sp,
-                      color: kWhite,
+                    SizedBox(
+                      width: pageType!=PageTypeEnum.playListPage? kScreenWidth/1.85:kScreenWidth/2.5,
+                      child: TextWidgetCommon(
+                        overflow: TextOverflow.ellipsis,
+                        text: title,
+                        fontSize: 16.sp,
+                        color: kWhite,
+                      ),
                     ),
                     TextWidgetCommon(
                       text: songLength > 1
