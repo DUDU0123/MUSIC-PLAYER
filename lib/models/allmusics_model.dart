@@ -21,6 +21,8 @@ class AllMusicsModel extends HiveObject {
   final String musicUri;
   @HiveField(7)
   final int musicFileSize;
+  @HiveField(8)
+  bool? musicSelected;
 
   AllMusicsModel({
     required this.id,
@@ -31,6 +33,7 @@ class AllMusicsModel extends HiveObject {
     required this.musicFormat,
     required this.musicUri,
     required this.musicFileSize,
+    this.musicSelected,
   });
 
   factory AllMusicsModel.fromSongModel(SongModel songModel) {
@@ -43,6 +46,7 @@ class AllMusicsModel extends HiveObject {
       musicPathInDevice: songModel.data,
       musicUri: songModel.uri!,
       musicFileSize: songModel.size,
+      musicSelected: false,
     );
   }
   // final String musicFileSize;

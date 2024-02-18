@@ -19,10 +19,15 @@ class MusicPlayPage extends StatefulWidget {
     required this.isPlaying,
     required this.audioPlayer,
     required this.songModel,
+    required this.audioSource,
+    required this.initialIndex,
   });
 
   final AllMusicsModel songModel;
   final AudioPlayer audioPlayer;
+  final ConcatenatingAudioSource? audioSource;
+
+  final int initialIndex;
   bool isPlaying;
   Duration totalDuration = Duration();
   Duration currentPosition = Duration();
@@ -34,32 +39,42 @@ class MusicPlayPage extends StatefulWidget {
 }
 
 class _MusicPlayPageState extends State<MusicPlayPage> {
-  void playSong([String? url, int? index]) {
+  void playSong([int? index]) {
     try {
-      if (url != null) {
+      if (widget.audioSource!=null) {
         widget.audioPlayer.setAudioSource(
-          AudioSource.uri(
-            Uri.parse(widget.songModel.musicUri.toString()),
-            tag: MediaItem(
-              id: widget.songModel.id.toString(),
-              album: widget.songModel.musicAlbumName,
-              title: widget.songModel.musicName,
-              artUri: Uri.parse(widget.songModel.id.toString()),
-            ),
-          ),
+          widget.audioSource!,
+          initialIndex: index,
         );
+        // widget.audioPlayer.setAudioSource(
+        //   AudioSource.uri(
+        //     Uri.parse(widget.songModel.musicUri.toString()),
+        //     tag: MediaItem(
+        //       id: widget.songModel.id.toString(),
+        //       album: widget.songModel.musicAlbumName,
+        //       title: widget.songModel.musicName,
+        //       artUri: Uri.parse(widget.songModel.id.toString()),
+        //     ),
+        //   ),
+        //   initialIndex: index,
+        // );
       }
-
+      setState(() {
+        widget.currentPlayingSongIndex = index;
+      });
       widget.audioPlayer.play();
-      widget.currentPlayingSongIndex = index;
     } on Exception {
       print("Can't Play Song PlaySong Not Working Properly Let's fix it");
     }
-
+    setState(() {
+      widget.isPlaying = true;
+    });
     // listening to duration
     widget.audioPlayer.durationStream.listen((totalDurationOfSong) {
       setState(() {
-        widget.totalDuration = totalDurationOfSong!;
+        if (totalDurationOfSong!=null) {
+          widget.totalDuration = totalDurationOfSong;
+        }
       });
     });
     // listening to positing
@@ -68,18 +83,46 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
         widget.currentPosition = currentPositionOfSong;
       });
     });
-    widget.isPlaying = true;
   }
 
   @override
   void initState() {
     super.initState();
-    playSong();
+    playSong(widget.initialIndex);
   }
 
   void changeToSeconds(int seconds) {
     Duration duration = Duration(seconds: seconds);
     widget.audioPlayer.seek(duration);
+  }
+
+  // To next song
+  void goToNextSong() {
+    if (widget.currentPlayingSongIndex != null&&widget.audioSource!=null) {
+      if (widget.currentPlayingSongIndex! < widget.audioSource!.length &&
+          widget.currentPlayingSongIndex != null) {
+        widget.audioPlayer.seekToNext();
+        // Update the currentPlayingSongIndex
+        setState(() {
+          widget.currentPlayingSongIndex = widget.currentPlayingSongIndex;
+        });
+      }else{
+        goToPreviousSong();
+      }
+    }
+  }
+
+  // To previous song
+  void goToPreviousSong() {
+    if (widget.currentPlayingSongIndex != 0) {
+      widget.audioPlayer.seekToPrevious();
+      // Update the currentPlayingSongIndex
+      setState(() {
+        widget.currentPlayingSongIndex = widget.currentPlayingSongIndex;
+      });
+    }else{
+        goToNextSong();
+      }
   }
 
   @override
@@ -214,9 +257,8 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                         // play back button
                         GestureDetector(
                           onTap: () {
-                            setState(() {
-                              widget.audioPlayer.seekToPrevious();
-                            });
+                            print("to back");
+                            goToPreviousSong();
                           },
                           child: Image.asset(
                             'assets/play_back.png',
@@ -224,7 +266,7 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                             scale: 18.sp,
                           ),
                         ),
-                        // play pause button
+                        // play and pause button
                         GestureDetector(
                           onTap: () {
                             setState(() {
@@ -252,9 +294,8 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                         // play next button
                         GestureDetector(
                           onTap: () {
-                            setState(() {
-                              widget.audioPlayer.seekToNext();
-                            });
+                            print("to next");
+                            goToNextSong();
                           },
                           child: Image.asset(
                             'assets/play_next.png',
@@ -280,8 +321,10 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                                   artistName: widget.songModel.musicArtistName,
                                   albumName: widget.songModel.musicAlbumName,
                                   songFormat: widget.songModel.musicFormat,
-                                  songSize: widget.songModel.musicFileSize.toString(),
-                                  songPathIndevice: widget.songModel.musicPathInDevice,
+                                  songSize:
+                                      widget.songModel.musicFileSize.toString(),
+                                  songPathIndevice:
+                                      widget.songModel.musicPathInDevice,
                                 ),
                               ),
                             );
@@ -321,8 +364,10 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                                   artistName: widget.songModel.musicArtistName,
                                   albumName: widget.songModel.musicAlbumName,
                                   songFormat: widget.songModel.musicFormat,
-                                  songSize: widget.songModel.musicFileSize.toString(),
-                                  songPathIndevice: widget.songModel.musicPathInDevice,
+                                  songSize:
+                                      widget.songModel.musicFileSize.toString(),
+                                  songPathIndevice:
+                                      widget.songModel.musicPathInDevice,
                                 );
                               },
                             );

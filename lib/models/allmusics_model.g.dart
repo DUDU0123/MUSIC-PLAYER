@@ -25,13 +25,14 @@ class AllMusicsModelAdapter extends TypeAdapter<AllMusicsModel> {
       musicFormat: fields[5] as String,
       musicUri: fields[6] as String,
       musicFileSize: fields[7] as int,
+      musicSelected: fields[8] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, AllMusicsModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class AllMusicsModelAdapter extends TypeAdapter<AllMusicsModel> {
       ..writeByte(6)
       ..write(obj.musicUri)
       ..writeByte(7)
-      ..write(obj.musicFileSize);
+      ..write(obj.musicFileSize)
+      ..writeByte(8)
+      ..write(obj.musicSelected);
   }
 
   @override

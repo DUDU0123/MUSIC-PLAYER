@@ -36,7 +36,7 @@ class PlaylistSongListPage extends StatelessWidget {
             TextButton(
               onPressed: () {
                 // need to send the list of song in the playlist
-                Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  SongEditPage(pageType: PageTypeEnum.playListPage),),);
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) =>  SongEditPage(pageType: PageTypeEnum.playListPage, songList: []),),);
               },
               child: TextWidgetCommon(
                 text: "Edit",

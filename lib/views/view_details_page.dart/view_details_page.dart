@@ -60,7 +60,7 @@ class ViewDetailsPage extends StatelessWidget {
             kHeight20,
             DetailsRowWidget(
               fieldName: "Artist",
-              fieldValue: artistName,
+              fieldValue: artistName=='<unknown>'?"Unknown Artist":artistName,
             ),
             kHeight20,
             DetailsRowWidget(

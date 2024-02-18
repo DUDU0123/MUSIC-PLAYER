@@ -5,6 +5,7 @@ import 'package:music_player/views/common_widgets/text_widget_common.dart';
 
 class AddToPlaylistPage extends StatelessWidget {
   const AddToPlaylistPage({super.key});
+  // Here we need to get a list from bottomsettings
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +46,10 @@ class AddToPlaylistPage extends StatelessWidget {
         itemBuilder: (context, index) {
           if (index == 0) {
             return ListTile(
-              onTap: () {},
+              onTap: () {
+                // add the song into favourite list , no need to go to any pages
+                // need to implement the function that on clik on this tile add the song into that playlist
+              },
               title: TextWidgetCommon(
                 text: "Favorites",
                 fontSize: 16.sp,
@@ -54,7 +58,9 @@ class AddToPlaylistPage extends StatelessWidget {
             );
           } else if (index == 1) {
             return ListTile(
-              onTap: () {},
+              onTap: () {
+                // create a new playlist
+              },
               title: TextWidgetCommon(
                 text: "New Playlist",
                 fontSize: 16.sp,
@@ -63,7 +69,10 @@ class AddToPlaylistPage extends StatelessWidget {
             );
           }
           return ListTile(
-            onTap: () {},
+            onTap: () {
+              // only visible playlist name
+              // need to implement the function that on clik on this tile add the song into that playlist
+            },
             title: TextWidgetCommon(
               text: "Playlist ${index - 1}",
               fontSize: 16.sp,

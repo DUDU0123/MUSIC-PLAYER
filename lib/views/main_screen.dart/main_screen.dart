@@ -136,6 +136,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         controller: tabController,
         children: [
           MusicHomePage(
+            
             requestPermission: requestPermission,
             audioQuery: audioQuery,
             audioPlayer: audioPlayer,

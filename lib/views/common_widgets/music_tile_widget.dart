@@ -98,7 +98,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                           overflow: TextOverflow.ellipsis,
                           text: widget.songTitle,
                           fontSize: 16.sp,
-                          color: widget.isPlaying! ? kRed : kWhite,
+                          color: widget.isPlaying!=null?widget.isPlaying! ? kRed : kWhite:kWhite,
                         ),
                       ),
                       SizedBox(
@@ -111,7 +111,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                           text:
                               "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName}",
                           fontSize: 10.sp,
-                          color: widget.isPlaying! ? kRed : kGrey,
+                          color: widget.isPlaying!=null?widget.isPlaying! ? kRed : kGrey:kGrey,
                         ),
                       ),
                     ],
@@ -142,7 +142,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                               icon: Icon(
                                 Icons.more_vert,
                                 size: 26.sp,
-                                color: widget.isPlaying! ? kRed : kGrey,
+                                color: widget.isPlaying!=null?widget.isPlaying! ? kRed : kGrey:kWhite,
                               ),
                             )
                           : const SizedBox(),
@@ -151,17 +151,18 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                 ],
               ),
             ),
+            widget.isPlaying!=null?
             widget.isPlaying!
                 ? Positioned(
                     right: 45.w,
-                    top: 18.h,
+                    top: 22.h,
                     child: Icon(
                       Icons.multitrack_audio_rounded,
                       color: kRed,
                       size: 26.sp,
                     ),
                   )
-                : SizedBox(),
+                : const SizedBox():const SizedBox(),
           ],
         ),
       ),
