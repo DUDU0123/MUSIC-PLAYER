@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:just_audio/just_audio.dart';
 
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
+import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/playlist_model.dart';
 import 'package:music_player/views/common_widgets/container_tile_widget.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
@@ -13,10 +15,18 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/favourites/favourite_music_list_page.dart';
 import 'package:music_player/views/playlist/playlist_song_list_page.dart';
 import 'package:music_player/views/playlist/widgets/playlist_single_tile_widget.dart';
+import 'package:music_player/views/recently_played/recently_played_page.dart';
 
 class MusicPlaylistPage extends StatelessWidget {
-  MusicPlaylistPage({super.key, required this.isPlaying});
+  MusicPlaylistPage({
+    super.key,
+    required this.isPlaying,
+    required this.audioPlayer,
+    required this.musicBox,
+  });
   final bool isPlaying;
+  final AudioPlayer audioPlayer;
+  final Box<AllMusicsModel> musicBox;
 
   TextEditingController newPlaylistController = TextEditingController();
   TextEditingController editPlaylistController = TextEditingController();
@@ -40,7 +50,8 @@ class MusicPlaylistPage extends StatelessWidget {
                       return NewPlayListDialogBoxWidget(
                         playlsitNameGiverController: newPlaylistController,
                         onSavePlaylist: (playlistName) {
-                          playlistController.playlistCreation(playlistName: playlistName);
+                          playlistController.playlistCreation(
+                              playlistName: playlistName);
                           Navigator.pop(context);
                         },
                       );
@@ -55,7 +66,10 @@ class MusicPlaylistPage extends StatelessWidget {
               return PlayListSingleTileWidget(
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => FavouriteMusicListPage(),
+                    builder: (context) => FavouriteMusicListPage(
+                      audioPlayer: audioPlayer,
+                      musicBox: musicBox,
+                    ),
                   ));
                 },
                 title: "Favourites",
@@ -66,7 +80,17 @@ class MusicPlaylistPage extends StatelessWidget {
               return Padding(
                 padding: EdgeInsets.only(bottom: 15.h),
                 child: PlayListSingleTileWidget(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RecentlyPlayedPage(
+                          audioPlayer: audioPlayer,
+                          musicBox: musicBox,
+                        ),
+                      ),
+                    );
+                  },
                   title: "Recently Played",
                   iconName: Icons.access_time_rounded,
                   iconColor: kBlue,
@@ -75,14 +99,16 @@ class MusicPlaylistPage extends StatelessWidget {
             }
             return ContainerTileWidget(
               deletePlaylistMethod: () {
-                showDialog(context: context, builder: (context) => DeleteDialogBox(
-                  contentText: "Do you want to delete the playlist?",
-                  deleteAction: () {
-                    playlistController.playlistDelete(index: index);
-                    Navigator.pop(context);
-                  },
-                ),);
-                
+                showDialog(
+                  context: context,
+                  builder: (context) => DeleteDialogBox(
+                    contentText: "Do you want to delete the playlist?",
+                    deleteAction: () {
+                      playlistController.playlistDelete(index: index);
+                      Navigator.pop(context);
+                    },
+                  ),
+                );
               },
               editPlaylistNameMethod: () {
                 showDialog(
@@ -102,7 +128,8 @@ class MusicPlaylistPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => PlaylistSongListPage(
-                      
+                      audioPlayer: audioPlayer,
+                      musicBox: musicBox,
                       isPlaying: isPlaying,
                     ),
                   ),

@@ -1,14 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/albums/album_song_list_page.dart';
 import 'package:music_player/views/common_widgets/album_artist_functions_common.dart';
 import 'package:music_player/views/common_widgets/container_tile_widget.dart';
+import 'package:music_player/views/common_widgets/default_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 
 class MusicAlbumPage extends StatelessWidget {
-  const MusicAlbumPage({super.key});
+  const MusicAlbumPage({
+    super.key,
+    required this.audioPlayer,
+    this.isPlaying,
+   required this.musicBox,
+  });
+
+  final AudioPlayer audioPlayer;
+
+  final Box<AllMusicsModel> musicBox;
+  final bool? isPlaying;
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +36,10 @@ class MusicAlbumPage extends StatelessWidget {
       }
       albumsMap[albumName]!.add(music);
     });
-    
+
     return Scaffold(
-      body: ListView.builder(
+      body: albumsMap.isEmpty?DefaultWidget():
+       ListView.builder(
         itemCount: albumsMap.length,
         padding: EdgeInsets.symmetric(vertical: 15.h),
         itemBuilder: (context, index) {
@@ -39,6 +52,9 @@ class MusicAlbumPage extends StatelessWidget {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => AlbumSongListPage(
+                    isPlaying: isPlaying ?? false,
+                    audioPlayer: audioPlayer,
+                    musicBox: musicBox,
                     albumName: albumName,
                     albumSongs: albumSongs,
                   ),

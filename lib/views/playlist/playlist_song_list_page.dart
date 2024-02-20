@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/playlist_model.dart';
+import 'package:music_player/views/common_widgets/default_widget.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
@@ -11,14 +13,21 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/playlist/add_songs_in_playlist_from_selecting_songs.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
-
 class PlaylistSongListPage extends StatelessWidget {
   PlaylistSongListPage({
     super.key,
     required this.isPlaying,
+    required this.audioPlayer,
+    required this.musicBox,
+   
   });
   List<AllMusicsModel>? playlistSongsList;
   final bool isPlaying;
+
+  final AudioPlayer audioPlayer;
+
+  final Box<AllMusicsModel> musicBox;
+
 
   void addPlaylist(Playlist playlist) async {
     final playlistBox = await Hive.openBox<Playlist>('playlist');
@@ -64,6 +73,10 @@ class PlaylistSongListPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => PlaylistSongListPage(
+                        audioPlayer: audioPlayer,
+                        
+                        musicBox: musicBox,
+                      
                         isPlaying: isPlaying,
                       ),
                     ),
@@ -97,47 +110,85 @@ class PlaylistSongListPage extends StatelessWidget {
           ],
         ),
       ),
-      body: Column(
-        children: [
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: currentPlaylistSongList[0].playlistSongs != null
-                ? currentPlaylistSongList[0].playlistSongs!.length
-                : 0,
-            padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-            itemBuilder: (context, index) {
-              final playlistsss =
-                  currentPlaylistSongList[index].playlistSongs!.map((e) {
-                return AllMusicsModel(
-                  id: e.id,
-                  musicName: e.musicName,
-                  musicAlbumName: e.musicAlbumName,
-                  musicArtistName: e.musicArtistName,
-                  musicPathInDevice: e.musicPathInDevice,
-                  musicFormat: e.musicFormat,
-                  musicUri: e.musicUri,
-                  musicFileSize: e.musicFileSize,
+      body: currentPlaylistSongList.isEmpty
+          ? DefaultWidget()
+          : ListView.builder(
+              itemCount: currentPlaylistSongList.length,
+              itemBuilder: (BuildContext context, int index) {
+                Playlist playlistModel =
+                    currentPlaylistSongList[index];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if(playlistModel.playlistSongs!=null)
+                    for (AllMusicsModel music
+                        in playlistModel.playlistSongs!)
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15.w),
+                        child: MusicTileWidget(
+                          audioPlayer: audioPlayer,
+                          musicBox: musicBox,
+                          isPlaying: isPlaying,
+                          albumName: music.musicAlbumName,
+                          artistName: music.musicArtistName,
+                          songTitle: music.musicName,
+                          songFormat: music.musicFormat,
+                          songSize: music.musicFileSize.toString(),
+                          songPathIndevice: music.musicPathInDevice,
+                          pageType: PageTypeEnum.playListPage,
+                          songId: music.id,
+                        ),
+                      ),
+                  ],
                 );
-              }).toList();
-              final currentSongs = currentPlaylistSongList[index].playlistSongs;
-              return currentSongs != null && currentSongs.isNotEmpty
-                  ? MusicTileWidget(
-                      songId: currentSongs[index].id,
-                      isPlaying: isPlaying,
-                      onTap: () {},
-                      pageType: PageTypeEnum.playListPage,
-                      albumName: currentSongs[index].musicAlbumName,
-                      artistName: currentSongs[index].musicArtistName,
-                      songTitle: currentSongs[index].musicName,
-                      songFormat: currentSongs[index].musicFormat,
-                      songPathIndevice: currentSongs[index].musicPathInDevice,
-                      songSize: currentSongs[index].musicFileSize.toString(),
-                    )
-                  : null;
-            },
-          ),
-        ],
-      ),
+              },
+            ),
+      
+      // Column(
+      //   children: [
+      //     ListView.builder(
+      //       shrinkWrap: true,
+      //       itemCount: currentPlaylistSongList[0].playlistSongs != null
+      //           ? currentPlaylistSongList[0].playlistSongs!.length
+      //           : 0,
+      //       padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
+      //       itemBuilder: (context, index) {
+      //         final playlistsss =
+      //             currentPlaylistSongList[index].playlistSongs!.map((e) {
+      //           return AllMusicsModel(
+      //             id: e.id,
+      //             musicName: e.musicName,
+      //             musicAlbumName: e.musicAlbumName,
+      //             musicArtistName: e.musicArtistName,
+      //             musicPathInDevice: e.musicPathInDevice,
+      //             musicFormat: e.musicFormat,
+      //             musicUri: e.musicUri,
+      //             musicFileSize: e.musicFileSize,
+      //           );
+      //         }).toList();
+      //         final currentSongs = currentPlaylistSongList[index].playlistSongs;
+      //         return currentSongs != null && currentSongs.isNotEmpty
+      //             ? MusicTileWidget(
+                   
+      //                 audioPlayer: audioPlayer,
+                     
+      //                 musicBox: musicBox,
+                    
+      //                 songId: currentSongs[index].id,
+      //                 isPlaying: isPlaying,
+      //                 pageType: PageTypeEnum.playListPage,
+      //                 albumName: currentSongs[index].musicAlbumName,
+      //                 artistName: currentSongs[index].musicArtistName,
+      //                 songTitle: currentSongs[index].musicName,
+      //                 songFormat: currentSongs[index].musicFormat,
+      //                 songPathIndevice: currentSongs[index].musicPathInDevice,
+      //                 songSize: currentSongs[index].musicFileSize.toString(),
+      //               )
+      //             : null;
+      //       },
+      //     ),
+      //   ],
+      // ),
     );
   }
 }

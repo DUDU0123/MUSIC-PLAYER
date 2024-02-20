@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
 import 'package:music_player/models/allmusics_model.dart';
+import 'package:music_player/models/recently_played_model.dart';
 import 'package:music_player/views/albums/music_album_page.dart';
 import 'package:music_player/views/artist/music_artist_page.dart';
 import 'package:music_player/views/home/music_home_page.dart';
@@ -23,11 +27,21 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final OnAudioQuery audioQuery = OnAudioQuery();
   final AudioPlayer audioPlayer = AudioPlayer();
   bool isPlaying = false;
-  int? currentPlayingSongIndex;
+  final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
+ 
+  bool isSongsLoaded = false;
+
   @override
   void initState() {
-    requestPermission();
     super.initState();
+    Timer(
+        Duration(
+          seconds: 3,
+        ), () {
+      setState(() {
+        isSongsLoaded = true;
+      });
+    });
   }
 
   Future<List<SongModel>> requestPermission() async {
@@ -64,17 +78,46 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       uriType: UriType.EXTERNAL,
     );
   }
-  @override
-  void dispose() {
-    audioPlayer.dispose();
-    super.dispose();
-  }
+
+  
+
+  
+
+  
+
+ 
 
   @override
   Widget build(BuildContext context) {
     final kScreenWidth = MediaQuery.of(context).size.width;
     final kScreenHeight = MediaQuery.of(context).size.height;
     TabController tabController = TabController(length: 4, vsync: this);
+    if (!isSongsLoaded) {
+      return Center(
+        child: Container(
+          decoration: BoxDecoration(
+              color: kTileColor,
+              boxShadow: [
+                BoxShadow(
+                  blurRadius: 6,
+                  spreadRadius: 0.2,
+                  offset: Offset(1, 1),
+                  color: kMenuBtmSheetColor.withRed(100),
+                )
+              ],
+              borderRadius: BorderRadius.circular(10)),
+          height: 100,
+          width: 100,
+          child: Center(
+            child: Icon(
+              Icons.music_note_rounded,
+              color: kRed,
+              size: 50.sp,
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -141,18 +184,37 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         controller: tabController,
         children: [
           MusicHomePage(
-            
-            requestPermission: requestPermission,
-            audioQuery: audioQuery,
+            requestPermission: requestPermission(),
+            musicBox: musicBox,
             audioPlayer: audioPlayer,
             isPlaying: isPlaying,
-            //playSong: playSong,
           ),
-          MusicArtistPage(),
-          MusicAlbumPage(),
-          MusicPlaylistPage(isPlaying: isPlaying),
+          MusicArtistPage(
+            musicBox: musicBox,
+            audioPlayer: audioPlayer,
+            isPlaying: isPlaying,
+
+          ),
+          MusicAlbumPage(
+            
+            musicBox: musicBox,
+            audioPlayer: audioPlayer,
+            isPlaying: isPlaying,
+          ),
+          MusicPlaylistPage(
+            isPlaying: isPlaying,
+            musicBox: musicBox,
+            audioPlayer: audioPlayer,
+          ),
         ],
       ),
     );
   }
+
+   @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
+  }
+
 }

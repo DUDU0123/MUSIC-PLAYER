@@ -49,6 +49,15 @@ class AllMusicsModel extends HiveObject {
       musicSelected: false,
     );
   }
-  // final String musicFileSize;
   // final String musicCoverImage;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is AllMusicsModel && other.id == id; // Adjust the condition based on your unique identifier(s)
+  }
+
+  @override
+  int get hashCode => id.hashCode; 
 }

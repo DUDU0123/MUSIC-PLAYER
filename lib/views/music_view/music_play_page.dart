@@ -14,7 +14,6 @@ import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/current_playlist/current_playlist.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
-import 'package:music_player/views/favourites/favourite_music_list_page.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class MusicPlayPage extends StatefulWidget {
@@ -24,25 +23,29 @@ class MusicPlayPage extends StatefulWidget {
     required this.audioPlayer,
     required this.songModel,
     required this.audioSource,
-    required this.initialIndex,
+    required this.initialIndex, this.currentPlayingSongIndex,required this.playSong, required this.musicBox,
   });
 
   final AllMusicsModel songModel;
   final AudioPlayer audioPlayer;
   final ConcatenatingAudioSource? audioSource;
+  int? currentPlayingSongIndex;
+  final void Function({String? url, int? index, bool? isRecentlyPlayed})
+      playSong;
+      final Box<AllMusicsModel> musicBox;
 
   final int initialIndex;
   bool isPlaying;
   Duration totalDuration = Duration();
   Duration currentPosition = Duration();
-  int? currentPlayingSongIndex;
+  
 
   @override
   State<MusicPlayPage> createState() => _MusicPlayPageState();
 }
 
 class _MusicPlayPageState extends State<MusicPlayPage> {
-  final musicBox = Hive.box<AllMusicsModel>('musics');
+ // final musicBox = Hive.box<AllMusicsModel>('musics');
   late AllMusicsModel currentPlayingSong;
   bool _isMounted = false;
   bool isLoopingAllSongs = false;
@@ -52,7 +55,7 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
   // index of song getting for details
   AllMusicsModel getSongDetailsByIndex(int index) {
     try {
-      return musicBox.getAt(index) ??
+      return widget.musicBox.getAt(index) ??
           AllMusicsModel(
             id: currentPlayingSong
                 .id, // Replace with default values for named parameters
@@ -92,7 +95,8 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
         );
       }
       setState(() {
-        widget.currentPlayingSongIndex = index;
+       widget.currentPlayingSongIndex = index;
+      if(widget.currentPlayingSongIndex!=null)
         currentPlayingSong =
             getSongDetailsByIndex(widget.currentPlayingSongIndex!);
         MusicPlayPageController.to.setId(currentPlayingSong.id);
@@ -177,8 +181,8 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
       widget.audioPlayer.seekToPrevious();
       // Update the currentPlayingSongIndex
       safeSetState(() {
-        widget.currentPlayingSongIndex =
-            widget.audioPlayer.currentIndex ?? widget.currentPlayingSongIndex;
+ widget.currentPlayingSongIndex =
+  widget.audioPlayer.currentIndex ?? widget.currentPlayingSongIndex;
         currentPlayingSong =
             getSongDetailsByIndex(widget.currentPlayingSongIndex!);
       });
@@ -421,6 +425,13 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => CurrentPlayListPage(
+                                    audioPlayer: widget.audioPlayer,
+                      indexfromhome: widget.initialIndex,
+                      musicBox: widget.musicBox,
+                      songModel: widget.songModel,
+                      audioSource: widget.audioSource,
+                      currentPlayingSongIndex: widget.currentPlayingSongIndex,
+                      playSong: widget.playSong,
                                     songId: widget.songModel.id,
                                     isPlaying: widget.isPlaying,
                                     songName: widget.songModel.musicName,

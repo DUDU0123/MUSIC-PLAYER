@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/models/allmusics_model.dart';
-import 'package:music_player/views/common_widgets/album_artist_functions_common.dart';
+import 'package:music_player/views/common_widgets/default_widget.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
@@ -11,11 +12,20 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class AlbumSongListPage extends StatelessWidget {
-  const AlbumSongListPage({super.key, required this.albumName, required this.albumSongs});
+  const AlbumSongListPage(
+      {super.key,
+      required this.albumName,
+      required this.albumSongs,
+      required this.audioPlayer,
+      required this.musicBox,
+      this.isPlaying});
   final String albumName;
   final List<AllMusicsModel> albumSongs;
 
-  
+  final AudioPlayer audioPlayer;
+
+  final bool? isPlaying;
+  final Box<AllMusicsModel> musicBox;
 
   @override
   Widget build(BuildContext context) {
@@ -57,13 +67,16 @@ class AlbumSongListPage extends StatelessWidget {
           ],
         ),
       ),
-      body: ListView.builder(
+      body:albumSongs.isEmpty?DefaultWidget(): ListView.builder(
         itemCount: albumSongs.length,
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
           return MusicTileWidget(
+            audioPlayer: audioPlayer,
+      
+            musicBox: musicBox,
+  
             songId: albumSongs[index].id,
-            onTap: () {},
             pageType: PageTypeEnum.normalPage,
             albumName: albumSongs[index].musicAlbumName,
             artistName: albumSongs[index].musicArtistName,

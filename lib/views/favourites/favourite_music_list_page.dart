@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
+import 'package:music_player/views/common_widgets/default_widget.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
@@ -11,8 +14,17 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class FavouriteMusicListPage extends StatelessWidget {
-  FavouriteMusicListPage({super.key});
+  final AudioPlayer audioPlayer;
+
+  final Box<AllMusicsModel> musicBox;
+
+  FavouriteMusicListPage({
+    super.key,
+    required this.audioPlayer,
+    required this.musicBox,
+  });
   final FavoriteController favouriteController = Get.put(FavoriteController());
+
   @override
   Widget build(BuildContext context) {
     favouriteController.loadFavoriteSongs();
@@ -59,27 +71,34 @@ class FavouriteMusicListPage extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        return ListView.builder(
-          itemCount: favouriteController.favoriteSongs.length,
-          itemBuilder: (context, index) {
-            favouriteController.favoriteSongs.toList().toSet();
-            return MusicTileWidget(
-              albumName:
-                  favouriteController.favoriteSongs[index].musicAlbumName,
-              artistName:
-                  favouriteController.favoriteSongs[index].musicArtistName,
-              isPlaying: false,
-              songTitle: favouriteController.favoriteSongs[index].musicName,
-              songFormat: favouriteController.favoriteSongs[index].musicFormat,
-              songSize: favouriteController.favoriteSongs[index].musicFileSize
-                  .toString(),
-              songPathIndevice:
-                  favouriteController.favoriteSongs[index].musicPathInDevice,
-              pageType: PageTypeEnum.favoritePage,
-              songId: favouriteController.favoriteSongs[index].id,
-            );
-          },
-        );
+        return favouriteController.favoriteSongs.isEmpty
+            ? DefaultWidget()
+            : ListView.builder(
+                itemCount: favouriteController.favoriteSongs.length,
+                itemBuilder: (context, index) {
+                  favouriteController.favoriteSongs.toList().toSet();
+                  return MusicTileWidget(
+                    audioPlayer: audioPlayer,
+                    musicBox: musicBox,
+                    albumName:
+                        favouriteController.favoriteSongs[index].musicAlbumName,
+                    artistName: favouriteController
+                        .favoriteSongs[index].musicArtistName,
+                    isPlaying: false,
+                    songTitle:
+                        favouriteController.favoriteSongs[index].musicName,
+                    songFormat:
+                        favouriteController.favoriteSongs[index].musicFormat,
+                    songSize: favouriteController
+                        .favoriteSongs[index].musicFileSize
+                        .toString(),
+                    songPathIndevice: favouriteController
+                        .favoriteSongs[index].musicPathInDevice,
+                    pageType: PageTypeEnum.favoritePage,
+                    songId: favouriteController.favoriteSongs[index].id,
+                  );
+                },
+              );
       }),
     );
   }
