@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
+import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 
@@ -12,11 +14,15 @@ class ContainerTileWidget extends StatelessWidget {
     required this.songLength,
     required this.pageType,
     this.onTap,
+    this.deletePlaylistMethod,
+    this.editPlaylistNameMethod,
   });
   final String title;
   final int songLength;
   final PageTypeEnum pageType;
   final void Function()? onTap;
+  final void Function()? editPlaylistNameMethod;
+  final void Function()? deletePlaylistMethod;
 
   @override
   Widget build(BuildContext context) {
@@ -76,27 +82,32 @@ class ContainerTileWidget extends StatelessWidget {
               ],
             ),
             pageType == PageTypeEnum.playListPage
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.edit,
-                          size: 28.sp,
-                          color: kMusicIconMusicColor,
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          Icons.delete,
-                          size: 28.sp,
-                          color: kMusicIconMusicColor,
-                        ),
-                      )
-                    ],
-                  )
+                ? GetBuilder<PlaylistController>(
+                  init: PlaylistController(),
+                  builder: (playlistController) {
+                    return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            onPressed: editPlaylistNameMethod,
+                            icon: Icon(
+                              Icons.edit,
+                              size: 28.sp,
+                              color: kMusicIconMusicColor,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: deletePlaylistMethod,
+                            icon: Icon(
+                              Icons.delete,
+                              size: 28.sp,
+                              color: kMusicIconMusicColor,
+                            ),
+                          )
+                        ],
+                      );
+                  }
+                )
                 : IconButton(
                     onPressed: () {},
                     icon: Icon(

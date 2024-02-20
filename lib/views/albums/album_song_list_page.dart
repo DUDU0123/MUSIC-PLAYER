@@ -31,6 +31,9 @@ class AlbumSongListPage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: SideTitleAppBarCommon(
+          onPressed: () {
+            Navigator.pop(context);
+          },
           appBarText: albumName,
           actions: [
             TextButton(

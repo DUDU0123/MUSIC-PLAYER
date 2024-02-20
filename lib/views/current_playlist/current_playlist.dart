@@ -24,6 +24,9 @@ class CurrentPlayListPage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: SideTitleAppBarCommon(
+          onPressed: () {
+            Navigator.pop(context);
+          },
           appBarText: "Current Playlist",
           actions: [
             TextButton(

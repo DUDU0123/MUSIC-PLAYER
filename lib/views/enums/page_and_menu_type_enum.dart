@@ -16,4 +16,5 @@ enum PageTypeEnum{
   normalPage,
   currentPlayListPage,
   favoritePage,
+  recentlyPlayedPage,
 }

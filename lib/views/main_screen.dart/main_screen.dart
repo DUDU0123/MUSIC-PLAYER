@@ -64,6 +64,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       uriType: UriType.EXTERNAL,
     );
   }
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

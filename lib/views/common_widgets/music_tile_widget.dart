@@ -41,23 +41,13 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
   Widget build(BuildContext context) {
     final kScreenHeight = MediaQuery.of(context).size.height;
     final kScreenWidth = MediaQuery.of(context).size.width;
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0, end: 1),
-      duration: const Duration(seconds: 1),
-      builder: (BuildContext context, double value, Widget? child) {
-        return Opacity(
-          opacity: value,
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: value * 7.h),
-            child: child,
-          ),
-        );
-      },
-      child: GestureDetector(
-        onTap: widget.onTap,
-        child: Stack(
-          children: [
-            Container(
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Stack(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 7.h),
+            child: Container(
               margin: EdgeInsets.symmetric(
                 horizontal: 10.w,
               ),
@@ -151,20 +141,20 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                 ],
               ),
             ),
-            widget.isPlaying!=null?
-            widget.isPlaying!
-                ? Positioned(
-                    right: 45.w,
-                    top: 22.h,
-                    child: Icon(
-                      Icons.multitrack_audio_rounded,
-                      color: kRed,
-                      size: 26.sp,
-                    ),
-                  )
-                : const SizedBox():const SizedBox(),
-          ],
-        ),
+          ),
+          widget.isPlaying!=null?
+          widget.isPlaying!
+              ? Positioned(
+                  right: 45.w,
+                  top: 22.h,
+                  child: Icon(
+                    Icons.multitrack_audio_rounded,
+                    color: kRed,
+                    size: 26.sp,
+                  ),
+                )
+              : const SizedBox():const SizedBox(),
+        ],
       ),
     );
   }

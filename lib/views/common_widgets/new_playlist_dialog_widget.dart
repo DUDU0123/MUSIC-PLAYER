@@ -8,18 +8,24 @@ import 'package:music_player/views/common_widgets/textfield_common_widget.dart';
 class NewPlayListDialogBoxWidget extends StatefulWidget {
   const NewPlayListDialogBoxWidget({
     super.key,
-    required this.newPlaylistController,
+    required this.playlsitNameGiverController,
+    required this.onSavePlaylist,
   });
-  final TextEditingController newPlaylistController;
+  final TextEditingController playlsitNameGiverController;
+  final Function(String) onSavePlaylist;
   @override
-  State<NewPlayListDialogBoxWidget> createState() => _NewPlayListDialogBoxWidgetState();
+  State<NewPlayListDialogBoxWidget> createState() =>
+      _NewPlayListDialogBoxWidgetState();
 }
-class _NewPlayListDialogBoxWidgetState extends State<NewPlayListDialogBoxWidget> {
+
+class _NewPlayListDialogBoxWidgetState
+    extends State<NewPlayListDialogBoxWidget> {
   @override
   void initState() {
     super.initState();
-    widget.newPlaylistController.text = "Playlist 1";
+    widget.playlsitNameGiverController.text = "Playlist 1";
   }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -37,7 +43,7 @@ class _NewPlayListDialogBoxWidgetState extends State<NewPlayListDialogBoxWidget>
         width: 100,
         height: 50,
         child: TextFieldCommonWidget(
-          controller: widget.newPlaylistController,
+          controller: widget.playlsitNameGiverController,
           hintText: "",
           labelText: "",
         ),
@@ -54,7 +60,8 @@ class _NewPlayListDialogBoxWidgetState extends State<NewPlayListDialogBoxWidget>
             ),
             ButtonCommonWidget(
               buttonText: "Save",
-              onPressed: () {
+              onPressed:() {
+                 widget.onSavePlaylist(widget.playlsitNameGiverController.text);
               },
             ),
           ],
@@ -63,4 +70,3 @@ class _NewPlayListDialogBoxWidgetState extends State<NewPlayListDialogBoxWidget>
     );
   }
 }
-

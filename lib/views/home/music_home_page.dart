@@ -66,13 +66,9 @@ class _MusicHomePageState extends State<MusicHomePage> {
     _loadSongsFuture = widget.requestPermission();
     _loadSongsFuture.then((songs) {
       _loadSongs(songs);
-      playSong();
+      
     });
-    // Timer(const Duration(seconds: 5), () {
-    //   setState(() {
-    //     isSongsLoaded = true;
-    //   });
-    // });
+    playSong();
   }
 
   void _loadSongs(List<SongModel> songs) async {
@@ -114,66 +110,48 @@ class _MusicHomePageState extends State<MusicHomePage> {
     final kScreenWidth = MediaQuery.of(context).size.width;
     final kScreenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: FutureBuilder<List<SongModel>>(
-          future: _loadSongsFuture,
-          builder: (BuildContext context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(color: kRed),
-              );
-            } else if (snapshot.hasError) {
-              return const Center(
-                child: Text("Error Occured"),
-              );
-            }
-
-            return Stack(
-              children: [
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: musicBox.length,
-                  padding:
-                      EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-                  itemBuilder: (context, index) {
-                    print(musicBox.length);
-                    AllMusicsModel song = musicBox.getAt(index)!;
-                    print(
-                        "Displaying songs length at $index ${song.musicName}");
-                    return MusicTileWidget(
-                      songId: song.id,
-                      isPlaying:
-                          currentPlayingSongIndex == index && widget.isPlaying,
-                      onTap: () {
-                        Get.find<MusicPlayPageController>().id = song.id;
-                        //  playSong(song.musicUri, index);
-                        showModalBottomSheet(
-                          isScrollControlled: true,
-                          context: context,
-                          builder: (context) {
-                            return MusicPlayPage(
-                              initialIndex: index,
-                              audioSource: audioSource,
-                              songModel: song,
-                              audioPlayer: widget.audioPlayer,
-                              isPlaying: currentPlayingSongIndex == index &&
-                                  widget.isPlaying,
-                            );
-                          },
+      body: ListView.builder(
+              shrinkWrap: true,
+              itemCount: musicBox.length,
+              padding:
+                  EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
+              itemBuilder: (context, index) {
+                print(musicBox.length);
+                AllMusicsModel song = musicBox.getAt(index)!;
+                print(
+                    "Displaying songs length at $index ${song.musicName}");
+                return MusicTileWidget(
+                  songId: song.id,
+                  isPlaying:
+                      currentPlayingSongIndex == index && widget.isPlaying,
+                  onTap: () {
+                    Get.find<MusicPlayPageController>().id = song.id;
+                    //  playSong(song.musicUri, index);
+                    showModalBottomSheet(
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (context) {
+                        return MusicPlayPage(
+                          initialIndex: index,
+                          audioSource: audioSource,
+                          songModel: song,
+                          audioPlayer: widget.audioPlayer,
+                          isPlaying: currentPlayingSongIndex == index &&
+                              widget.isPlaying,
                         );
                       },
-                      pageType: PageTypeEnum.normalPage,
-                      albumName: song.musicAlbumName,
-                      artistName: song.musicArtistName,
-                      songTitle: song.musicName,
-                      songFormat: song.musicFormat,
-                      songPathIndevice: song.musicPathInDevice,
-                      songSize: "${song.musicFileSize}MB",
                     );
                   },
-                ),
-              ],
-            );
-          }),
+                  pageType: PageTypeEnum.normalPage,
+                  albumName: song.musicAlbumName,
+                  artistName: song.musicArtistName,
+                  songTitle: song.musicName,
+                  songFormat: song.musicFormat,
+                  songPathIndevice: song.musicPathInDevice,
+                  songSize: "${song.musicFileSize}MB",
+                );
+              },
+            )
     );
   }
 }

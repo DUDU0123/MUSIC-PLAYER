@@ -7,17 +7,6 @@ import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/song_edit_page.dart/widgets/bottom_settings_widget.dart';
 
-class CheckBoxModel {
-  final String title;
-  final String subtitle;
-  bool? selected;
-  CheckBoxModel({
-    required this.title,
-    required this.subtitle,
-    required this.selected,
-  });
-}
-
 class SongEditPage extends StatefulWidget {
   const SongEditPage({
     super.key,
@@ -32,19 +21,6 @@ class SongEditPage extends StatefulWidget {
 }
 
 class _SongEditPageState extends State<SongEditPage> {
-  //Here need to have the song list
-  List<CheckBoxModel> songCheckBoxList = [];
-  @override
-  void initState() {
-    songCheckBoxList = widget.songList.map((music) {
-      return CheckBoxModel(
-        title: music.musicName,
-        subtitle: "${music.musicArtistName}-${music.musicAlbumName}",
-        selected: music.musicSelected ?? false,
-      );
-    }).toList();
-    super.initState();
-  }
 
   bool? isSelected = false;
   bool isAllSelected = false;
@@ -60,7 +36,7 @@ class _SongEditPageState extends State<SongEditPage> {
             TextButton(
               onPressed: toggleSelection,
               child: TextWidgetCommon(
-                text: isAllSelected ? "Undo" : "Select All",
+                text: isAllSelected || isSelected! ? "Undo" : "Select All",
                 fontSize: 16.sp,
                 color: kRed,
               ),
@@ -69,7 +45,7 @@ class _SongEditPageState extends State<SongEditPage> {
         ),
       ),
       body: ListView.builder(
-        itemCount: songCheckBoxList.length,
+        itemCount: widget.songList.length,
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
           return Padding(
@@ -82,22 +58,22 @@ class _SongEditPageState extends State<SongEditPage> {
                 borderRadius: BorderRadius.circular(10),
               ),
               title: TextWidgetCommon(
-                text: songCheckBoxList[index].title,
+                text: widget.songList[index].musicName,
                 fontSize: 17.sp,
                 color: kWhite,
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: TextWidgetCommon(
-                text: songCheckBoxList[index].subtitle,
+                text: "${widget.songList[index].musicArtistName}-${widget.songList[index].musicAlbumName}",
                 fontSize: 10.sp,
                 color: kGrey,
               ),
-              value: songCheckBoxList[index].selected,
+              value: widget.songList[index].musicSelected ?? false,
               onChanged: (value) {
                 setState(() {
-                  songCheckBoxList[index].selected = value;
-                  isSelected = songCheckBoxList
-                      .any((checkbox) => checkbox.selected == true);
+                  widget.songList[index].musicSelected = value??false;
+                  isSelected = widget.songList
+                      .any((checkbox) => checkbox.musicSelected == true);
                 });
               },
             ),
@@ -122,9 +98,9 @@ class _SongEditPageState extends State<SongEditPage> {
   }
 
   selectAllSongs() {
-    for (var element in songCheckBoxList) {
+    for (var element in widget.songList) {
       setState(() {
-        element.selected = true;
+        element.musicSelected = true;
         isSelected = true;
         isAllSelected = true;
       });
@@ -132,9 +108,9 @@ class _SongEditPageState extends State<SongEditPage> {
   }
 
   deselectAllSongs() {
-    for (var element in songCheckBoxList) {
+    for (var element in widget.songList) {
       setState(() {
-        element.selected = false;
+        element.musicSelected = false;
         isSelected = false;
         isAllSelected = false;
       });

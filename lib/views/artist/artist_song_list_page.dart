@@ -28,6 +28,9 @@ class ArtistSongListPage extends StatelessWidget {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: SideTitleAppBarCommon(
+          onPressed: () {
+            Navigator.pop(context);
+          },
           appBarText: artistName == '<unknown>' ? "Unknown Artist" : artistName,
           actions: [
             TextButton(

@@ -10,7 +10,7 @@ class TextFieldCommonWidget extends StatelessWidget {
     required this.labelText,
     this.validator,
     this.keyboardType,
-    this.errorText,
+    this.errorText, this.onTap,
   }) : super(key: key);
 
   final TextEditingController controller;
@@ -19,10 +19,12 @@ class TextFieldCommonWidget extends StatelessWidget {
   final String labelText;
   final String? Function(String?)? validator;
   final String? errorText;
+  final void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      onTap: onTap,
       keyboardType: keyboardType,
       validator: validator,
       controller: controller,

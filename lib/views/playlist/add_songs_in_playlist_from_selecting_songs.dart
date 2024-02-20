@@ -5,7 +5,7 @@ import 'package:music_player/constants/colors.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/center_title_appbar_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
-import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
+import 'package:music_player/views/playlist/playlist_song_list_page.dart';
 
 class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
   const AddSongInPlaylistFromSelectingSongs({super.key});
@@ -20,15 +20,20 @@ class _AddSongInPlaylistFromSelectingSongsState
   bool isSelected = false;
   bool isAllSelected = false;
   final musicBox = Hive.box<AllMusicsModel>('musics');
-  List<CheckBoxModel> notAddedMusicList = [];
+  List<AllMusicsModel> notAddedMusicList = [];
   @override
   void initState() {
     notAddedMusicList = musicBox.values.map((music) {
-      return CheckBoxModel(
-        title: music.musicName,
-        subtitle:
-            '${music.musicArtistName == '<unknown>' ? 'Unknown Artist' : music.musicArtistName}-${music.musicAlbumName}',
-        selected: music.musicSelected,
+      return AllMusicsModel(
+        musicSelected: music.musicSelected,
+        id: music.id,
+        musicAlbumName: music.musicAlbumName,
+        musicArtistName: music.musicArtistName,
+        musicFileSize: music.musicFileSize,
+        musicFormat: music.musicFormat,
+        musicName: music.musicName,
+        musicPathInDevice: music.musicPathInDevice,
+        musicUri: music.musicUri,
       );
     }).toList();
     super.initState();
@@ -61,7 +66,7 @@ class _AddSongInPlaylistFromSelectingSongsState
             padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
             itemCount: notAddedMusicList.length,
             itemBuilder: (context, index) {
-              CheckBoxModel musicList = notAddedMusicList[index];
+              AllMusicsModel musicList = notAddedMusicList[index];
               return Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                 child: CheckboxListTile(
@@ -73,22 +78,23 @@ class _AddSongInPlaylistFromSelectingSongsState
                   tileColor: kTileColor,
                   title: TextWidgetCommon(
                     overflow: TextOverflow.ellipsis,
-                    text: musicList.title,
+                    text: musicList.musicName,
                     fontSize: 16.sp,
                     color: kWhite,
                   ),
                   subtitle: TextWidgetCommon(
                     overflow: TextOverflow.ellipsis,
-                    text: musicList.subtitle,
+                    text:
+                        "${musicList.musicArtistName}-${musicList.musicAlbumName}",
                     fontSize: 10.sp,
                     color: kGrey,
                   ),
-                  value: musicList.selected,
+                  value: musicList.musicSelected ?? false,
                   onChanged: (value) {
                     setState(() {
-                      musicList.selected = value;
+                      musicList.musicSelected = value ?? false;
                       isSelected = notAddedMusicList
-                          .any((checkbox) => checkbox.selected == true);
+                          .any((checkbox) => checkbox.musicSelected == true);
                     });
                   },
                 ),
@@ -99,7 +105,13 @@ class _AddSongInPlaylistFromSelectingSongsState
             bottom: 20.h,
             left: kScreenWidth / 2 - 50,
             child: GestureDetector(
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(
+                    context,
+                    notAddedMusicList
+                        .where((music) => music.musicSelected == true)
+                        .toList());
+              },
               child: Container(
                 margin: EdgeInsets.only(bottom: 20.h),
                 decoration: BoxDecoration(
@@ -137,7 +149,7 @@ class _AddSongInPlaylistFromSelectingSongsState
   selectAllSongs() {
     for (var element in notAddedMusicList) {
       setState(() {
-        element.selected = true;
+        element.musicSelected = true;
         isSelected = true;
         isAllSelected = true;
       });
@@ -147,7 +159,7 @@ class _AddSongInPlaylistFromSelectingSongsState
   deselectAllSongs() {
     for (var element in notAddedMusicList) {
       setState(() {
-        element.selected = false;
+        element.musicSelected = false;
         isSelected = false;
         isAllSelected = false;
       });

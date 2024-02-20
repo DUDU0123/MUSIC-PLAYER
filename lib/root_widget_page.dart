@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/views/main_screen.dart/main_screen.dart';
 
@@ -10,7 +11,7 @@ class RootWidgetPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ScreenUtilInit(
       builder: (BuildContext context, Widget? _) {
-        return MaterialApp(
+        return GetMaterialApp(
           theme: ThemeData(
               scaffoldBackgroundColor: kBlack,
               appBarTheme: AppBarTheme(

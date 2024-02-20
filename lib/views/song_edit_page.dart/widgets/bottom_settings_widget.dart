@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/constants/height_width.dart';
 import 'package:music_player/views/add_to_playlist/add_to_playlist_page.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
@@ -32,7 +33,7 @@ class BottomSettingsWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          IconTextWidget(
+         pageType!=PageTypeEnum.playListPage && pageType!=PageTypeEnum.favoritePage? IconTextWidget(
             isSongSelected: isSelected,
             onTap: () {
               // need to have the song song details to send the song
@@ -40,8 +41,17 @@ class BottomSettingsWidget extends StatelessWidget {
             },
             icon: Icons.share_outlined,
             iconName: "Send",
+          ):IconTextWidget(
+            isSongSelected: isSelected,
+            onTap: () {
+              // need to have the song song details to send the song
+              // also need to check that that the count of song to send is less than or equal to 10
+            },
+            icon: Icons.logout_outlined,
+            iconName: "Remove",
           ),
-          IconTextWidget(
+          pageType!=PageTypeEnum.playListPage?kWidth10:const SizedBox(width: 0,),
+         pageType!=PageTypeEnum.favoritePage? IconTextWidget(
             isSongSelected: isSelected,
             icon: Icons.favorite_outline,
             iconName: "Favorite",
@@ -55,8 +65,8 @@ class BottomSettingsWidget extends StatelessWidget {
                     )
                   : null;
             },
-          ),
-          IconTextWidget(
+          ):SizedBox(),
+          pageType!=PageTypeEnum.playListPage && pageType!=PageTypeEnum.favoritePage?IconTextWidget(
             isSongSelected: isSelected,
             onTap: () {
               // need to send song details to add song to a playlist
@@ -70,7 +80,7 @@ class BottomSettingsWidget extends StatelessWidget {
             },
             icon: Icons.playlist_add,
             iconName: "Add to Playlist",
-          ),
+          ): const SizedBox(height: 0,width: 0,),
           IconTextWidget(
             isSongSelected: isSelected,
             onTap: () {

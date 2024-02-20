@@ -5,12 +5,16 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
+import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/music_play_page_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
+import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/menu_bottom_sheet.dart';
+import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/current_playlist/current_playlist.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:music_player/views/favourites/favourite_music_list_page.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class MusicPlayPage extends StatefulWidget {
@@ -32,7 +36,6 @@ class MusicPlayPage extends StatefulWidget {
   Duration totalDuration = Duration();
   Duration currentPosition = Duration();
   int? currentPlayingSongIndex;
-  // List<AudioSource> allSongsList = [];
 
   @override
   State<MusicPlayPage> createState() => _MusicPlayPageState();
@@ -41,6 +44,45 @@ class MusicPlayPage extends StatefulWidget {
 class _MusicPlayPageState extends State<MusicPlayPage> {
   final musicBox = Hive.box<AllMusicsModel>('musics');
   late AllMusicsModel currentPlayingSong;
+  bool _isMounted = false;
+  bool isLoopingAllSongs = false;
+  bool isShufflingSongs = false;
+  bool isFavorite = false;
+  final FavoriteController favoriteController = Get.put(FavoriteController());
+  // index of song getting for details
+  AllMusicsModel getSongDetailsByIndex(int index) {
+    try {
+      return musicBox.getAt(index) ??
+          AllMusicsModel(
+            id: currentPlayingSong
+                .id, // Replace with default values for named parameters
+            musicName: currentPlayingSong.musicName,
+            musicAlbumName: currentPlayingSong.musicAlbumName,
+            musicArtistName: currentPlayingSong.musicArtistName,
+            musicPathInDevice: currentPlayingSong.musicPathInDevice,
+            musicFormat: currentPlayingSong.musicFormat,
+            musicUri: currentPlayingSong.musicUri,
+            musicFileSize: currentPlayingSong.musicFileSize,
+            musicSelected: false,
+          );
+    } catch (e) {
+      print("Error getting song details: $e");
+      return AllMusicsModel(
+        id: widget
+            .songModel.id, // Replace with default values for named parameters
+        musicName: currentPlayingSong.musicName,
+        musicAlbumName: currentPlayingSong.musicAlbumName,
+        musicArtistName: currentPlayingSong.musicArtistName,
+        musicPathInDevice: currentPlayingSong.musicPathInDevice,
+        musicFormat: currentPlayingSong.musicFormat,
+        musicUri: currentPlayingSong.musicUri,
+        musicFileSize: currentPlayingSong.musicFileSize,
+        musicSelected: false,
+      );
+    }
+  }
+
+  // play song method
   void playSong([int? index]) {
     try {
       if (widget.audioSource != null) {
@@ -48,22 +90,13 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
           widget.audioSource!,
           initialIndex: index,
         );
-        // widget.audioPlayer.setAudioSource(
-        //   AudioSource.uri(
-        //     Uri.parse(widget.songModel.musicUri.toString()),
-        //     tag: MediaItem(
-        //       id: widget.songModel.id.toString(),
-        //       album: widget.songModel.musicAlbumName,
-        //       title: widget.songModel.musicName,
-        //       artUri: Uri.parse(widget.songModel.id.toString()),
-        //     ),
-        //   ),
-        //   initialIndex: index,
-        // );
       }
       setState(() {
         widget.currentPlayingSongIndex = index;
-        currentPlayingSong = getSongDetailsByIndex(widget.currentPlayingSongIndex!);
+        currentPlayingSong =
+            getSongDetailsByIndex(widget.currentPlayingSongIndex!);
+        MusicPlayPageController.to.setId(currentPlayingSong.id);
+        checkIsFavorite();
       });
       widget.audioPlayer.play();
     } on Exception {
@@ -88,43 +121,34 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
     });
   }
 
-  AllMusicsModel getSongDetailsByIndex(int index) {
-    try {
-      return musicBox.getAt(index) ??
-          AllMusicsModel(
-            id: 0, // Replace with default values for named parameters
-            musicName: "Default Music",
-            musicAlbumName: "Default Album",
-            musicArtistName: "Default Artist",
-            musicPathInDevice: "Default Path",
-            musicFormat: "Default Format",
-            musicUri: "Default Uri",
-            musicFileSize: 0,
-            musicSelected: false,
-          );
-    } catch (e) {
-      print("Error getting song details: $e");
-      return AllMusicsModel(
-        id: 0, // Replace with default values for named parameters
-        musicName: "Default Music",
-        musicAlbumName: "Default Album",
-        musicArtistName: "Default Artist",
-        musicPathInDevice: "Default Path",
-        musicFormat: "Default Format",
-        musicUri: "Default Uri",
-        musicFileSize: 0,
-        musicSelected: false,
-      );
-    }
-  }
-
+  // initializer at first
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
     currentPlayingSong = widget.songModel;
     playSong(widget.initialIndex);
+    MusicPlayPageController.to.setId(currentPlayingSong.id);
+    // checkIsFavorite();
+    favoriteController.loadFavoriteSongs();
   }
 
+  @override
+  void dispose() {
+    _isMounted = false;
+    favoriteController.favoriteBox.putAll(Map.fromIterable(
+        favoriteController.favoriteSongs,
+        key: (song) => song.id));
+    super.dispose();
+  }
+
+  void safeSetState(VoidCallback fn) {
+    if (_isMounted) {
+      setState(fn);
+    }
+  }
+
+  // to seconds changer
   void changeToSeconds(int seconds) {
     Duration duration = Duration(seconds: seconds);
     widget.audioPlayer.seek(duration);
@@ -137,14 +161,12 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
           widget.currentPlayingSongIndex != null) {
         widget.audioPlayer.seekToNext();
         // Update the currentPlayingSongIndex
-        setState(() {
+        safeSetState(() {
           widget.currentPlayingSongIndex =
               widget.audioPlayer.currentIndex ?? widget.currentPlayingSongIndex;
           currentPlayingSong =
               getSongDetailsByIndex(widget.currentPlayingSongIndex!);
         });
-      } else {
-        goToPreviousSong();
       }
     }
   }
@@ -154,22 +176,55 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
     if (widget.currentPlayingSongIndex != 0) {
       widget.audioPlayer.seekToPrevious();
       // Update the currentPlayingSongIndex
-      setState(() {
+      safeSetState(() {
         widget.currentPlayingSongIndex =
             widget.audioPlayer.currentIndex ?? widget.currentPlayingSongIndex;
         currentPlayingSong =
             getSongDetailsByIndex(widget.currentPlayingSongIndex!);
       });
-    } else {
-      goToNextSong();
     }
+  }
+
+  void songLoopModesControlling() {
+    setState(() {
+      isLoopingAllSongs = !isLoopingAllSongs;
+      if (isLoopingAllSongs) {
+        // Toggle shuffle state when looping all songs
+        isShufflingSongs = !isShufflingSongs;
+        widget.audioPlayer.setLoopMode(
+          isShufflingSongs ? LoopMode.off : LoopMode.all,
+        );
+      } else {
+        // Toggle between loop one and shuffle modes when looping one song
+        isShufflingSongs
+            ? widget.audioPlayer.setLoopMode(LoopMode.one)
+            : widget.audioPlayer.shuffleModeEnabled;
+      }
+    });
+  }
+
+  FavoriteModel getFavoriteModelFromAllMusicModel(AllMusicsModel allMusic) {
+    return FavoriteModel(
+      id: allMusic.id,
+      musicName: allMusic.musicName,
+      musicArtistName: allMusic.musicArtistName,
+      musicAlbumName: allMusic.musicAlbumName,
+      musicFileSize: allMusic.musicFileSize,
+      musicFormat: allMusic.musicFormat,
+      musicPathInDevice: allMusic.musicPathInDevice,
+      musicUri: allMusic.musicUri,
+    );
+  }
+
+  void checkIsFavorite() {
+    isFavorite = favoriteController.isFavorite(currentPlayingSong.id);
   }
 
   @override
   Widget build(BuildContext context) {
-    print(widget.songModel.id);
-    print(widget.songModel.musicName);
-    print(widget.songModel.musicArtistName);
+    print(currentPlayingSong.id);
+    print(currentPlayingSong.musicName);
+    print(currentPlayingSong.musicArtistName);
     final kScreenWidth = MediaQuery.of(context).size.width;
     final kScreenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -289,7 +344,10 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                           // song artist name
                           TextWidgetCommon(
                             overflow: TextOverflow.ellipsis,
-                            text: currentPlayingSong.musicArtistName == '<unknown>'?'Unknown Artist':currentPlayingSong.musicArtistName,
+                            text: currentPlayingSong.musicArtistName ==
+                                    '<unknown>'
+                                ? 'Unknown Artist'
+                                : currentPlayingSong.musicArtistName,
                             fontSize: 10.sp,
                             color: kGrey,
                             fontWeight: FontWeight.w400,
@@ -386,19 +444,51 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                           ),
                           // song favourite add icon
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              AllMusicsModel music = getSongDetailsByIndex(
+                                  widget.currentPlayingSongIndex!);
+                              FavoriteModel favoriteMusic =
+                                  getFavoriteModelFromAllMusicModel(music);
+                              favoriteController.onTapFavorite(favoriteMusic);
+                              checkIsFavorite();
+                              snackBarCommonWidget(
+                                context,
+                                contentText: !isFavorite
+                                    ? "Added to favorites"
+                                    : "Removed from favorites",
+                              );
+                            },
                             icon: Icon(
-                              Icons.favorite_border,
+                              isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               size: 30,
-                              color: kWhite,
+                              color: isFavorite ? kRed : kWhite,
                             ),
                           ),
                           // song loop shuffle
-                          Image.asset(
-                            "assets/loop_all.png",
-                            scale: 15.sp,
-                            color: kWhite,
+
+                          GestureDetector(
+                            onTap: songLoopModesControlling,
+                            child: isLoopingAllSongs
+                                ? isShufflingSongs
+                                    ? Image.asset(
+                                        "assets/shuffle.png",
+                                        scale: 18.sp,
+                                        color: kWhite,
+                                      )
+                                    : Image.asset(
+                                        "assets/loop_all.png",
+                                        scale: 15.sp,
+                                        color: kWhite,
+                                      )
+                                : Image.asset(
+                                    "assets/loop_one.png",
+                                    scale: 15.sp,
+                                    color: kWhite,
+                                  ),
                           ),
+
                           // song settings icon
                           IconButton(
                             onPressed: () {
