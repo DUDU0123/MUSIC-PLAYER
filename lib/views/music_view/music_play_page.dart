@@ -23,7 +23,12 @@ class MusicPlayPage extends StatefulWidget {
     required this.audioPlayer,
     required this.songModel,
     required this.audioSource,
-    required this.initialIndex, this.currentPlayingSongIndex,required this.playSong, required this.musicBox,
+    required this.initialIndex,
+    this.currentPlayingSongIndex,
+    required this.playSong,
+    required this.musicBox,
+    required this.lastPlayedPosition,
+    required this.songId,
   });
 
   final AllMusicsModel songModel;
@@ -32,20 +37,21 @@ class MusicPlayPage extends StatefulWidget {
   int? currentPlayingSongIndex;
   final void Function({String? url, int? index, bool? isRecentlyPlayed})
       playSong;
-      final Box<AllMusicsModel> musicBox;
+  final Box<AllMusicsModel> musicBox;
+  final Duration lastPlayedPosition;
+  final int songId;
 
   final int initialIndex;
   bool isPlaying;
   Duration totalDuration = Duration();
   Duration currentPosition = Duration();
-  
 
   @override
   State<MusicPlayPage> createState() => _MusicPlayPageState();
 }
 
 class _MusicPlayPageState extends State<MusicPlayPage> {
- // final musicBox = Hive.box<AllMusicsModel>('musics');
+  // final musicBox = Hive.box<AllMusicsModel>('musics');
   late AllMusicsModel currentPlayingSong;
   bool _isMounted = false;
   bool isLoopingAllSongs = false;
@@ -54,11 +60,12 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
   final FavoriteController favoriteController = Get.put(FavoriteController());
   // index of song getting for details
   AllMusicsModel getSongDetailsByIndex(int index) {
+    // problem here not gettting currrent song artwork
+    // Get.find<MusicPlayPageController>().id = currentPlayingSong.id;
     try {
       return widget.musicBox.getAt(index) ??
           AllMusicsModel(
-            id: currentPlayingSong
-                .id, // Replace with default values for named parameters
+            id: currentPlayingSong.id,
             musicName: currentPlayingSong.musicName,
             musicAlbumName: currentPlayingSong.musicAlbumName,
             musicArtistName: currentPlayingSong.musicArtistName,
@@ -71,8 +78,7 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
     } catch (e) {
       print("Error getting song details: $e");
       return AllMusicsModel(
-        id: widget
-            .songModel.id, // Replace with default values for named parameters
+        id: currentPlayingSong.id,
         musicName: currentPlayingSong.musicName,
         musicAlbumName: currentPlayingSong.musicAlbumName,
         musicArtistName: currentPlayingSong.musicArtistName,
@@ -88,18 +94,23 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
   // play song method
   void playSong([int? index]) {
     try {
+      // if (widget.audioPlayer.playing) {
+      //   widget.audioPlayer.seek(widget.lastPlayedPosition);
+      //   widget.audioPlayer.play();
+      // }
       if (widget.audioSource != null) {
         widget.audioPlayer.setAudioSource(
           widget.audioSource!,
           initialIndex: index,
+          initialPosition: widget.lastPlayedPosition,
         );
       }
       setState(() {
-       widget.currentPlayingSongIndex = index;
-      if(widget.currentPlayingSongIndex!=null)
-        currentPlayingSong =
-            getSongDetailsByIndex(widget.currentPlayingSongIndex!);
-        MusicPlayPageController.to.setId(currentPlayingSong.id);
+        widget.currentPlayingSongIndex = index;
+        if (widget.currentPlayingSongIndex != null)
+          currentPlayingSong =
+              getSongDetailsByIndex(widget.currentPlayingSongIndex!);
+        // MusicPlayPageController.to.setId(currentPlayingSong.id);
         checkIsFavorite();
       });
       widget.audioPlayer.play();
@@ -132,7 +143,7 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
     _isMounted = true;
     currentPlayingSong = widget.songModel;
     playSong(widget.initialIndex);
-    MusicPlayPageController.to.setId(currentPlayingSong.id);
+    // MusicPlayPageController.to.setId(currentPlayingSong.id);
     // checkIsFavorite();
     favoriteController.loadFavoriteSongs();
   }
@@ -169,8 +180,12 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
           widget.currentPlayingSongIndex =
               widget.audioPlayer.currentIndex ?? widget.currentPlayingSongIndex;
           currentPlayingSong =
-              getSongDetailsByIndex(widget.currentPlayingSongIndex!);
+              getSongDetailsByIndex(widget.currentPlayingSongIndex! + 1);
         });
+        if (widget.currentPlayingSongIndex! >= widget.audioSource!.length - 1) {
+          return snackBarCommonWidget(context,
+              contentText: "No songs to play next");
+        }
       }
     }
   }
@@ -181,10 +196,10 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
       widget.audioPlayer.seekToPrevious();
       // Update the currentPlayingSongIndex
       safeSetState(() {
- widget.currentPlayingSongIndex =
-  widget.audioPlayer.currentIndex ?? widget.currentPlayingSongIndex;
+        widget.currentPlayingSongIndex =
+            widget.audioPlayer.currentIndex ?? widget.currentPlayingSongIndex;
         currentPlayingSong =
-            getSongDetailsByIndex(widget.currentPlayingSongIndex!);
+            getSongDetailsByIndex(widget.currentPlayingSongIndex! - 1);
       });
     }
   }
@@ -276,7 +291,8 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                           borderRadius: BorderRadius.circular(60),
                           color: kMusicIconContainerColor,
                         ),
-                        child: const ArtWorkWidgetMusicPlayingPage(),
+                        child: ArtWorkWidgetMusicPlayingPage(
+                            songId: currentPlayingSong.id),
                       ),
                     ),
                     kHeight15,
@@ -367,6 +383,10 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                             onTap: () {
                               print("to back");
                               goToPreviousSong();
+                              if (widget.currentPlayingSongIndex! <= 0) {
+                                return snackBarCommonWidget(context,
+                                    contentText: "No previous songs to play");
+                              }
                             },
                             child: Image.asset(
                               'assets/play_back.png',
@@ -426,23 +446,25 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                                 MaterialPageRoute(
                                   builder: (context) => CurrentPlayListPage(
                                     audioPlayer: widget.audioPlayer,
-                      indexfromhome: widget.initialIndex,
-                      musicBox: widget.musicBox,
-                      songModel: widget.songModel,
-                      audioSource: widget.audioSource,
-                      currentPlayingSongIndex: widget.currentPlayingSongIndex,
-                      playSong: widget.playSong,
-                                    songId: widget.songModel.id,
+                                    indexfromhome: widget.initialIndex,
+                                    musicBox: widget.musicBox,
+                                    songModel: widget.songModel,
+                                    audioSource: widget.audioSource,
+                                    currentPlayingSongIndex:
+                                        widget.currentPlayingSongIndex,
+                                    playSong: widget.playSong,
+                                    songId: currentPlayingSong.id,
                                     isPlaying: widget.isPlaying,
-                                    songName: widget.songModel.musicName,
+                                    songName: currentPlayingSong.musicName,
                                     artistName:
-                                        widget.songModel.musicArtistName,
-                                    albumName: widget.songModel.musicAlbumName,
-                                    songFormat: widget.songModel.musicFormat,
-                                    songSize: widget.songModel.musicFileSize
+                                        currentPlayingSong.musicArtistName,
+                                    albumName:
+                                        currentPlayingSong.musicAlbumName,
+                                    songFormat: currentPlayingSong.musicFormat,
+                                    songSize: currentPlayingSong.musicFileSize
                                         .toString(),
                                     songPathIndevice:
-                                        widget.songModel.musicPathInDevice,
+                                        currentPlayingSong.musicPathInDevice,
                                   ),
                                 ),
                               );
@@ -510,15 +532,16 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                                   return MenuBottomSheet(
                                     kScreenHeight: kScreenHeight,
                                     pageType: PageTypeEnum.musicViewPage,
-                                    songName: widget.songModel.musicName,
+                                    songName: currentPlayingSong.musicName,
                                     artistName:
-                                        widget.songModel.musicArtistName,
-                                    albumName: widget.songModel.musicAlbumName,
-                                    songFormat: widget.songModel.musicFormat,
-                                    songSize: widget.songModel.musicFileSize
+                                        currentPlayingSong.musicArtistName,
+                                    albumName:
+                                        currentPlayingSong.musicAlbumName,
+                                    songFormat: currentPlayingSong.musicFormat,
+                                    songSize: currentPlayingSong.musicFileSize
                                         .toString(),
                                     songPathIndevice:
-                                        widget.songModel.musicPathInDevice,
+                                        currentPlayingSong.musicPathInDevice,
                                   );
                                 },
                               );
@@ -546,25 +569,23 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
 class ArtWorkWidgetMusicPlayingPage extends StatelessWidget {
   const ArtWorkWidgetMusicPlayingPage({
     super.key,
+    required this.songId,
   });
+  final int songId;
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<MusicPlayPageController>(
-        init: MusicPlayPageController(),
-        builder: (controller) {
-          return QueryArtworkWidget(
-            id: controller.id,
-            type: ArtworkType.AUDIO,
-            artworkFit: BoxFit.cover,
-            nullArtworkWidget: Center(
-              child: Icon(
-                Icons.music_note,
-                size: 200,
-                color: kGrey,
-              ),
-            ),
-          );
-        });
+    return QueryArtworkWidget(
+      id: songId,
+      type: ArtworkType.AUDIO,
+      artworkFit: BoxFit.cover,
+      nullArtworkWidget: Center(
+        child: Icon(
+          Icons.music_note,
+          size: 200,
+          color: kGrey,
+        ),
+      ),
+    );
   }
 }

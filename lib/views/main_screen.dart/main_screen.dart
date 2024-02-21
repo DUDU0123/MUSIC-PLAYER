@@ -28,9 +28,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   final AudioPlayer audioPlayer = AudioPlayer();
   bool isPlaying = false;
   final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
- 
   bool isSongsLoaded = false;
-
   @override
   void initState() {
     super.initState();
@@ -78,14 +76,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       uriType: UriType.EXTERNAL,
     );
   }
-
-  
-
-  
-
-  
-
- 
 
   @override
   Widget build(BuildContext context) {

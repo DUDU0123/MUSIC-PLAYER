@@ -24,7 +24,7 @@ class MusicHomePage extends StatefulWidget {
   bool isPlaying;
   final AudioPlayer audioPlayer;
   final Box<AllMusicsModel> musicBox;
-  
+
   final Future<List<SongModel>> requestPermission;
 
   @override
@@ -36,6 +36,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
   bool isSongsLoaded = false;
   late ConcatenatingAudioSource? audioSource;
   int? currentPlayingSongIndex;
+  Duration lastPlayedPosition = Duration.zero;
   @override
   void initState() {
     super.initState();
@@ -54,69 +55,6 @@ class _MusicHomePageState extends State<MusicHomePage> {
     });
   }
 
-  // final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
-  // MusicPlayPageController controller = Get.put(MusicPlayPageController());
-
-  // late ConcatenatingAudioSource audioSource;
-  // late Future<List<SongModel>> _loadSongsFuture;
-
-  // void playSong(String url, int index, bool isRecentlyPlayed) {
-  // try {
-  //   widget.audioPlayer.setAudioSource(
-  //     AudioSource.uri(
-  //       Uri.parse(url),
-  //       tag: MediaItem(
-  //         id: index.toString(), // Use index as a unique identifier
-  //         album: song.musicAlbumName,
-  //         title: song.musicName,
-  //         artUri: Uri.parse(song.id.toString()),
-  //       ),
-  //     ),
-  //   );
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _loadSongsFuture = widget.requestPermission();
-  //   _loadSongsFuture.then((songs) {
-  //     _loadSongs(songs);
-  //   });
-  //   playSong();
-  // }
-
-  // void _loadSongs(List<SongModel> songs) async {
-  //   try {
-  //     List<AllMusicsModel> allMusics =
-  //         songs.map((song) => AllMusicsModel.fromSongModel(song)).toList();
-
-  //     for (var music in allMusics) {
-  //       // Check if musicBox already contains the music with the same id
-  //       if (!musicBox.values
-  //           .any((existingMusic) => existingMusic.id == music.id)) {
-  //         musicBox.add(music);
-  //       }
-  //     }
-  //     List<AudioSource> audioSourceList = allMusics.map((music) {
-  //       return AudioSource.uri(
-  //         Uri.parse(music.musicUri),
-  //         tag: MediaItem(
-  //           id: music.id.toString(),
-  //           album: music.musicAlbumName,
-  //           title: music.musicName,
-  //           artUri: Uri.parse(music.id.toString()),
-  //         ),
-  //       );
-  //     }).toList();
-
-  //     setState(() {
-  //       audioSource = ConcatenatingAudioSource(
-  //         children: audioSourceList,
-  //       );
-  //     });
-  //   } catch (e) {
-  //     print("Error loading songs: $e");
-  //   }
-  // }
 
   // playSongMethod
   void playSong({String? url, int? index, bool? isRecentlyPlayed = false}) {
@@ -126,6 +64,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
           AudioSource.uri(
             Uri.parse(url),
           ),
+          initialPosition: lastPlayedPosition,
         );
       }
       widget.audioPlayer.play();
@@ -170,6 +109,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
         return AudioSource.uri(
           Uri.parse(music.musicUri),
           tag: MediaItem(
+            duration: Duration(seconds: 2),
             id: music.id.toString(),
             album: music.musicAlbumName,
             title: music.musicName,
@@ -196,41 +136,43 @@ class _MusicHomePageState extends State<MusicHomePage> {
       return DefaultWidget();
     }
     return Scaffold(
-        body: widget.musicBox.isEmpty?DefaultWidget(): ListView.builder(
-      shrinkWrap: true,
-      itemCount: widget.musicBox.length,
-      padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-      itemBuilder: (context, index) {
-        print(widget.musicBox.length);
-        AllMusicsModel song = widget.musicBox.getAt(index)!;
-        print("Displaying songs length at $index ${song.musicName}");
-        return MusicTileWidget(
-          audioPlayer: widget.audioPlayer,
-          audioSource: audioSource,
-          index: index,
-          musicBox: widget.musicBox,
-          songModel: song,
-          currentPlayingSongIndex: currentPlayingSongIndex,
-          playSong: ({index, isRecentlyPlayed, url}) {
-            playSong(
-                index: index,
-                url: song.musicUri,
-                isRecentlyPlayed: isRecentlyPlayed ?? false);
-          },
-          songId: song.id,
-          isPlaying: currentPlayingSongIndex == index &&
-                  widget.isPlaying != null
-              ? widget.isPlaying!
-              : false,
-          pageType: PageTypeEnum.normalPage,
-          albumName: song.musicAlbumName,
-          artistName: song.musicArtistName,
-          songTitle: song.musicName,
-          songFormat: song.musicFormat,
-          songPathIndevice: song.musicPathInDevice,
-          songSize: "${song.musicFileSize}MB",
-        );
-      },
-    ));
+        body: widget.musicBox.isEmpty
+            ? DefaultWidget()
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.musicBox.length,
+                padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
+                itemBuilder: (context, index) {
+                  print(widget.musicBox.length);
+                  AllMusicsModel song = widget.musicBox.getAt(index)!;
+                  print("Displaying songs length at $index ${song.musicName}");
+                  return MusicTileWidget(
+                    audioPlayer: widget.audioPlayer,
+                    audioSource: audioSource,
+                    index: index,
+                    musicBox: widget.musicBox,
+                    songModel: song,
+                    currentPlayingSongIndex: currentPlayingSongIndex,
+                    playSong: ({index, isRecentlyPlayed, url}) {
+                      playSong(
+                          index: index,
+                          url: song.musicUri,
+                          isRecentlyPlayed: isRecentlyPlayed ?? false);
+                    },
+                    songId: song.id,
+                    isPlaying: currentPlayingSongIndex == index &&
+                            widget.isPlaying != null
+                        ? widget.isPlaying!
+                        : false,
+                    pageType: PageTypeEnum.homePage,
+                    albumName: song.musicAlbumName,
+                    artistName: song.musicArtistName,
+                    songTitle: song.musicName,
+                    songFormat: song.musicFormat,
+                    songPathIndevice: song.musicPathInDevice,
+                    songSize: "${song.musicFileSize}MB",
+                  );
+                },
+              ));
   }
 }

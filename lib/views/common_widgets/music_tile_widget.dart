@@ -13,7 +13,7 @@ import 'package:music_player/views/music_view/music_play_page.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class MusicTileWidget extends StatefulWidget {
-  const MusicTileWidget({
+   MusicTileWidget({
     super.key,
     required this.songTitle,
     this.artistName = "Unknown artist",
@@ -25,7 +25,7 @@ class MusicTileWidget extends StatefulWidget {
     this.isPlaying,
     required this.songId,
     this.playSong,
-     this.index =0,
+    this.index = 0,
     this.audioSource,
     this.songModel,
     required this.audioPlayer,
@@ -50,6 +50,7 @@ class MusicTileWidget extends StatefulWidget {
   final AudioPlayer audioPlayer;
   final int? currentPlayingSongIndex;
   final Box<AllMusicsModel> musicBox;
+  Duration lastPlayedPosition = Duration.zero;
 
   @override
   State<MusicTileWidget> createState() => _MusicTileWidgetState();
@@ -74,43 +75,51 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
     final kScreenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: () {
-        Get.find<MusicPlayPageController>().id = widget.songId;
+        
         // Check if the song is recently played
 
-        if (widget.songModel!=null) {
+        if (widget.songModel != null) {
+          // checking is Song is recently played
           bool isRecentlyPlayed = isSongRecentlyPlayed(
-            widget.songModel!,
-            widget.musicBox.values.toList());
-            widget.playSong!(
-                url: widget.songModel!.musicUri,
-                index: widget.musicBox.keyAt(widget.musicBox.values.toList().indexOf(widget.songModel!)),
-                isRecentlyPlayed: isRecentlyPlayed);
+              widget.songModel!, widget.musicBox.values.toList());
+
+          // last played position of the song
+          if (widget.currentPlayingSongIndex == widget.index &&
+              widget.isPlaying != null &&
+              widget.isPlaying!) {
+            widget.lastPlayedPosition = widget.audioPlayer.position;
+          }
+          // playsong implementation
+          widget.playSong!(
+              url: widget.songModel!.musicUri,
+              index: widget.musicBox.keyAt(
+                  widget.musicBox.values.toList().indexOf(widget.songModel!)),
+              isRecentlyPlayed: isRecentlyPlayed);
         }
-         
-        
-        
-        
-        
-        //  playSong(song.musicUri, index);
-        widget.pageType == PageTypeEnum.normalPage
+        widget.pageType == PageTypeEnum.homePage
             ? showModalBottomSheet(
                 isScrollControlled: true,
                 context: context,
                 builder: (context) {
-                  
-                  return widget.songModel!=null? MusicPlayPage(
-                    musicBox: widget.musicBox,
-                    playSong: widget.playSong!,
-                    currentPlayingSongIndex: widget.currentPlayingSongIndex,
-                    initialIndex: widget.index,
-                    audioSource: widget.audioSource,
-                    songModel: widget.songModel!,
-                    audioPlayer: widget.audioPlayer,
-                    isPlaying: widget.currentPlayingSongIndex == widget.index &&
-                            widget.isPlaying != null
-                        ? widget.isPlaying!
-                        : false,
-                  ):SizedBox();
+                  return widget.songModel != null
+                      ? MusicPlayPage(
+                        songId: widget.songId,
+                          lastPlayedPosition: widget.lastPlayedPosition,
+                          musicBox: widget.musicBox,
+                          playSong: widget.playSong!,
+                          currentPlayingSongIndex:
+                              widget.currentPlayingSongIndex,
+                          initialIndex: widget.index,
+                          audioSource: widget.audioSource,
+                          songModel: widget.songModel!,
+                          audioPlayer: widget.audioPlayer,
+                          isPlaying:
+                              widget.currentPlayingSongIndex == widget.index &&
+                                      widget.isPlaying != null
+                                  ? widget.isPlaying!
+                                  : false,
+                        )
+                      : const SizedBox();
                 },
               )
             : null;

@@ -5,11 +5,13 @@ import 'package:music_player/views/common_widgets/text_widget_common.dart';
 
 void snackBarCommonWidget(BuildContext context,{required String contentText}) {
   ScaffoldMessenger.of(context).showSnackBar(
+    
     SnackBar(
+      dismissDirection: DismissDirection.horizontal,
       behavior: SnackBarBehavior.floating,
       backgroundColor: kMenuBtmSheetColor,
       duration: const Duration(
-        seconds: 2,
+        seconds: 1,
       ),
       content: TextWidgetCommon(
         text: contentText,

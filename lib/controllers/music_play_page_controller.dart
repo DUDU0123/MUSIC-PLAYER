@@ -6,6 +6,5 @@ class MusicPlayPageController extends GetxController{
 
   void setId(int songId){
     id = songId;
-    update();
   }
 }

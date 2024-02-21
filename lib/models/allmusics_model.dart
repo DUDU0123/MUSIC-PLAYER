@@ -59,5 +59,5 @@ class AllMusicsModel extends HiveObject {
   }
 
   @override
-  int get hashCode => id.hashCode; 
+  int get hashCode => id.hashCode;
 }

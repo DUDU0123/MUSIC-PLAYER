@@ -11,6 +11,7 @@ import 'package:music_player/models/playlist_model.dart';
 import 'package:music_player/views/common_widgets/container_tile_widget.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/new_playlist_dialog_widget.dart';
+import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/favourites/favourite_music_list_page.dart';
 import 'package:music_player/views/playlist/playlist_song_list_page.dart';
@@ -51,6 +52,7 @@ class MusicPlaylistPage extends StatelessWidget {
                         playlsitNameGiverController: newPlaylistController,
                         onSavePlaylist: (playlistName) {
                           playlistController.playlistCreation(
+                            index: index,
                               playlistName: playlistName);
                           Navigator.pop(context);
                         },
@@ -65,12 +67,14 @@ class MusicPlaylistPage extends StatelessWidget {
             } else if (index == 1) {
               return PlayListSingleTileWidget(
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => FavouriteMusicListPage(
-                      audioPlayer: audioPlayer,
-                      musicBox: musicBox,
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => FavouriteMusicListPage(
+                        audioPlayer: audioPlayer,
+                        musicBox: musicBox,
+                      ),
                     ),
-                  ));
+                  );
                 },
                 title: "Favourites",
                 iconName: Icons.favorite_outline,
@@ -104,8 +108,9 @@ class MusicPlaylistPage extends StatelessWidget {
                   builder: (context) => DeleteDialogBox(
                     contentText: "Do you want to delete the playlist?",
                     deleteAction: () {
-                      playlistController.playlistDelete(index: index);
+                      playlistController.playlistDelete(index: index-3);
                       Navigator.pop(context);
+                      snackBarCommonWidget(context, contentText: "Deleted Successfully");
                     },
                   ),
                 );
@@ -117,7 +122,9 @@ class MusicPlaylistPage extends StatelessWidget {
                     return NewPlayListDialogBoxWidget(
                       onSavePlaylist: (playlistEditedName) {
                         playlistController.playlistUpdateName(
-                            index: index, newPlaylistName: playlistEditedName);
+                            index: index-3, newPlaylistName: playlistEditedName);
+                            Navigator.pop(context);
+                            snackBarCommonWidget(context, contentText: "Edited Successfully");
                       },
                       playlsitNameGiverController: editPlaylistController,
                     );
@@ -136,7 +143,7 @@ class MusicPlaylistPage extends StatelessWidget {
                 );
               },
               title: playlistController.getPlaylistName(index: index - 3),
-              songLength: 2,
+              songLength: 0,
               pageType: PageTypeEnum.playListPage,
             );
           },

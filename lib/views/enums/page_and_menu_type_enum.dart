@@ -8,6 +8,7 @@ enum MenuTypeEnum{
 }
 
 enum PageTypeEnum{
+  homePage,
   artistPage,
   albumPage,
   musicViewPage,

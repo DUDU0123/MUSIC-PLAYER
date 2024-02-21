@@ -8,6 +8,7 @@ import 'package:music_player/models/playlist_model.dart';
 import 'package:music_player/views/common_widgets/default_widget.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
+import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/playlist/add_songs_in_playlist_from_selecting_songs.dart';
@@ -19,15 +20,11 @@ class PlaylistSongListPage extends StatelessWidget {
     required this.isPlaying,
     required this.audioPlayer,
     required this.musicBox,
-   
   });
   List<AllMusicsModel>? playlistSongsList;
   final bool isPlaying;
-
   final AudioPlayer audioPlayer;
-
   final Box<AllMusicsModel> musicBox;
-
 
   void addPlaylist(Playlist playlist) async {
     final playlistBox = await Hive.openBox<Playlist>('playlist');
@@ -45,6 +42,25 @@ class PlaylistSongListPage extends StatelessWidget {
     // retrieving data
     Box<Playlist> playlistBox = Hive.box<Playlist>('playlist');
     final List<Playlist> currentPlaylistSongList = playlistBox.values.toList();
+    Future<void> addPlaylistSongs(List<AllMusicsModel> newSongs) async {
+      final List<AllMusicsModel> existingSongs = currentPlaylistSongList
+          .expand((playlist) =>
+              playlist.playlistSongs ??
+              <AllMusicsModel>[]) // Specify the type explicitly
+          .toList();
+      // Filter out the songs that are already in the playlist
+      final List<AllMusicsModel> uniqueNewSongs = newSongs
+          .where((newSong) => !existingSongs
+              .any((existingSong) => existingSong.id == newSong.id))
+          .toList();
+      if (uniqueNewSongs.isNotEmpty) {
+        final playlist = Playlist(playlistSongs: uniqueNewSongs, name: "");
+        addPlaylist(playlist);
+      }else{
+        snackBarCommonWidget(context, contentText: "Already available in this playlist");
+      }
+    }
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
@@ -66,17 +82,14 @@ class PlaylistSongListPage extends StatelessWidget {
                 // Add the playlist to Hive
                 if (playlistSongsList != null &&
                     playlistSongsList!.isNotEmpty) {
-                  final playlist = Playlist(
-                      name: "Playlist 1", playlistSongs: playlistSongsList);
-                  addPlaylist(playlist);
+                  
+                  await addPlaylistSongs(playlistSongsList!);
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => PlaylistSongListPage(
                         audioPlayer: audioPlayer,
-                        
                         musicBox: musicBox,
-                      
                         isPlaying: isPlaying,
                       ),
                     ),
@@ -92,6 +105,7 @@ class PlaylistSongListPage extends StatelessWidget {
             TextButton(
               onPressed: () {
                 // need to send the list of song in the playlist
+                // if(playlistSongsList!=null){
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
@@ -115,35 +129,33 @@ class PlaylistSongListPage extends StatelessWidget {
           : ListView.builder(
               itemCount: currentPlaylistSongList.length,
               itemBuilder: (BuildContext context, int index) {
-                Playlist playlistModel =
-                    currentPlaylistSongList[index];
+                Playlist playlistModel = currentPlaylistSongList[index];
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if(playlistModel.playlistSongs!=null)
-                    for (AllMusicsModel music
-                        in playlistModel.playlistSongs!)
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15.w),
-                        child: MusicTileWidget(
-                          audioPlayer: audioPlayer,
-                          musicBox: musicBox,
-                          isPlaying: isPlaying,
-                          albumName: music.musicAlbumName,
-                          artistName: music.musicArtistName,
-                          songTitle: music.musicName,
-                          songFormat: music.musicFormat,
-                          songSize: music.musicFileSize.toString(),
-                          songPathIndevice: music.musicPathInDevice,
-                          pageType: PageTypeEnum.playListPage,
-                          songId: music.id,
+                    if (playlistModel.playlistSongs != null)
+                      for (AllMusicsModel music in playlistModel.playlistSongs!)
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 15.w),
+                          child: MusicTileWidget(
+                            audioPlayer: audioPlayer,
+                            musicBox: musicBox,
+                            isPlaying: isPlaying,
+                            albumName: music.musicAlbumName,
+                            artistName: music.musicArtistName,
+                            songTitle: music.musicName,
+                            songFormat: music.musicFormat,
+                            songSize: music.musicFileSize.toString(),
+                            songPathIndevice: music.musicPathInDevice,
+                            pageType: PageTypeEnum.playListPage,
+                            songId: music.id,
+                          ),
                         ),
-                      ),
                   ],
                 );
               },
             ),
-      
+
       // Column(
       //   children: [
       //     ListView.builder(
@@ -169,11 +181,11 @@ class PlaylistSongListPage extends StatelessWidget {
       //         final currentSongs = currentPlaylistSongList[index].playlistSongs;
       //         return currentSongs != null && currentSongs.isNotEmpty
       //             ? MusicTileWidget(
-                   
+
       //                 audioPlayer: audioPlayer,
-                     
+
       //                 musicBox: musicBox,
-                    
+
       //                 songId: currentSongs[index].id,
       //                 isPlaying: isPlaying,
       //                 pageType: PageTypeEnum.playListPage,
