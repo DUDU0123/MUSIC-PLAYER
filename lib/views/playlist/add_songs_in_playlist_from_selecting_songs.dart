@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/center_title_appbar_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
-import 'package:music_player/views/playlist/playlist_song_list_page.dart';
 
 class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
-  const AddSongInPlaylistFromSelectingSongs({super.key});
+  const AddSongInPlaylistFromSelectingSongs({super.key, required this.playListID});
+  final int playListID;
 
   @override
   State<AddSongInPlaylistFromSelectingSongs> createState() =>
@@ -18,26 +20,9 @@ class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
 class _AddSongInPlaylistFromSelectingSongsState
     extends State<AddSongInPlaylistFromSelectingSongs> {
   bool isSelected = false;
+  PlaylistController playlistController = Get.put(PlaylistController());
   bool isAllSelected = false;
-  final musicBox = Hive.box<AllMusicsModel>('musics');
-  List<AllMusicsModel> notAddedMusicList = [];
-  @override
-  void initState() {
-    notAddedMusicList = musicBox.values.map((music) {
-      return AllMusicsModel(
-        musicSelected: music.musicSelected,
-        id: music.id,
-        musicAlbumName: music.musicAlbumName,
-        musicArtistName: music.musicArtistName,
-        musicFileSize: music.musicFileSize,
-        musicFormat: music.musicFormat,
-        musicName: music.musicName,
-        musicPathInDevice: music.musicPathInDevice,
-        musicUri: music.musicUri,
-      );
-    }).toList();
-    super.initState();
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -64,9 +49,9 @@ class _AddSongInPlaylistFromSelectingSongsState
           ListView.builder(
             shrinkWrap: true,
             padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-            itemCount: notAddedMusicList.length,
+            itemCount: playlistController.fullSongListToAddToPlaylist.value.length,
             itemBuilder: (context, index) {
-              AllMusicsModel musicList = notAddedMusicList[index];
+              AllMusicsModel musicList = playlistController.fullSongListToAddToPlaylist.value[index];
               return Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                 child: CheckboxListTile(
@@ -93,7 +78,7 @@ class _AddSongInPlaylistFromSelectingSongsState
                   onChanged: (value) {
                     setState(() {
                       musicList.musicSelected = value ?? false;
-                      isSelected = notAddedMusicList
+                      isSelected = playlistController.fullSongListToAddToPlaylist.value
                           .any((checkbox) => checkbox.musicSelected == true);
                     });
                   },
@@ -106,11 +91,18 @@ class _AddSongInPlaylistFromSelectingSongsState
             left: kScreenWidth / 2 - 50,
             child: GestureDetector(
               onTap: () {
-                Navigator.pop(
-                    context,
-                    notAddedMusicList
+                // Navigator.pop(
+                //     context,
+                //     playlistController.fullSongListToAddToPlaylist.value
+                //         .where((music) => music.musicSelected == true)
+                //         .toList());
+               
+
+                        List<AllMusicsModel> selectedSongList = playlistController.fullSongListToAddToPlaylist.value
                         .where((music) => music.musicSelected == true)
-                        .toList());
+                        .toList();
+                        playlistController.addSongsToPlaylist(selectedSongList, widget.playListID);
+              Navigator.pop(context);
               },
               child: Container(
                 margin: EdgeInsets.only(bottom: 20.h),
@@ -147,7 +139,7 @@ class _AddSongInPlaylistFromSelectingSongsState
   }
 
   selectAllSongs() {
-    for (var element in notAddedMusicList) {
+    for (var element in playlistController.fullSongListToAddToPlaylist.value) {
       setState(() {
         element.musicSelected = true;
         isSelected = true;
@@ -157,7 +149,7 @@ class _AddSongInPlaylistFromSelectingSongsState
   }
 
   deselectAllSongs() {
-    for (var element in notAddedMusicList) {
+    for (var element in playlistController.fullSongListToAddToPlaylist.value) {
       setState(() {
         element.musicSelected = false;
         isSelected = false;

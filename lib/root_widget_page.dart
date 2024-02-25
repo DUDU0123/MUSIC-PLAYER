@@ -13,10 +13,11 @@ class RootWidgetPage extends StatelessWidget {
       builder: (BuildContext context, Widget? _) {
         return GetMaterialApp(
           theme: ThemeData(
-              scaffoldBackgroundColor: kBlack,
-              appBarTheme: AppBarTheme(
-                backgroundColor: kBlack,
-              )),
+            scaffoldBackgroundColor: kBlack,
+            appBarTheme: AppBarTheme(
+              backgroundColor: kBlack,
+            ),
+          ),
           debugShowCheckedModeBanner: false,
           home: const MainScreen(),
         );

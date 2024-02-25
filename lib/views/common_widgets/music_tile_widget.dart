@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
-import 'package:music_player/controllers/music_play_page_controller.dart';
+import 'package:music_player/controllers/audio_controller.dart';
+import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/menu_bottom_sheet.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
-import 'package:music_player/views/music_view/music_play_page.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class MusicTileWidget extends StatefulWidget {
-   MusicTileWidget({
+  MusicTileWidget({
     super.key,
     required this.songTitle,
     this.artistName = "Unknown artist",
@@ -22,15 +19,12 @@ class MusicTileWidget extends StatefulWidget {
     required this.songSize,
     required this.songPathIndevice,
     required this.pageType,
-    this.isPlaying,
     required this.songId,
-    this.playSong,
-    this.index = 0,
-    this.audioSource,
     this.songModel,
-    required this.audioPlayer,
-    this.currentPlayingSongIndex,
-    required this.musicBox,
+    this.audioController,
+    this.onTap,
+    required this.musicUri,
+    required this.favoriteController,
   });
 
   final String songTitle;
@@ -40,16 +34,12 @@ class MusicTileWidget extends StatefulWidget {
   final String songSize;
   final String songPathIndevice;
   final PageTypeEnum pageType;
-  final bool? isPlaying;
   final int songId;
-  final void Function({String? url, int? index, bool? isRecentlyPlayed})?
-      playSong;
-  final int index;
-  final ConcatenatingAudioSource? audioSource;
+  final String musicUri;
   final AllMusicsModel? songModel;
-  final AudioPlayer audioPlayer;
-  final int? currentPlayingSongIndex;
-  final Box<AllMusicsModel> musicBox;
+  final AudioController? audioController;
+  final void Function()? onTap;
+  final FavoriteController favoriteController;
   Duration lastPlayedPosition = Duration.zero;
 
   @override
@@ -57,7 +47,6 @@ class MusicTileWidget extends StatefulWidget {
 }
 
 class _MusicTileWidgetState extends State<MusicTileWidget> {
-  MusicPlayPageController controller = Get.put(MusicPlayPageController());
   bool isSongRecentlyPlayed(
       AllMusicsModel song, List<AllMusicsModel> recentlyPlayedSongs) {
     // Assuming each song has a unique identifier like an ID
@@ -71,59 +60,11 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
 
   @override
   Widget build(BuildContext context) {
+    bool isPlaying = widget.audioController?.isPlaying.value ?? false;
     final kScreenHeight = MediaQuery.of(context).size.height;
     final kScreenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
-      onTap: () {
-        
-        // Check if the song is recently played
-
-        if (widget.songModel != null) {
-          // checking is Song is recently played
-          bool isRecentlyPlayed = isSongRecentlyPlayed(
-              widget.songModel!, widget.musicBox.values.toList());
-
-          // last played position of the song
-          if (widget.currentPlayingSongIndex == widget.index &&
-              widget.isPlaying != null &&
-              widget.isPlaying!) {
-            widget.lastPlayedPosition = widget.audioPlayer.position;
-          }
-          // playsong implementation
-          widget.playSong!(
-              url: widget.songModel!.musicUri,
-              index: widget.musicBox.keyAt(
-                  widget.musicBox.values.toList().indexOf(widget.songModel!)),
-              isRecentlyPlayed: isRecentlyPlayed);
-        }
-        widget.pageType == PageTypeEnum.homePage
-            ? showModalBottomSheet(
-                isScrollControlled: true,
-                context: context,
-                builder: (context) {
-                  return widget.songModel != null
-                      ? MusicPlayPage(
-                        songId: widget.songId,
-                          lastPlayedPosition: widget.lastPlayedPosition,
-                          musicBox: widget.musicBox,
-                          playSong: widget.playSong!,
-                          currentPlayingSongIndex:
-                              widget.currentPlayingSongIndex,
-                          initialIndex: widget.index,
-                          audioSource: widget.audioSource,
-                          songModel: widget.songModel!,
-                          audioPlayer: widget.audioPlayer,
-                          isPlaying:
-                              widget.currentPlayingSongIndex == widget.index &&
-                                      widget.isPlaying != null
-                                  ? widget.isPlaying!
-                                  : false,
-                        )
-                      : const SizedBox();
-                },
-              )
-            : null;
-      },
+      onTap: widget.onTap,
       child: Stack(
         children: [
           Padding(
@@ -161,36 +102,34 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: kScreenWidth / 2.2,
-                        // widget.pageType != PageTypeEnum.currentPlayListPage
-                        //     ? kScreenWidth / 1.9
-                        //     : kScreenWidth / 1.6,
-                        child: TextWidgetCommon(
-                          overflow: TextOverflow.ellipsis,
-                          text: widget.songTitle,
-                          fontSize: 16.sp,
-                          color: widget.isPlaying != null
-                              ? widget.isPlaying!
-                                  ? kRed
-                                  : kWhite
-                              : kWhite,
-                        ),
-                      ),
+                          width: kScreenWidth / 2.2,
+                          // widget.pageType != PageTypeEnum.currentPlayListPage
+                          //     ? kScreenWidth / 1.9
+                          //     : kScreenWidth / 1.6,
+                          child: TextWidgetCommon(
+                            overflow: TextOverflow.ellipsis,
+                            text: widget.songTitle,
+                            fontSize: 16.sp,
+                            color: widget.audioController != null
+                                ? widget.audioController!.isPlaying.value
+                                    ? kWhite
+                                    : kRed
+                                : kWhite,
+                          )),
                       SizedBox(
                         width: kScreenWidth / 2,
-                        // widget.pageType != PageTypeEnum.currentPlayListPage
-                        //     ? kScreenWidth / 1.9
-                        //     : kScreenWidth / 1.9,
                         child: TextWidgetCommon(
                           overflow: TextOverflow.ellipsis,
                           text:
                               "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName}",
                           fontSize: 10.sp,
-                          color: widget.isPlaying != null
-                              ? widget.isPlaying!
-                                  ? kRed
-                                  : kGrey
-                              : kGrey,
+                          color:
+                              //  widget.isPlaying != null
+                              //     ? widget.isPlaying!
+                              //         ? kRed
+                              //         : kGrey
+                              //     :
+                              kGrey,
                         ),
                       ),
                     ],
@@ -200,32 +139,48 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                       widget.pageType != PageTypeEnum.currentPlayListPage
                           ? IconButton(
                               onPressed: () {
+                                
                                 showModalBottomSheet(
+                              
+                                  
                                   barrierColor: kTransparent,
                                   backgroundColor: kTransparent,
                                   context: context,
                                   builder: (context) {
-                                    return MenuBottomSheet(
-                                      kScreenHeight: kScreenHeight,
-                                      pageType: widget.pageType,
-                                      songName: widget.songTitle,
-                                      artistName: widget.artistName,
-                                      albumName: widget.albumName,
-                                      songFormat: widget.songFormat,
-                                      songSize: widget.songSize,
-                                      songPathIndevice: widget.songPathIndevice,
-                                    );
+                                     print("widget.songModel: ${widget.songModel}");
+                                    if (widget.songModel != null) {
+                                      return MenuBottomSheet(
+                                        favouriteController:
+                                            widget.favoriteController,
+                                        song: widget.songModel!,
+                                        musicUri: widget.musicUri,
+                                        songId: widget.songId,
+                                        kScreenHeight: kScreenHeight,
+                                        pageType: widget.pageType,
+                                        songName: widget.songTitle,
+                                        artistName: widget.artistName,
+                                        albumName: widget.albumName,
+                                        songFormat: widget.songFormat,
+                                        songSize: widget.songSize,
+                                        songPathIndevice:
+                                            widget.songPathIndevice,
+                                      );
+                                    }
+
+                                    return const SizedBox();
                                   },
                                 );
                               },
                               icon: Icon(
                                 Icons.more_vert,
                                 size: 26.sp,
-                                color: widget.isPlaying != null
-                                    ? widget.isPlaying!
-                                        ? kRed
-                                        : kGrey
-                                    : kWhite,
+                                color:
+                                    //  widget.isPlaying != null
+                                    //     ? widget.isPlaying!
+                                    //         ? kRed
+                                    //         : kGrey
+                                    //     :
+                                    kWhite,
                               ),
                             )
                           : const SizedBox(),
@@ -235,19 +190,25 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
               ),
             ),
           ),
-          widget.isPlaying != null
-              ? widget.isPlaying!
-                  ? Positioned(
-                      right: 45.w,
-                      top: 30.h,
-                      child: Icon(
-                        Icons.multitrack_audio_rounded,
-                        color: kRed,
-                        size: 26.sp,
-                      ),
-                    )
-                  : const SizedBox()
-              : const SizedBox(),
+          // widget.isPlaying != null
+          //     ? widget.isPlaying!
+          //         ?
+          Positioned(
+            right: 45.w,
+            top: 30.h,
+            child: widget.audioController != null
+                ? Icon(
+                    Icons.multitrack_audio_rounded,
+                    color: widget.audioController!.isPlaying.value
+                        ? kRed
+                        : Colors.transparent,
+                    size: 26.sp,
+                  )
+                : const SizedBox(),
+          ),
+
+          //     : const SizedBox()
+          // : const SizedBox(),
         ],
       ),
     );

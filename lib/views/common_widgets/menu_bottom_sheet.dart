@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/favourite_controller.dart';
+import 'package:music_player/models/allmusics_model.dart';
+import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/ontap_text_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
@@ -7,7 +11,7 @@ import 'package:music_player/views/add_to_playlist/add_to_playlist_page.dart';
 import 'package:music_player/views/view_details_page.dart/view_details_page.dart';
 
 class MenuBottomSheet extends StatelessWidget {
-  const MenuBottomSheet({
+  MenuBottomSheet({
     super.key,
     required this.kScreenHeight,
     required this.pageType,
@@ -17,6 +21,9 @@ class MenuBottomSheet extends StatelessWidget {
     required this.songFormat,
     required this.songSize,
     required this.songPathIndevice,
+    required this.songId,
+    required this.musicUri,
+    required this.song, required this.favouriteController,
   });
 
   final double kScreenHeight;
@@ -27,15 +34,35 @@ class MenuBottomSheet extends StatelessWidget {
   final String songFormat;
   final String songSize;
   final String songPathIndevice;
+  final String musicUri;
+  final int songId;
+  final AllMusicsModel song;
+  final FavoriteController favouriteController;
 
+  FavoriteModel? favsong;
+
+  favouriteSong() {
+    favsong = FavoriteModel(
+      id: song.id,
+      musicName: song.musicName,
+      musicAlbumName: song.musicAlbumName,
+      musicArtistName: song.musicArtistName,
+      musicPathInDevice: song.musicPathInDevice,
+      musicFormat: song.musicFormat,
+      musicUri: musicUri,
+      musicFileSize: song.musicFileSize,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    favouriteSong();
     return Container(
-      
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(20), topRight: Radius.circular(20),),
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
         color: kMenuBtmSheetColor,
         boxShadow: [
           BoxShadow(
@@ -47,7 +74,9 @@ class MenuBottomSheet extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.symmetric(vertical: 20),
-      height: pageType==PageTypeEnum.playListPage?kScreenHeight/1.93: kScreenHeight / 2.2,
+      height: pageType == PageTypeEnum.playListPage
+          ? kScreenHeight / 1.93
+          : kScreenHeight / 2.2,
       child: Column(
         children: [
           OnTapTextWidget(
@@ -76,25 +105,30 @@ class MenuBottomSheet extends StatelessWidget {
                     artistName: artistName,
                     albumName: albumName,
                     songFormat: songFormat,
-                    songSize: songSize,
+                    songSize: songSize.toString(),
                     songPathIndevice: songPathIndevice,
                   ),
                 ),
               );
             },
           ),
-          OnTapTextWidget(
-                  text: "Add to Favorites",
-                  onTap: () {
-                    
-                  },
-                ),
+          GetBuilder<FavoriteController>(builder: (controller) {
+            return OnTapTextWidget(
+              text: controller.isFavorite(favsong!.id)? "Remove from Favorites":"Add to Favorites",
+              onTap: () {
+                Navigator.pop(context);
+                 print("not to favourites");
+                if (favsong != null) {
+                  print("adding to favourites");
+                  controller.onTapFavorite(favsong!, context);
+                }
+              },
+            );
+          }),
           pageType == PageTypeEnum.playListPage
               ? OnTapTextWidget(
                   text: "Remove From Playlist",
-                  onTap: () {
-                    
-                  },
+                  onTap: () {},
                 )
               : const SizedBox(),
           OnTapTextWidget(

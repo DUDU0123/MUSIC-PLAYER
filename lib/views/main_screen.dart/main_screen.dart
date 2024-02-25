@@ -1,20 +1,15 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
+import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
-import 'package:music_player/models/allmusics_model.dart';
-import 'package:music_player/models/recently_played_model.dart';
+import 'package:music_player/controllers/audio_controller.dart';
+import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/views/albums/music_album_page.dart';
 import 'package:music_player/views/artist/music_artist_page.dart';
 import 'package:music_player/views/home/music_home_page.dart';
 import 'package:music_player/views/playlist/music_playlist_page.dart';
-import 'package:on_audio_query/on_audio_query.dart';
-import 'package:permission_handler/permission_handler.dart';
+
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -24,86 +19,42 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
-  final OnAudioQuery audioQuery = OnAudioQuery();
-  final AudioPlayer audioPlayer = AudioPlayer();
-  bool isPlaying = false;
-  final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
+  AudioController audioController = Get.put(AudioController());
+  FavoriteController favoriteController = Get.put(FavoriteController());
   bool isSongsLoaded = false;
   @override
   void initState() {
-    super.initState();
-    Timer(
-        Duration(
-          seconds: 3,
-        ), () {
+    Future.delayed(Duration(seconds: 3), () {
       setState(() {
         isSongsLoaded = true;
       });
-    });
+    },);
+    audioController.requestPermissionAndFetchSongsAndInitializePlayer();
+    super.initState();
   }
 
-  Future<List<SongModel>> requestPermission() async {
-    try {
-      var perm = await Permission.storage.request();
-      if (perm.isGranted) {
-        return audioQuery.querySongs(
-          sortType: null,
-          ignoreCase: true,
-          orderType: OrderType.ASC_OR_SMALLER,
-          uriType: UriType.EXTERNAL,
-        );
-      } else {
-        var reRequest = await Permission.storage.request();
-        if (reRequest.isGranted) {
-          return audioQuery.querySongs(
-            sortType: null,
-            ignoreCase: true,
-            orderType: OrderType.ASC_OR_SMALLER,
-            uriType: UriType.EXTERNAL,
-          );
-        } else {
-          print("Permission not granted.");
-          return [];
-        }
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-    return audioQuery.querySongs(
-      sortType: null,
-      ignoreCase: true,
-      orderType: OrderType.ASC_OR_SMALLER,
-      uriType: UriType.EXTERNAL,
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
-    final kScreenWidth = MediaQuery.of(context).size.width;
-    final kScreenHeight = MediaQuery.of(context).size.height;
+    //final kScreenWidth = MediaQuery.of(context).size.width;
+    //final kScreenHeight = MediaQuery.of(context).size.height;
+
     TabController tabController = TabController(length: 4, vsync: this);
+
     if (!isSongsLoaded) {
       return Center(
         child: Container(
+          height: 100.h,
+          width: 100.w,
           decoration: BoxDecoration(
-              color: kTileColor,
-              boxShadow: [
-                BoxShadow(
-                  blurRadius: 6,
-                  spreadRadius: 0.2,
-                  offset: Offset(1, 1),
-                  color: kMenuBtmSheetColor.withRed(100),
-                )
-              ],
-              borderRadius: BorderRadius.circular(10)),
-          height: 100,
-          width: 100,
-          child: Center(
-            child: Icon(
-              Icons.music_note_rounded,
-              color: kRed,
-              size: 50.sp,
-            ),
+            image: const DecorationImage(
+                image: AssetImage(
+                  "assets/music_player_logo.png",
+                ),
+                fit: BoxFit.cover),
+            borderRadius: BorderRadius.circular(20.sp),
+           
           ),
         ),
       );
@@ -174,37 +125,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         controller: tabController,
         children: [
           MusicHomePage(
-            requestPermission: requestPermission(),
-            musicBox: musicBox,
-            audioPlayer: audioPlayer,
-            isPlaying: isPlaying,
+            favoriteController: favoriteController,
+            audioController: audioController,
           ),
-          MusicArtistPage(
-            musicBox: musicBox,
-            audioPlayer: audioPlayer,
-            isPlaying: isPlaying,
-
+           MusicArtistPage(
+            favoriteController: favoriteController,
           ),
-          MusicAlbumPage(
-            
-            musicBox: musicBox,
-            audioPlayer: audioPlayer,
-            isPlaying: isPlaying,
-          ),
+           MusicAlbumPage(
+            favoriteController: favoriteController,
+           ),
           MusicPlaylistPage(
-            isPlaying: isPlaying,
-            musicBox: musicBox,
-            audioPlayer: audioPlayer,
+            favoriteController: favoriteController,
           ),
         ],
       ),
     );
   }
-
-   @override
-  void dispose() {
-    audioPlayer.dispose();
-    super.dispose();
-  }
-
 }

@@ -11,7 +11,6 @@ Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
   await JustAudioBackground.init(
-    preloadArtwork: true,
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,

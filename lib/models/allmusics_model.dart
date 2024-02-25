@@ -49,7 +49,11 @@ class AllMusicsModel extends HiveObject {
       musicSelected: false,
     );
   }
+
+  
   // final String musicCoverImage;
+
+  
 
   @override
   bool operator ==(Object other) {

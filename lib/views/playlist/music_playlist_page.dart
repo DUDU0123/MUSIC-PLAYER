@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:just_audio/just_audio.dart';
-
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
-import 'package:music_player/models/allmusics_model.dart';
-import 'package:music_player/models/playlist_model.dart';
 import 'package:music_player/views/common_widgets/container_tile_widget.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/new_playlist_dialog_widget.dart';
@@ -20,15 +16,10 @@ import 'package:music_player/views/recently_played/recently_played_page.dart';
 
 class MusicPlaylistPage extends StatelessWidget {
   MusicPlaylistPage({
-    super.key,
-    required this.isPlaying,
-    required this.audioPlayer,
-    required this.musicBox,
+    super.key, required this.favoriteController,
   });
-  final bool isPlaying;
-  final AudioPlayer audioPlayer;
-  final Box<AllMusicsModel> musicBox;
-
+  
+  final FavoriteController favoriteController;
   TextEditingController newPlaylistController = TextEditingController();
   TextEditingController editPlaylistController = TextEditingController();
 
@@ -40,7 +31,7 @@ class MusicPlaylistPage extends StatelessWidget {
       body: Obx(() {
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 15.h),
-          itemCount: playlistController.playlist.length + 3,
+          itemCount: playlistController.listOfPlaylist.length + 3,
           itemBuilder: (context, index) {
             if (index == 0) {
               return PlayListSingleTileWidget(
@@ -49,11 +40,13 @@ class MusicPlaylistPage extends StatelessWidget {
                     context: context,
                     builder: (context) {
                       return NewPlayListDialogBoxWidget(
+                        editOrNew: "New Playlist",
                         playlsitNameGiverController: newPlaylistController,
-                        onSavePlaylist: (playlistName) {
+                        onPressed: () {
                           playlistController.playlistCreation(
                             index: index,
-                              playlistName: playlistName);
+                            playlistName: newPlaylistController.text,
+                          );
                           Navigator.pop(context);
                         },
                       );
@@ -69,10 +62,7 @@ class MusicPlaylistPage extends StatelessWidget {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => FavouriteMusicListPage(
-                        audioPlayer: audioPlayer,
-                        musicBox: musicBox,
-                      ),
+                      builder: (context) => FavouriteMusicListPage(),
                     ),
                   );
                 },
@@ -89,8 +79,7 @@ class MusicPlaylistPage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => RecentlyPlayedPage(
-                          audioPlayer: audioPlayer,
-                          musicBox: musicBox,
+                          favoriteController: favoriteController,
                         ),
                       ),
                     );
@@ -108,9 +97,10 @@ class MusicPlaylistPage extends StatelessWidget {
                   builder: (context) => DeleteDialogBox(
                     contentText: "Do you want to delete the playlist?",
                     deleteAction: () {
-                      playlistController.playlistDelete(index: index-3);
+                      playlistController.playlistDelete(index: index - 3);
                       Navigator.pop(context);
-                      snackBarCommonWidget(context, contentText: "Deleted Successfully");
+                      snackBarCommonWidget(context,
+                          contentText: "Deleted Successfully");
                     },
                   ),
                 );
@@ -120,24 +110,31 @@ class MusicPlaylistPage extends StatelessWidget {
                   context: context,
                   builder: (context) {
                     return NewPlayListDialogBoxWidget(
-                      onSavePlaylist: (playlistEditedName) {
+                      editOrNew: "Edit Playlist",
+                      onPressed: () {
                         playlistController.playlistUpdateName(
-                            index: index-3, newPlaylistName: playlistEditedName);
-                            Navigator.pop(context);
-                            snackBarCommonWidget(context, contentText: "Edited Successfully");
+                          index: index - 3,
+                          newPlaylistName: editPlaylistController.text,
+                        );
+                        Navigator.pop(context);
+                        snackBarCommonWidget(context,
+                            contentText: "Edited Successfully");
                       },
                       playlsitNameGiverController: editPlaylistController,
                     );
                   },
                 );
               },
-              onTap: () {
+              onTap: () async {
+                
+                
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => PlaylistSongListPage(
-                      audioPlayer: audioPlayer,
-                      musicBox: musicBox,
-                      isPlaying: isPlaying,
+                      favoriteController: favoriteController,
+                      playlistId: index,
+                      playlistName:
+                          playlistController.getPlaylistName(index: index - 3),
                     ),
                   ),
                 );

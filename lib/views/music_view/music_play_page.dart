@@ -1,226 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:just_audio/just_audio.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
+import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
-import 'package:music_player/controllers/music_play_page_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/menu_bottom_sheet.dart';
 import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
-import 'package:music_player/views/current_playlist/current_playlist.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
-class MusicPlayPage extends StatefulWidget {
+class MusicPlayPage extends StatelessWidget {
   MusicPlayPage({
     super.key,
-    required this.isPlaying,
-    required this.audioPlayer,
     required this.songModel,
-    required this.audioSource,
-    required this.initialIndex,
-    this.currentPlayingSongIndex,
-    required this.playSong,
-    required this.musicBox,
-    required this.lastPlayedPosition,
+    // required this.lastPlayedPosition,
     required this.songId,
+    required this.songTitle,
+    required this.artistName,
+    required this.albumName,
+    required this.songFormat,
+    required this.songSize,
+    required this.songPathIndevice,
+    required this.audioController, required this.musicUri, required this.favoriteController,
   });
 
   final AllMusicsModel songModel;
-  final AudioPlayer audioPlayer;
-  final ConcatenatingAudioSource? audioSource;
-  int? currentPlayingSongIndex;
-  final void Function({String? url, int? index, bool? isRecentlyPlayed})
-      playSong;
-  final Box<AllMusicsModel> musicBox;
-  final Duration lastPlayedPosition;
   final int songId;
+  final String songTitle;
+  final String artistName;
+  final String albumName;
+  final String songFormat;
+  final String songSize;
+  final String songPathIndevice;
+  final AudioController audioController;
+  final String musicUri;
+  final FavoriteController favoriteController;
 
-  final int initialIndex;
-  bool isPlaying;
-  Duration totalDuration = Duration();
-  Duration currentPosition = Duration();
-
-  @override
-  State<MusicPlayPage> createState() => _MusicPlayPageState();
-}
-
-class _MusicPlayPageState extends State<MusicPlayPage> {
-  // final musicBox = Hive.box<AllMusicsModel>('musics');
-  late AllMusicsModel currentPlayingSong;
-  bool _isMounted = false;
-  bool isLoopingAllSongs = false;
-  bool isShufflingSongs = false;
-  bool isFavorite = false;
-  final FavoriteController favoriteController = Get.put(FavoriteController());
-  // index of song getting for details
-  AllMusicsModel getSongDetailsByIndex(int index) {
-    // problem here not gettting currrent song artwork
-    // Get.find<MusicPlayPageController>().id = currentPlayingSong.id;
-    try {
-      return widget.musicBox.getAt(index) ??
-          AllMusicsModel(
-            id: currentPlayingSong.id,
-            musicName: currentPlayingSong.musicName,
-            musicAlbumName: currentPlayingSong.musicAlbumName,
-            musicArtistName: currentPlayingSong.musicArtistName,
-            musicPathInDevice: currentPlayingSong.musicPathInDevice,
-            musicFormat: currentPlayingSong.musicFormat,
-            musicUri: currentPlayingSong.musicUri,
-            musicFileSize: currentPlayingSong.musicFileSize,
-            musicSelected: false,
-          );
-    } catch (e) {
-      print("Error getting song details: $e");
-      return AllMusicsModel(
-        id: currentPlayingSong.id,
-        musicName: currentPlayingSong.musicName,
-        musicAlbumName: currentPlayingSong.musicAlbumName,
-        musicArtistName: currentPlayingSong.musicArtistName,
-        musicPathInDevice: currentPlayingSong.musicPathInDevice,
-        musicFormat: currentPlayingSong.musicFormat,
-        musicUri: currentPlayingSong.musicUri,
-        musicFileSize: currentPlayingSong.musicFileSize,
-        musicSelected: false,
-      );
-    }
-  }
-
-  // play song method
-  void playSong([int? index]) {
-    try {
-      // if (widget.audioPlayer.playing) {
-      //   widget.audioPlayer.seek(widget.lastPlayedPosition);
-      //   widget.audioPlayer.play();
-      // }
-      if (widget.audioSource != null) {
-        widget.audioPlayer.setAudioSource(
-          widget.audioSource!,
-          initialIndex: index,
-          initialPosition: widget.lastPlayedPosition,
-        );
-      }
-      setState(() {
-        widget.currentPlayingSongIndex = index;
-        if (widget.currentPlayingSongIndex != null)
-          currentPlayingSong =
-              getSongDetailsByIndex(widget.currentPlayingSongIndex!);
-        // MusicPlayPageController.to.setId(currentPlayingSong.id);
-        checkIsFavorite();
-      });
-      widget.audioPlayer.play();
-    } on Exception {
-      print("Can't Play Song PlaySong Not Working Properly Let's fix it");
-    }
-    setState(() {
-      widget.isPlaying = true;
-    });
-    // listening to duration
-    widget.audioPlayer.durationStream.listen((totalDurationOfSong) {
-      setState(() {
-        if (totalDurationOfSong != null) {
-          widget.totalDuration = totalDurationOfSong;
-        }
-      });
-    });
-    // listening to positing
-    widget.audioPlayer.positionStream.listen((currentPositionOfSong) {
-      setState(() {
-        widget.currentPosition = currentPositionOfSong;
-      });
-    });
-  }
-
-  // initializer at first
-  @override
-  void initState() {
-    super.initState();
-    _isMounted = true;
-    currentPlayingSong = widget.songModel;
-    playSong(widget.initialIndex);
-    // MusicPlayPageController.to.setId(currentPlayingSong.id);
-    // checkIsFavorite();
-    favoriteController.loadFavoriteSongs();
-  }
-
-  @override
-  void dispose() {
-    _isMounted = false;
-    favoriteController.favoriteBox.putAll(Map.fromIterable(
-        favoriteController.favoriteSongs,
-        key: (song) => song.id));
-    super.dispose();
-  }
-
-  void safeSetState(VoidCallback fn) {
-    if (_isMounted) {
-      setState(fn);
-    }
-  }
-
-  // to seconds changer
-  void changeToSeconds(int seconds) {
-    Duration duration = Duration(seconds: seconds);
-    widget.audioPlayer.seek(duration);
-  }
-
-  // To next song
-  void goToNextSong() {
-    if (widget.currentPlayingSongIndex != null && widget.audioSource != null) {
-      if (widget.currentPlayingSongIndex! < widget.audioSource!.length &&
-          widget.currentPlayingSongIndex != null) {
-        widget.audioPlayer.seekToNext();
-        // Update the currentPlayingSongIndex
-        safeSetState(() {
-          widget.currentPlayingSongIndex =
-              widget.audioPlayer.currentIndex ?? widget.currentPlayingSongIndex;
-          currentPlayingSong =
-              getSongDetailsByIndex(widget.currentPlayingSongIndex! + 1);
-        });
-        if (widget.currentPlayingSongIndex! >= widget.audioSource!.length - 1) {
-          return snackBarCommonWidget(context,
-              contentText: "No songs to play next");
-        }
-      }
-    }
-  }
-
-  // To previous song
-  void goToPreviousSong() {
-    if (widget.currentPlayingSongIndex != 0) {
-      widget.audioPlayer.seekToPrevious();
-      // Update the currentPlayingSongIndex
-      safeSetState(() {
-        widget.currentPlayingSongIndex =
-            widget.audioPlayer.currentIndex ?? widget.currentPlayingSongIndex;
-        currentPlayingSong =
-            getSongDetailsByIndex(widget.currentPlayingSongIndex! - 1);
-      });
-    }
-  }
-
-  void songLoopModesControlling() {
-    setState(() {
-      isLoopingAllSongs = !isLoopingAllSongs;
-      if (isLoopingAllSongs) {
-        // Toggle shuffle state when looping all songs
-        isShufflingSongs = !isShufflingSongs;
-        widget.audioPlayer.setLoopMode(
-          isShufflingSongs ? LoopMode.off : LoopMode.all,
-        );
-      } else {
-        // Toggle between loop one and shuffle modes when looping one song
-        isShufflingSongs
-            ? widget.audioPlayer.setLoopMode(LoopMode.one)
-            : widget.audioPlayer.shuffleModeEnabled;
-      }
-    });
-  }
+  Duration totalDuration = const Duration();
+  Duration currentPosition = const Duration();
 
   FavoriteModel getFavoriteModelFromAllMusicModel(AllMusicsModel allMusic) {
     return FavoriteModel(
@@ -235,15 +57,12 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
     );
   }
 
-  void checkIsFavorite() {
-    isFavorite = favoriteController.isFavorite(currentPlayingSong.id);
-  }
+  
+
+  //late AllMusicsModel currentPlayingSong;
 
   @override
   Widget build(BuildContext context) {
-    print(currentPlayingSong.id);
-    print(currentPlayingSong.musicName);
-    print(currentPlayingSong.musicArtistName);
     final kScreenWidth = MediaQuery.of(context).size.width;
     final kScreenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -291,50 +110,55 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                           borderRadius: BorderRadius.circular(60),
                           color: kMusicIconContainerColor,
                         ),
-                        child: ArtWorkWidgetMusicPlayingPage(
-                            songId: currentPlayingSong.id),
+                        child: ArtWorkWidgetMusicPlayingPage(songId: songId),
                       ),
                     ),
                     kHeight15,
                     // Duration Slider
-                    Slider(
-                      activeColor: kRed,
-                      thumbColor: kRed,
-                      inactiveColor: const Color.fromARGB(255, 53, 53, 53),
-                      min: const Duration(microseconds: 0).inSeconds.toDouble(),
-                      max: widget.totalDuration.inSeconds.toDouble(),
-                      value: (widget.currentPosition != null &&
-                              widget.currentPosition.inSeconds >= 0 &&
-                              widget.currentPosition.inSeconds <=
-                                  (widget.totalDuration != null
-                                      ? widget.totalDuration.inSeconds
-                                      : 1.0))
-                          ? widget.currentPosition.inSeconds.toDouble()
-                          : 0.0,
-                      onChanged: (value) {
-                        setState(() {
-                          changeToSeconds(value.toInt());
+                    Obx(() {
+                      return Slider(
+                        activeColor: kRed,
+                        thumbColor: kRed,
+                        inactiveColor: const Color.fromARGB(255, 53, 53, 53),
+                        min: const Duration(microseconds: 0)
+                            .inSeconds
+                            .toDouble(),
+                        max: audioController.duration.value != null
+                            ? audioController.duration.value.inSeconds
+                                .toDouble()
+                            : 0.0,
+                        value:
+                            audioController.position.value.inSeconds.toDouble(),
+                        onChanged: (value) {
+                          audioController.changeToSeconds(value.toInt());
                           value = value;
-                        });
-                      },
-                    ),
+                        },
+                      );
+                    }),
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          TextWidgetCommon(
-                            text:
-                                widget.currentPosition.toString().split(".")[0],
-                            fontSize: 10.sp,
-                            color: kGrey,
-                          ),
-                          TextWidgetCommon(
-                            text: widget.totalDuration.toString().split(".")[0],
-                            fontSize: 10.sp,
-                            color: kGrey,
-                          ),
+                          Obx(() {
+                            return TextWidgetCommon(
+                              text: audioController.position.value
+                                  .toString()
+                                  .split(".")[0],
+                              fontSize: 10.sp,
+                              color: kGrey,
+                            );
+                          }),
+                          Obx(() {
+                            return TextWidgetCommon(
+                              text: audioController.duration.value
+                                  .toString()
+                                  .split(".")[0],
+                              fontSize: 10.sp,
+                              color: kGrey,
+                            );
+                          }),
                         ],
                       ),
                     )
@@ -354,7 +178,7 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                             child: TextWidgetCommon(
                               textAlign: TextAlign.center,
                               overflow: TextOverflow.ellipsis,
-                              text: currentPlayingSong.musicName,
+                              text: songTitle,
                               fontSize: 23.sp,
                               color: kWhite,
                               fontWeight: FontWeight.w500,
@@ -364,10 +188,9 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                           // song artist name
                           TextWidgetCommon(
                             overflow: TextOverflow.ellipsis,
-                            text: currentPlayingSong.musicArtistName ==
-                                    '<unknown>'
+                            text: artistName == '<unknown>'
                                 ? 'Unknown Artist'
-                                : currentPlayingSong.musicArtistName,
+                                : artistName,
                             fontSize: 10.sp,
                             color: kGrey,
                             fontWeight: FontWeight.w400,
@@ -381,12 +204,7 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                           // play back button
                           GestureDetector(
                             onTap: () {
-                              print("to back");
-                              goToPreviousSong();
-                              if (widget.currentPlayingSongIndex! <= 0) {
-                                return snackBarCommonWidget(context,
-                                    contentText: "No previous songs to play");
-                              }
+                              audioController.playPreviousSong();
                             },
                             child: Image.asset(
                               'assets/play_back.png',
@@ -397,14 +215,13 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                           // play and pause button
                           GestureDetector(
                             onTap: () {
-                              setState(() {
-                                if (widget.isPlaying) {
-                                  widget.audioPlayer.pause();
-                                } else {
-                                  widget.audioPlayer.play();
-                                }
-                                widget.isPlaying = !widget.isPlaying;
-                              });
+                              if (audioController.isPlaying.value) {
+                                audioController.pauseSong();
+                              } else {
+                                audioController.audioPlayer.play();
+                              }
+                              audioController.isPlaying.value =
+                                  !audioController.isPlaying.value;
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -412,20 +229,21 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10),
                                   color: kRed),
-                              child: Icon(
-                                widget.isPlaying
-                                    ? Icons.pause
-                                    : Icons.play_arrow,
-                                size: 40,
-                                color: kWhite,
-                              ),
+                              child: Obx(() {
+                                return Icon(
+                                  audioController.isPlaying.value
+                                      ? Icons.pause
+                                      : Icons.play_arrow,
+                                  size: 40,
+                                  color: kWhite,
+                                );
+                              }),
                             ),
                           ),
                           // play next button
                           GestureDetector(
                             onTap: () {
-                              print("to next");
-                              goToNextSong();
+                              audioController.playNextSong();
                             },
                             child: Image.asset(
                               'assets/play_next.png',
@@ -442,32 +260,32 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                           // song current playlist show icon
                           IconButton(
                             onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => CurrentPlayListPage(
-                                    audioPlayer: widget.audioPlayer,
-                                    indexfromhome: widget.initialIndex,
-                                    musicBox: widget.musicBox,
-                                    songModel: widget.songModel,
-                                    audioSource: widget.audioSource,
-                                    currentPlayingSongIndex:
-                                        widget.currentPlayingSongIndex,
-                                    playSong: widget.playSong,
-                                    songId: currentPlayingSong.id,
-                                    isPlaying: widget.isPlaying,
-                                    songName: currentPlayingSong.musicName,
-                                    artistName:
-                                        currentPlayingSong.musicArtistName,
-                                    albumName:
-                                        currentPlayingSong.musicAlbumName,
-                                    songFormat: currentPlayingSong.musicFormat,
-                                    songSize: currentPlayingSong.musicFileSize
-                                        .toString(),
-                                    songPathIndevice:
-                                        currentPlayingSong.musicPathInDevice,
-                                  ),
-                                ),
-                              );
+                              // Navigator.of(context).push(
+                              //   MaterialPageRoute(
+                              //     builder: (context) => CurrentPlayListPage(
+                              //       audioPlayer: widget.audioPlayer,
+                              //       indexfromhome: widget.initialIndex,
+                              //       musicBox: widget.musicBox,
+                              //       songModel: widget.songModel,
+                              //       audioSource: widget.audioSource,
+                              //       currentPlayingSongIndex:
+                              //           widget.currentPlayingSongIndex,
+                              //       playSong: widget.playSong,
+                              //       songId: currentPlayingSong.id,
+                              //       isPlaying: widget.isPlaying,
+                              //       songName: currentPlayingSong.musicName,
+                              //       artistName:
+                              //           currentPlayingSong.musicArtistName,
+                              //       albumName:
+                              //           currentPlayingSong.musicAlbumName,
+                              //       songFormat: currentPlayingSong.musicFormat,
+                              //       songSize: currentPlayingSong.musicFileSize
+                              //           .toString(),
+                              //       songPathIndevice:
+                              //           currentPlayingSong.musicPathInDevice,
+                              //     ),
+                              //   ),
+                              // );
                             },
                             icon: Icon(
                               Icons.list,
@@ -476,51 +294,49 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                             ),
                           ),
                           // song favourite add icon
-                          IconButton(
-                            onPressed: () {
-                              AllMusicsModel music = getSongDetailsByIndex(
-                                  widget.currentPlayingSongIndex!);
-                              FavoriteModel favoriteMusic =
-                                  getFavoriteModelFromAllMusicModel(music);
-                              favoriteController.onTapFavorite(favoriteMusic);
-                              checkIsFavorite();
-                              snackBarCommonWidget(
-                                context,
-                                contentText: !isFavorite
-                                    ? "Added to favorites"
-                                    : "Removed from favorites",
-                              );
-                            },
-                            icon: Icon(
-                              isFavorite
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              size: 30,
-                              color: isFavorite ? kRed : kWhite,
-                            ),
-                          ),
+                          GetBuilder<FavoriteController>(
+                              global: true,
+                              builder: (favoriteController) {
+                                return IconButton(
+                                  onPressed: () {
+                                    FavoriteModel favoriteMusic =
+                                        getFavoriteModelFromAllMusicModel(
+                                            songModel);
+                                    favoriteController.onTapFavorite(
+                                        favoriteMusic, context);
+                                  },
+                                  icon: Icon(
+                                   favoriteController.isFavorite(songId)?Icons.favorite: Icons.favorite_border,
+                                    size: 30,
+                                    color: favoriteController.isFavorite(songId)
+                                        ? kRed
+                                        : kWhite,
+                                  ),
+                                );
+                              }),
+
                           // song loop shuffle
 
-                          GestureDetector(
-                            onTap: songLoopModesControlling,
-                            child: isLoopingAllSongs
-                                ? isShufflingSongs
-                                    ? Image.asset(
-                                        "assets/shuffle.png",
-                                        scale: 18.sp,
-                                        color: kWhite,
-                                      )
-                                    : Image.asset(
-                                        "assets/loop_all.png",
-                                        scale: 15.sp,
-                                        color: kWhite,
-                                      )
-                                : Image.asset(
-                                    "assets/loop_one.png",
-                                    scale: 15.sp,
-                                    color: kWhite,
-                                  ),
-                          ),
+                          // GestureDetector(
+                          //   // onTap: songLoopModesControlling,
+                          //   child: isLoopingAllSongs
+                          //       ? isShufflingSongs
+                          //           ? Image.asset(
+                          //               "assets/shuffle.png",
+                          //               scale: 18.sp,
+                          //               color: kWhite,
+                          //             )
+                          //           : Image.asset(
+                          //               "assets/loop_all.png",
+                          //               scale: 15.sp,
+                          //               color: kWhite,
+                          //             )
+                          //       : Image.asset(
+                          //           "assets/loop_one.png",
+                          //           scale: 15.sp,
+                          //           color: kWhite,
+                          //         ),
+                          // ),
 
                           // song settings icon
                           IconButton(
@@ -530,18 +346,18 @@ class _MusicPlayPageState extends State<MusicPlayPage> {
                                 context: context,
                                 builder: (context) {
                                   return MenuBottomSheet(
+                                    favouriteController: favoriteController,
+                                    song: songModel,
+                                    songId: songId,
+                                    musicUri: musicUri,
                                     kScreenHeight: kScreenHeight,
                                     pageType: PageTypeEnum.musicViewPage,
-                                    songName: currentPlayingSong.musicName,
-                                    artistName:
-                                        currentPlayingSong.musicArtistName,
-                                    albumName:
-                                        currentPlayingSong.musicAlbumName,
-                                    songFormat: currentPlayingSong.musicFormat,
-                                    songSize: currentPlayingSong.musicFileSize
-                                        .toString(),
-                                    songPathIndevice:
-                                        currentPlayingSong.musicPathInDevice,
+                                    songName: songTitle,
+                                    artistName: artistName,
+                                    albumName: albumName,
+                                    songFormat: songFormat,
+                                    songSize: songSize.toString(),
+                                    songPathIndevice: songPathIndevice,
                                   );
                                 },
                               );

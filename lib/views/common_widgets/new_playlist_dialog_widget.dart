@@ -5,27 +5,14 @@ import 'package:music_player/views/common_widgets/button_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/common_widgets/textfield_common_widget.dart';
 
-class NewPlayListDialogBoxWidget extends StatefulWidget {
+class NewPlayListDialogBoxWidget extends StatelessWidget {
   const NewPlayListDialogBoxWidget({
     super.key,
-    required this.playlsitNameGiverController,
-    required this.onSavePlaylist,
+    required this.playlsitNameGiverController, required this.editOrNew, required this.onPressed,
   });
   final TextEditingController playlsitNameGiverController;
-  final Function(String) onSavePlaylist;
-  @override
-  State<NewPlayListDialogBoxWidget> createState() =>
-      _NewPlayListDialogBoxWidgetState();
-}
-
-class _NewPlayListDialogBoxWidgetState
-    extends State<NewPlayListDialogBoxWidget> {
-  @override
-  void initState() {
-    super.initState();
-    widget.playlsitNameGiverController.text = "Playlist 1";
-  }
-
+  final void Function() onPressed;
+  final String editOrNew;
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -33,7 +20,7 @@ class _NewPlayListDialogBoxWidgetState
       backgroundColor: kMenuBtmSheetColor,
       title: Center(
         child: TextWidgetCommon(
-          text: "New Playlist",
+          text: editOrNew,
           fontSize: 18.sp,
           color: kWhite,
           fontWeight: FontWeight.w500,
@@ -43,7 +30,7 @@ class _NewPlayListDialogBoxWidgetState
         width: 100,
         height: 50,
         child: TextFieldCommonWidget(
-          controller: widget.playlsitNameGiverController,
+          controller: playlsitNameGiverController,
           hintText: "",
           labelText: "",
         ),
@@ -60,9 +47,7 @@ class _NewPlayListDialogBoxWidgetState
             ),
             ButtonCommonWidget(
               buttonText: "Save",
-              onPressed:() {
-                 widget.onSavePlaylist(widget.playlsitNameGiverController.text);
-              },
+              onPressed:onPressed,
             ),
           ],
         ),

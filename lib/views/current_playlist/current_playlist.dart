@@ -70,29 +70,30 @@ class CurrentPlayListPage extends StatelessWidget {
           ],
         ),
       ),
-      body: ListView.builder(
-        padding: EdgeInsets.symmetric(horizontal: 10.w),
-        itemBuilder: (context, index) {
-          return MusicTileWidget(
-            audioPlayer: audioPlayer,
-            index: indexfromhome,
-            musicBox: musicBox,
-            songModel: songModel,
-            audioSource: audioSource,
-            currentPlayingSongIndex: currentPlayingSongIndex,
-            playSong: playSong,
-            songId: songId,
-            isPlaying: isPlaying,
-            albumName: albumName,
-            artistName: artistName,
-            songTitle: songName,
-            pageType: PageTypeEnum.currentPlayListPage,
-            songFormat: songFormat,
-            songPathIndevice: songPathIndevice,
-            songSize: "${songSize}MB",
-          );
-        },
-      ),
+      // body: ListView.builder(
+      //   padding: EdgeInsets.symmetric(horizontal: 10.w),
+      //   itemBuilder: (context, index) {
+      //     return MusicTileWidget(
+      //       musicUri: ,
+      //       // audioPlayer: audioPlayer,
+      //       // index: indexfromhome,
+      //       // musicBox: musicBox,
+      //       songModel: songModel,
+      //       // audioSource: audioSource,
+      //       // currentPlayingSongIndex: currentPlayingSongIndex,
+      //       // playSong: playSong,
+      //       songId: songId,
+      //     //  isPlaying: isPlaying,
+      //       albumName: albumName,
+      //       artistName: artistName,
+      //       songTitle: songName,
+      //       pageType: PageTypeEnum.currentPlayListPage,
+      //       songFormat: songFormat,
+      //       songPathIndevice: songPathIndevice,
+      //       songSize: "${songSize}MB",
+      //     );
+      //   },
+      // ),
     );
   }
 }

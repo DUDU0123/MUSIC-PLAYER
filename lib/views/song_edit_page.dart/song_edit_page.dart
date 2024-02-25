@@ -11,7 +11,7 @@ class SongEditPage extends StatefulWidget {
   const SongEditPage({
     super.key,
     required this.pageType,
-    required this.songList,
+    required this.songList, 
   });
   final PageTypeEnum pageType;
   final List<AllMusicsModel> songList;
@@ -21,9 +21,13 @@ class SongEditPage extends StatefulWidget {
 }
 
 class _SongEditPageState extends State<SongEditPage> {
+  // function to remove song
+  
 
   bool? isSelected = false;
   bool isAllSelected = false;
+  int songID = 0;
+  String songName = '';
   @override
   Widget build(BuildContext context) {
     // final kScreenWidth = MediaQuery.of(context).size.width;
@@ -48,6 +52,8 @@ class _SongEditPageState extends State<SongEditPage> {
         itemCount: widget.songList.length,
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
+          songID = widget.songList[index].id;
+          songName = widget.songList[index].musicName;
           return Padding(
             padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
             child: CheckboxListTile(
@@ -64,14 +70,16 @@ class _SongEditPageState extends State<SongEditPage> {
                 overflow: TextOverflow.ellipsis,
               ),
               subtitle: TextWidgetCommon(
-                text: "${widget.songList[index].musicArtistName}-${widget.songList[index].musicAlbumName}",
+                overflow: TextOverflow.ellipsis,
+                text:
+                    "${widget.songList[index].musicArtistName == '<unknown>' ? 'Unknown Artist' : widget.songList[index].musicArtistName}-${widget.songList[index].musicAlbumName}",
                 fontSize: 10.sp,
                 color: kGrey,
               ),
               value: widget.songList[index].musicSelected ?? false,
               onChanged: (value) {
                 setState(() {
-                  widget.songList[index].musicSelected = value??false;
+                  widget.songList[index].musicSelected = value ?? false;
                   isSelected = widget.songList
                       .any((checkbox) => checkbox.musicSelected == true);
                 });
@@ -81,6 +89,8 @@ class _SongEditPageState extends State<SongEditPage> {
         },
       ),
       bottomNavigationBar: BottomSettingsWidget(
+       // removeSongFromFavourites: removeSongFromFavourites,
+        songList: widget.songList,
         isSelected: isSelected,
         pageType: widget.pageType,
       ),

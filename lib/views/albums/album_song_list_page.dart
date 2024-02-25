@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/all_music_controller.dart';
+import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
-import 'package:music_player/views/common_widgets/default_widget.dart';
+import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
@@ -15,21 +18,18 @@ class AlbumSongListPage extends StatelessWidget {
   const AlbumSongListPage(
       {super.key,
       required this.albumName,
-      required this.albumSongs,
-      required this.audioPlayer,
-      required this.musicBox,
-      this.isPlaying});
+      required this.albumSongs, required this.favoriteController,
+      });
   final String albumName;
   final List<AllMusicsModel> albumSongs;
+   final FavoriteController favoriteController;
 
-  final AudioPlayer audioPlayer;
 
-  final bool? isPlaying;
-  final Box<AllMusicsModel> musicBox;
 
   @override
   Widget build(BuildContext context) {
-    final musicBox = Hive.box<AllMusicsModel>('musics');
+    AllMusicController allMusicController = Get.put(AllMusicController());
+    // final musicBox = Hive.box<AllMusicsModel>('musics');
     // final List<AllMusicsModel> albumSongs = artistOrAlbumSongsListGetting(
     //   musicBox: musicBox,
     //   callback: (music) {
@@ -52,6 +52,7 @@ class AlbumSongListPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
+                      
                       pageType: PageTypeEnum.albumPage,
                       songList: albumSongs,
                     ),
@@ -67,14 +68,16 @@ class AlbumSongListPage extends StatelessWidget {
           ],
         ),
       ),
-      body:albumSongs.isEmpty?DefaultWidget(): ListView.builder(
+      body:albumSongs.isEmpty?DefaultCommonWidget(text: "No songs available"): ListView.builder(
         itemCount: albumSongs.length,
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
           return MusicTileWidget(
-            audioPlayer: audioPlayer,
+            favoriteController: favoriteController,
+            musicUri: albumSongs[index].musicUri,
+            // audioPlayer: audioPlayer,
       
-            musicBox: musicBox,
+            // musicBox: musicBox,
   
             songId: albumSongs[index].id,
             pageType: PageTypeEnum.normalPage,
