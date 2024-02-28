@@ -98,10 +98,10 @@ class _AddSongInPlaylistFromSelectingSongsState
                 //         .toList());
                
 
-                        List<AllMusicsModel> selectedSongList = playlistController.fullSongListToAddToPlaylist.value
-                        .where((music) => music.musicSelected == true)
-                        .toList();
-                        playlistController.addSongsToPlaylist(selectedSongList, widget.playListID);
+                        // List<AllMusicsModel> selectedSongList = playlistController.fullSongListToAddToPlaylist.value
+                        // .where((music) => music.musicSelected == true)
+                        // .toList();
+                        // playlistController.addSongsToPlaylist(selectedSongList, widget.playListID);
               Navigator.pop(context);
               },
               child: Container(

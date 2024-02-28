@@ -18,17 +18,18 @@ class AlbumSongListPage extends StatelessWidget {
   const AlbumSongListPage(
       {super.key,
       required this.albumName,
-      required this.albumSongs, required this.favoriteController,
+      required this.albumSongs, required this.favoriteController, required this.songModel,
       });
   final String albumName;
   final List<AllMusicsModel> albumSongs;
    final FavoriteController favoriteController;
+   final AllMusicsModel songModel;
 
 
 
   @override
   Widget build(BuildContext context) {
-    AllMusicController allMusicController = Get.put(AllMusicController());
+    // AllMusicController allMusicController = Get.put(AllMusicController());
     // final musicBox = Hive.box<AllMusicsModel>('musics');
     // final List<AllMusicsModel> albumSongs = artistOrAlbumSongsListGetting(
     //   musicBox: musicBox,
@@ -52,7 +53,8 @@ class AlbumSongListPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
-                      
+                      song: songModel,
+                      favoriteController: favoriteController,
                       pageType: PageTypeEnum.albumPage,
                       songList: albumSongs,
                     ),
@@ -73,6 +75,7 @@ class AlbumSongListPage extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
           return MusicTileWidget(
+            songModel: songModel,
             favoriteController: favoriteController,
             musicUri: albumSongs[index].musicUri,
             // audioPlayer: audioPlayer,
@@ -80,7 +83,7 @@ class AlbumSongListPage extends StatelessWidget {
             // musicBox: musicBox,
   
             songId: albumSongs[index].id,
-            pageType: PageTypeEnum.normalPage,
+            pageType: PageTypeEnum.albumSongListPage,
             albumName: albumSongs[index].musicAlbumName,
             artistName: albumSongs[index].musicArtistName,
             songTitle: albumSongs[index].musicName,

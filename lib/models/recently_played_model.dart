@@ -30,5 +30,10 @@ class RecentlyPlayedModel {
       recentlyPlayedSongsList.add(song);
     }
   }
+
+  void removeRecentlyPlayedSong(AllMusicsModel song) {
+    recentlyPlayedSongsList.removeWhere((recentlyPlayedSong) =>
+        recentlyPlayedSong.id == song.id);
+  }
   
 }

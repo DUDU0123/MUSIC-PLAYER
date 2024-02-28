@@ -7,6 +7,24 @@ enum MenuTypeEnum{
   removeFromPlaylist,
 }
 
+enum SortMethod{
+  alphabetically,
+  byTimeAdded,
+}
+enum TopMenuItemEnum{
+  sortSong,
+  manageSong,
+  settings,
+}
+
+enum TabType {
+  songs,
+  artist,
+  album,
+  playlist,
+}
+
+
 enum PageTypeEnum{
   homePage,
   artistPage,
@@ -14,7 +32,10 @@ enum PageTypeEnum{
   musicViewPage,
   playListPage,
   songEditPage,
-  normalPage,
+  //normalPage,
+  searchPage,
+  artistSongListPage,
+  albumSongListPage,
   currentPlayListPage,
   favoritePage,
   recentlyPlayedPage,

@@ -13,6 +13,11 @@ class AllMusicController extends GetxController {
     super.onInit();
   }
 
+  // Future<void> fetchAllMusicData() async {
+  //   await getAlbumSongs();
+  //   await getArtistSongs();
+  // }
+
   final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
   final RxMap<String, List<AllMusicsModel>> artistMap =
       <String, List<AllMusicsModel>>{}.obs;
@@ -20,7 +25,7 @@ class AllMusicController extends GetxController {
       <String, List<AllMusicsModel>>{}.obs;
 
   // getting artist with songs
-  void getArtistSongs() {
+   getArtistSongs() {
     final List<AllMusicsModel> allMusics = musicBox.values.toList();
     allMusics.forEach((music) {
       final artistName = capitalizeFirstLetter(music.musicArtistName);
@@ -29,10 +34,11 @@ class AllMusicController extends GetxController {
       }
       artistMap[artistName]!.add(music);
     });
+    update();
   }
 
   // getting album with songs
-  void getAlbumSongs() {
+   getAlbumSongs() {
     final List<AllMusicsModel> allMusics = musicBox.values.toList();
     allMusics.forEach((music) {
       final albumName = capitalizeFirstLetter(music.musicAlbumName);
@@ -41,19 +47,8 @@ class AllMusicController extends GetxController {
       }
       albumsMap[albumName]!.add(music);
     });
+    update();
   }
 
-  // method for deleting a song permanently
-  void deleteSelectedSongs(List<int> selectedSongIds) {
-    final musicList = musicBox.values.toList();
-    selectedSongIds.forEach((id) {
-      final index = musicList.indexWhere((music) => music.id == id);
-      if (index != -1) {
-        musicBox.deleteAt(index);
-      }
-    });
-    update();
-    Get.back();
-    audioController.getAllSongs();
-  }
+
 }

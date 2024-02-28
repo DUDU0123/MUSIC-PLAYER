@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
@@ -10,7 +13,7 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class MusicTileWidget extends StatefulWidget {
-  MusicTileWidget({
+  const MusicTileWidget({
     super.key,
     required this.songTitle,
     this.artistName = "Unknown artist",
@@ -20,7 +23,7 @@ class MusicTileWidget extends StatefulWidget {
     required this.songPathIndevice,
     required this.pageType,
     required this.songId,
-    this.songModel,
+    required this.songModel,
     this.audioController,
     this.onTap,
     required this.musicUri,
@@ -36,11 +39,11 @@ class MusicTileWidget extends StatefulWidget {
   final PageTypeEnum pageType;
   final int songId;
   final String musicUri;
-  final AllMusicsModel? songModel;
+  final AllMusicsModel songModel;
   final AudioController? audioController;
   final void Function()? onTap;
   final FavoriteController favoriteController;
-  Duration lastPlayedPosition = Duration.zero;
+  // Duration lastPlayedPosition = Duration.zero;
 
   @override
   State<MusicTileWidget> createState() => _MusicTileWidgetState();
@@ -60,7 +63,8 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
 
   @override
   Widget build(BuildContext context) {
-    bool isPlaying = widget.audioController?.isPlaying.value ?? false;
+    log("isPlaying: ${widget.audioController?.isPlaying.value}");
+    // bool isPlaying = widget.audioController?.isPlaying.value ?? false;
     final kScreenHeight = MediaQuery.of(context).size.height;
     final kScreenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
@@ -102,35 +106,63 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                          width: kScreenWidth / 2.2,
-                          // widget.pageType != PageTypeEnum.currentPlayListPage
-                          //     ? kScreenWidth / 1.9
-                          //     : kScreenWidth / 1.6,
-                          child: TextWidgetCommon(
+                        width: kScreenWidth / 2.2,
+                        // widget.pageType != PageTypeEnum.currentPlayListPage
+                        //     ? kScreenWidth / 1.9
+                        //     : kScreenWidth / 1.6,
+                        child: widget.pageType == PageTypeEnum.homePage || widget.pageType==PageTypeEnum.searchPage? Obx(() {
+                          return TextWidgetCommon(
                             overflow: TextOverflow.ellipsis,
                             text: widget.songTitle,
                             fontSize: 16.sp,
                             color: widget.audioController != null
-                                ? widget.audioController!.isPlaying.value
-                                    ? kWhite
-                                    : kRed
+                                ? widget.audioController!.isPlaying.value &&
+                                        widget.audioController!
+                                                .currentPlayingSong.value?.id ==
+                                            widget.songId
+                                    ? kRed
+                                    : kWhite
                                 : kWhite,
-                          )),
+                          );
+                        }): TextWidgetCommon(
+                            overflow: TextOverflow.ellipsis,
+                            text: widget.songTitle,
+                            fontSize: 16.sp,
+                            color: kWhite,
+                          ),
+                      ),
                       SizedBox(
                         width: kScreenWidth / 2,
-                        child: TextWidgetCommon(
-                          overflow: TextOverflow.ellipsis,
-                          text:
-                              "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName}",
-                          fontSize: 10.sp,
-                          color:
-                              //  widget.isPlaying != null
-                              //     ? widget.isPlaying!
-                              //         ? kRed
-                              //         : kGrey
-                              //     :
-                              kGrey,
-                        ),
+                        child:widget.pageType == PageTypeEnum.homePage || widget.pageType==PageTypeEnum.searchPage? Obx(() {
+                          return TextWidgetCommon(
+                            overflow: TextOverflow.ellipsis,
+                            text:
+                                "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName}",
+                            fontSize: 10.sp,
+                            color: widget.audioController != null
+                                ? widget.audioController!.isPlaying.value &&
+                                        widget.audioController!
+                                                .currentPlayingSong.value?.id ==
+                                            widget.songId
+                                    ? kRed
+                                    : kWhite
+                                : kWhite,
+                          );
+                        }): 
+                        TextWidgetCommon(
+                            overflow: TextOverflow.ellipsis,
+                            text:
+                                "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName}",
+                            fontSize: 10.sp,
+                            color: widget.audioController != null
+                                ? widget.audioController!.isPlaying.value &&
+                                        widget.audioController!
+                                                .currentPlayingSong.value?.id ==
+                                            widget.songId
+                                    ? kRed
+                                    : kWhite
+                                : kWhite,
+                          ),
                       ),
                     ],
                   ),
@@ -139,15 +171,13 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                       widget.pageType != PageTypeEnum.currentPlayListPage
                           ? IconButton(
                               onPressed: () {
-                                
                                 showModalBottomSheet(
-                              
-                                  
                                   barrierColor: kTransparent,
                                   backgroundColor: kTransparent,
                                   context: context,
                                   builder: (context) {
-                                     print("widget.songModel: ${widget.songModel}");
+                                    print(
+                                        "widget.songModel: ${widget.songModel}");
                                     if (widget.songModel != null) {
                                       return MenuBottomSheet(
                                         favouriteController:
@@ -171,17 +201,28 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                   },
                                 );
                               },
-                              icon: Icon(
-                                Icons.more_vert,
-                                size: 26.sp,
-                                color:
-                                    //  widget.isPlaying != null
-                                    //     ? widget.isPlaying!
-                                    //         ? kRed
-                                    //         : kGrey
-                                    //     :
-                                    kWhite,
-                              ),
+                              icon: widget.pageType == PageTypeEnum.homePage || widget.pageType==PageTypeEnum.searchPage? Obx(() {
+                                return Icon(
+                                  Icons.more_vert,
+                                  size: 26.sp,
+                                  color: widget.audioController != null
+                                      ? widget.audioController!.isPlaying
+                                                  .value &&
+                                              widget
+                                                      .audioController!
+                                                      .currentPlayingSong
+                                                      .value
+                                                      ?.id ==
+                                                  widget.songId
+                                          ? kRed
+                                          : kWhite
+                                      : kWhite,
+                                );
+                              }): Icon(
+                                  Icons.more_vert,
+                                  size: 26.sp,
+                                  color:kWhite,
+                                ),
                             )
                           : const SizedBox(),
                     ],
@@ -190,21 +231,23 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
               ),
             ),
           ),
-          // widget.isPlaying != null
-          //     ? widget.isPlaying!
-          //         ?
           Positioned(
             right: 45.w,
             top: 30.h,
-            child: widget.audioController != null
-                ? Icon(
-                    Icons.multitrack_audio_rounded,
-                    color: widget.audioController!.isPlaying.value
-                        ? kRed
-                        : Colors.transparent,
-                    size: 26.sp,
-                  )
-                : const SizedBox(),
+            child: widget.pageType == PageTypeEnum.homePage || widget.pageType==PageTypeEnum.searchPage? widget.audioController != null
+                ? Obx(() {
+                    return Icon(
+                      Icons.multitrack_audio_rounded,
+                      color: widget.audioController!.isPlaying.value &&
+                              widget.audioController!.currentPlayingSong.value
+                                      ?.id ==
+                                  widget.songId
+                          ? kRed
+                          : Colors.transparent,
+                      size: 26.sp,
+                    );
+                  })
+                : const SizedBox() : const SizedBox(),
           ),
 
           //     : const SizedBox()

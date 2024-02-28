@@ -21,6 +21,7 @@ class TextWidgetCommon extends StatelessWidget {
   final Color? color;
   final FontWeight? fontWeight;
 
+
   @override
   Widget build(BuildContext context) {
     return Text(

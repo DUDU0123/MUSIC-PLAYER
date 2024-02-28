@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
-import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
-import 'package:music_player/views/common_widgets/album_artist_functions_common.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
@@ -19,10 +14,11 @@ class ArtistSongListPage extends StatelessWidget {
   const ArtistSongListPage(
       {super.key,
       required this.artistName,
-      required this.artistSongs, required this.favoriteController,});
+      required this.artistSongs, required this.favoriteController, required this.songModel,});
   final String artistName;
    final FavoriteController favoriteController;
   final List<AllMusicsModel> artistSongs;
+  final AllMusicsModel songModel;
 
  
 
@@ -35,7 +31,7 @@ class ArtistSongListPage extends StatelessWidget {
     //     return music.musicArtistName == artistName;
     //   },
     // );
-    AllMusicController allMusicController = Get.put(AllMusicController());
+  //  AllMusicController allMusicController = Get.put(AllMusicController());
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
@@ -52,7 +48,8 @@ class ArtistSongListPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
-                      
+                      song: songModel,
+                      favoriteController: favoriteController,
                       pageType: PageTypeEnum.songEditPage,
                       songList: artistSongs,
                     ),
@@ -68,18 +65,19 @@ class ArtistSongListPage extends StatelessWidget {
           ],
         ),
       ),
-      body: artistSongs.isEmpty?DefaultCommonWidget(text: "No songs available"): ListView.builder(
+      body: artistSongs.isEmpty? const DefaultCommonWidget(text: "No songs available"): ListView.builder(
         itemCount: artistSongs.length,
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
           return MusicTileWidget(
+            songModel: songModel,
             favoriteController: favoriteController,
             musicUri: artistSongs[index].musicUri,
             // isPlaying: isPlaying,
             // audioPlayer: audioPlayer,
             // musicBox: musicBox,
             songId: artistSongs[index].id,
-            pageType: PageTypeEnum.normalPage,
+            pageType: PageTypeEnum.artistSongListPage,
             albumName: artistSongs[index].musicAlbumName,
             artistName: artistSongs[index].musicArtistName,
             songTitle: artistSongs[index].musicName,

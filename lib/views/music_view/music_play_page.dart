@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
 import 'package:music_player/controllers/audio_controller.dart';
@@ -9,13 +8,13 @@ import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/menu_bottom_sheet.dart';
-import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
+import 'package:music_player/views/current_playlist/current_playlist.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class MusicPlayPage extends StatelessWidget {
-  MusicPlayPage({
+  const MusicPlayPage({
     super.key,
     required this.songModel,
     // required this.lastPlayedPosition,
@@ -26,7 +25,9 @@ class MusicPlayPage extends StatelessWidget {
     required this.songFormat,
     required this.songSize,
     required this.songPathIndevice,
-    required this.audioController, required this.musicUri, required this.favoriteController,
+    required this.audioController,
+    required this.musicUri,
+    required this.favoriteController,
   });
 
   final AllMusicsModel songModel;
@@ -41,9 +42,6 @@ class MusicPlayPage extends StatelessWidget {
   final String musicUri;
   final FavoriteController favoriteController;
 
-  Duration totalDuration = const Duration();
-  Duration currentPosition = const Duration();
-
   FavoriteModel getFavoriteModelFromAllMusicModel(AllMusicsModel allMusic) {
     return FavoriteModel(
       id: allMusic.id,
@@ -57,9 +55,8 @@ class MusicPlayPage extends StatelessWidget {
     );
   }
 
-  
-
   //late AllMusicsModel currentPlayingSong;
+  // Duration currentPosition = audioController.currentPlaybackPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -260,32 +257,15 @@ class MusicPlayPage extends StatelessWidget {
                           // song current playlist show icon
                           IconButton(
                             onPressed: () {
-                              // Navigator.of(context).push(
-                              //   MaterialPageRoute(
-                              //     builder: (context) => CurrentPlayListPage(
-                              //       audioPlayer: widget.audioPlayer,
-                              //       indexfromhome: widget.initialIndex,
-                              //       musicBox: widget.musicBox,
-                              //       songModel: widget.songModel,
-                              //       audioSource: widget.audioSource,
-                              //       currentPlayingSongIndex:
-                              //           widget.currentPlayingSongIndex,
-                              //       playSong: widget.playSong,
-                              //       songId: currentPlayingSong.id,
-                              //       isPlaying: widget.isPlaying,
-                              //       songName: currentPlayingSong.musicName,
-                              //       artistName:
-                              //           currentPlayingSong.musicArtistName,
-                              //       albumName:
-                              //           currentPlayingSong.musicAlbumName,
-                              //       songFormat: currentPlayingSong.musicFormat,
-                              //       songSize: currentPlayingSong.musicFileSize
-                              //           .toString(),
-                              //       songPathIndevice:
-                              //           currentPlayingSong.musicPathInDevice,
-                              //     ),
-                              //   ),
-                              // );
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => CurrentPlayListPage(
+                                    // currentPlayingsongs:  ,
+                                    songModel: songModel,
+                                    songId: songId,
+                                  ),
+                                ),
+                              );
                             },
                             icon: Icon(
                               Icons.list,
@@ -306,7 +286,9 @@ class MusicPlayPage extends StatelessWidget {
                                         favoriteMusic, context);
                                   },
                                   icon: Icon(
-                                   favoriteController.isFavorite(songId)?Icons.favorite: Icons.favorite_border,
+                                    favoriteController.isFavorite(songId)
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
                                     size: 30,
                                     color: favoriteController.isFavorite(songId)
                                         ? kRed
@@ -317,26 +299,24 @@ class MusicPlayPage extends StatelessWidget {
 
                           // song loop shuffle
 
-                          // GestureDetector(
-                          //   // onTap: songLoopModesControlling,
-                          //   child: isLoopingAllSongs
-                          //       ? isShufflingSongs
-                          //           ? Image.asset(
-                          //               "assets/shuffle.png",
-                          //               scale: 18.sp,
-                          //               color: kWhite,
-                          //             )
-                          //           : Image.asset(
-                          //               "assets/loop_all.png",
-                          //               scale: 15.sp,
-                          //               color: kWhite,
-                          //             )
-                          //       : Image.asset(
-                          //           "assets/loop_one.png",
-                          //           scale: 15.sp,
-                          //           color: kWhite,
-                          //         ),
-                          // ),
+                          Obx(() {
+                            return GestureDetector(
+                              onTap: () {
+                                audioController.songLoopModesControlling();
+                              },
+                              child: audioController.isLoopOneSong.value
+                                  ? Image.asset(
+                                      "assets/loop_one.png",
+                                      scale: 15.sp,
+                                      color: kWhite,
+                                    )
+                                  : Image.asset(
+                                      "assets/shuffle.png",
+                                      scale: 15.sp,
+                                      color: kWhite,
+                                    ),
+                            );
+                          }),
 
                           // song settings icon
                           IconButton(

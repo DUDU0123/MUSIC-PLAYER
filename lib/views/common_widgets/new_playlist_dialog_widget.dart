@@ -20,6 +20,7 @@ class NewPlayListDialogBoxWidget extends StatelessWidget {
       backgroundColor: kMenuBtmSheetColor,
       title: Center(
         child: TextWidgetCommon(
+          
           text: editOrNew,
           fontSize: 18.sp,
           color: kWhite,

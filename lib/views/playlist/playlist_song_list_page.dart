@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -18,14 +20,17 @@ import 'package:music_player/views/playlist/add_songs_in_playlist_from_selecting
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class PlaylistSongListPage extends StatefulWidget {
-  PlaylistSongListPage({
+  const PlaylistSongListPage({
     super.key,
     required this.playlistName,
-    required this.playlistId, required this.favoriteController,
+    required this.playlistId,
+    required this.favoriteController,
+    required this.songModel,
   });
   final String playlistName;
   final int playlistId;
   final FavoriteController favoriteController;
+  final AllMusicsModel songModel;
 
   @override
   State<PlaylistSongListPage> createState() => _PlaylistSongListPageState();
@@ -35,11 +40,76 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
   List<AllMusicsModel>? playlistSongsList;
 
   List<Playlist>? playlistList;
+  bool mounted = false;
+
+  RxInt lastSelectedPlaylistId = RxInt(-1);
+
+  void fetchPlaylistSongs(int playlistId) async {
+    try {
+      // Fetch playlist songs based on the updated playlist ID
+      final List<AllMusicsModel>? updatedSongsList =
+          await PlaylistController.to.getPlayListSongs(playlistId);
+
+      if (updatedSongsList != null) {
+        print("Fetched playlist songs: $updatedSongsList");
+      } else {
+        print("Playlist songs list is null or empty");
+      }
+
+      setState(() {
+        // Update the UI with the new list of songs
+        playlistSongsList = updatedSongsList ?? [];
+      });
+
+      // Save the selected playlist ID
+      lastSelectedPlaylistId.value = playlistId;
+    } catch (e) {
+      print("Error fetching playlist songs: $e");
+    }
+  }
 
   @override
   void initState() {
-    getPlayList();
     super.initState();
+    lastSelectedPlaylistId.value = PlaylistController.to.getSelectedPlaylistId;
+
+    // Listen to the stream for song additions
+    PlaylistController.to.onSongAddedToPlaylist.listen((updatedPlaylist) {
+      log('Updating playlist songs list...');
+      log('Updated playlist: ${updatedPlaylist.name}');
+      log('Updated songs: ${updatedPlaylist.playlistSongs}');
+      // Update the playlist songs list if the selected playlist has changed
+      if (lastSelectedPlaylistId.value == updatedPlaylist.id &&
+          updatedPlaylist.id != null) {
+        fetchPlaylistSongs(updatedPlaylist.id!);
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Fetch and update playlist songs on page load
+    fetchPlaylistSongs(widget.playlistId);
+  }
+
+  @override
+  void dispose() {
+    mounted = false;
+    super.dispose();
+  }
+
+  void updatePlaylistSongsList(Playlist updatedPlaylist) async {
+    // Retrieve the updated list of songs
+    final List<AllMusicsModel>? updatedSongsList =
+        updatedPlaylist.playlistSongs;
+
+    if (mounted) {
+      setState(() {
+        // Update the UI with the new list of songs
+        playlistSongsList = updatedSongsList ?? [];
+      });
+    }
   }
 
   void addPlaylist(Playlist playlist) async {
@@ -49,52 +119,53 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
 
   PlaylistController playlistController = Get.put(PlaylistController());
 
-  Future<void> getPlayList() async {
-    playlistList = await playlistController.getPlaylists();
-    playlistSongsList =
-        await playlistController.getPlayListSongs(widget.playlistId);
-  }
+  // Future<void> getPlayList() async {
+  //   playlistList = await playlistController.getPlaylists();
+  //   playlistSongsList =
+  //       await playlistController.getPlayListSongs(widget.playlistId);
+  // }
 
   @override
   Widget build(BuildContext context) {
     // retrieving data
     Box<Playlist> playlistBox = Hive.box<Playlist>('playlist');
-    final List<Playlist> currentPlaylistSongList = playlistBox.values.toList();
+    final List<Playlist> currentPlaylistSongList = playlistBox.values
+        .toList(); //instead of this we can use playlist here, we can remove this
 
-    Future<void> addPlaylistSongs(List<AllMusicsModel> newSongs) async {
-      final List<AllMusicsModel> existingSongs = currentPlaylistSongList
-          .expand((playlist) => playlist.playlistSongs ?? <AllMusicsModel>[])
-          .toList();
+    // Future<void> addPlaylistSongs(List<AllMusicsModel> newSongs) async {
+    //   final List<AllMusicsModel> existingSongs = currentPlaylistSongList
+    //       .expand((playlist) => playlist.playlistSongs ?? <AllMusicsModel>[])
+    //       .toList();
 
-      // Check if a playlist with the same name already exists
-      final existingPlaylist = currentPlaylistSongList.firstWhere(
-        (playlist) => playlist.name == widget.playlistName,
-        orElse: () => Playlist(name: ''),
-      );
+    //   // Check if a playlist with the same name already exists
+    //   final existingPlaylist = currentPlaylistSongList.firstWhere(
+    //     (playlist) => playlist.name == widget.playlistName,
+    //     orElse: () => Playlist(name: ''),
+    //   );
 
-      if (existingPlaylist.name.isNotEmpty) {
-        // Playlist with the same name exists, update it
-        final List<AllMusicsModel> uniqueNewSongs = newSongs
-            .where((newSong) => !existingSongs
-                .any((existingSong) => existingSong.id == newSong.id))
-            .toList();
+    //   if (existingPlaylist.name.isNotEmpty) {
+    //     // Playlist with the same name exists, update it
+    //     final List<AllMusicsModel> uniqueNewSongs = newSongs
+    //         .where((newSong) => !existingSongs
+    //             .any((existingSong) => existingSong.id == newSong.id))
+    //         .toList();
 
-        if (uniqueNewSongs.isNotEmpty) {
-          existingPlaylist.playlistSongs?.addAll(uniqueNewSongs);
-          await existingPlaylist.save(); // Save the updated playlist
-        } else {
-          snackBarCommonWidget(context,
-              contentText: "Already available in this playlist");
-        }
-      } else {
-        // Playlist with the same name doesn't exist, create a new playlist
-        final playlist = Playlist(
-            playlistSongs: newSongs,
-            name: widget.playlistName,
-            id: widget.playlistId);
-        addPlaylist(playlist);
-      }
-    }
+    //     if (uniqueNewSongs.isNotEmpty) {
+    //       existingPlaylist.playlistSongs?.addAll(uniqueNewSongs);
+    //       await existingPlaylist.save(); // Save the updated playlist
+    //     } else {
+    //       snackBarCommonWidget(context,
+    //           contentText: "Already available in this playlist");
+    //     }
+    //   } else {
+    //     // Playlist with the same name doesn't exist, create a new playlist
+    //     final playlist = Playlist(
+    //         playlistSongs: newSongs,
+    //         name: widget.playlistName,
+    //         id: widget.playlistId);
+    //     addPlaylist(playlist);
+    //   }
+    // }
 
     return Scaffold(
       appBar: PreferredSize(
@@ -151,6 +222,8 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
+                      song: widget.songModel,
+                      favoriteController: widget.favoriteController,
                       pageType: PageTypeEnum.playListPage,
                       songList: [],
                     ),
@@ -200,36 +273,46 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
           //         },
           //       ):SizedBox(),
           playlistSongsList != null
-              ? playlistSongsList!.isEmpty
-                  ? DefaultCommonWidget(text: "No songs available",)
-                  : ListView.builder(
+              ? playlistSongsList!.isNotEmpty
+                  ? ListView.builder(
                       itemCount: playlistSongsList!.length,
+                      //playlistSongsList!.length,
                       itemBuilder: (context, index) {
-                        return Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15.w),
-                          child: MusicTileWidget(
-                            favoriteController: widget.favoriteController,
-                            musicUri: playlistSongsList![index].musicUri,
-                            // audioPlayer: audioPlayer,
-                            // musicBox: musicBox,
-                            // isPlaying: isPlaying,
-                            albumName: playlistSongsList![index].musicAlbumName,
-                            artistName:
-                                playlistSongsList![index].musicArtistName,
-                            songTitle: playlistSongsList![index].musicName,
-                            songFormat: playlistSongsList![index].musicFormat,
-                            songSize: playlistSongsList![index]
-                                .musicFileSize
-                                .toString(),
-                            songPathIndevice:
-                                playlistSongsList![index].musicPathInDevice,
-                            pageType: PageTypeEnum.playListPage,
-                            songId: playlistSongsList![index].id,
-                          ),
-                        );
+                        if (index < playlistSongsList!.length) {
+                          log(playlistList!.length.toString());
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15.w),
+                            child: MusicTileWidget(
+                              songModel: widget.songModel,
+                              favoriteController: widget.favoriteController,
+                              musicUri: playlistSongsList![index].musicUri,
+                              // audioPlayer: audioPlayer,
+                              // musicBox: musicBox,
+                              // isPlaying: isPlaying,
+                              albumName:
+                                  playlistSongsList![index].musicAlbumName,
+                              artistName:
+                                  playlistSongsList![index].musicArtistName,
+                              songTitle: playlistSongsList![index].musicName,
+                              songFormat: playlistSongsList![index].musicFormat,
+                              songSize: playlistSongsList![index]
+                                  .musicFileSize
+                                  .toString(),
+                              songPathIndevice:
+                                  playlistSongsList![index].musicPathInDevice,
+                              pageType: PageTypeEnum.playListPage,
+                              songId: playlistSongsList![index].id,
+                            ),
+                          );
+                        } else {
+                          return const SizedBox();
+                        }
                       },
                     )
-              : SizedBox(),
+                  : const DefaultCommonWidget(
+                      text: "No songs available",
+                    )
+              : const SizedBox(),
 
       // Column(
       //   children: [

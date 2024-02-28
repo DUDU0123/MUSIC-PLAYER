@@ -13,16 +13,20 @@ import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 
 class RecentlyPlayedPage extends StatefulWidget {
- const RecentlyPlayedPage({
-    super.key, required this.favoriteController,
+  const RecentlyPlayedPage({
+    super.key,
+    required this.favoriteController,
+    required this.songModel,
   });
-   final FavoriteController favoriteController;
+  final FavoriteController favoriteController;
+  final AllMusicsModel songModel;
   @override
   State<RecentlyPlayedPage> createState() => _RecentlyPlayedPageState();
 }
+
 class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
   AudioController audioController = Get.put(AudioController());
- 
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +62,9 @@ class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
         ),
       ),
       body: audioController.recentlyPlayedSongList.isEmpty
-          ? const DefaultCommonWidget(text: "No songs available",)
+          ? const DefaultCommonWidget(
+              text: "No songs available",
+            )
           : Obx(() {
               return ListView.builder(
                 itemCount: audioController.recentlyPlayedSongList.length,
@@ -73,6 +79,7 @@ class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 15.w),
                           child: MusicTileWidget(
+                            songModel: widget.songModel,
                             favoriteController: widget.favoriteController,
                             musicUri: music.musicUri,
                             albumName: music.musicAlbumName,

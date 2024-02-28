@@ -15,10 +15,12 @@ class FavouriteMusicListPage extends StatelessWidget {
 
 
   FavouriteMusicListPage({
-    super.key,
-
+    super.key, required this.songModel,
+    // required this.favouriteController,
   });
-  final FavoriteController favouriteController = Get.put(FavoriteController());
+  // final FavoriteController favouriteController;
+ final FavoriteController favouriteController = Get.put(FavoriteController());
+  final AllMusicsModel songModel;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +40,8 @@ class FavouriteMusicListPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
-                 
+                      song: songModel,
+                      favoriteController: favouriteController,
                       pageType: PageTypeEnum.favoritePage,
                       songList:
                           favouriteController.favoriteSongs.value.map((e) {
@@ -68,7 +71,7 @@ class FavouriteMusicListPage extends StatelessWidget {
       ),
       body: Obx(() {
         return favouriteController.favoriteSongs.isEmpty
-            ? DefaultCommonWidget(text: "No songs available")
+            ? const DefaultCommonWidget(text: "No songs available")
             : ListView.builder(
                 itemCount: favouriteController.favoriteSongs.length,
                 itemBuilder: (context, index) {
@@ -76,6 +79,7 @@ class FavouriteMusicListPage extends StatelessWidget {
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.h),
                     child: MusicTileWidget(
+                      songModel: songModel,
                      favoriteController: favouriteController,
                       musicUri: favouriteController.favoriteSongs[index].musicUri,
                       // audioPlayer: audioPlayer,

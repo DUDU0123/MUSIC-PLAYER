@@ -23,7 +23,8 @@ class MenuBottomSheet extends StatelessWidget {
     required this.songPathIndevice,
     required this.songId,
     required this.musicUri,
-    required this.song, required this.favouriteController,
+    required this.song,
+    required this.favouriteController,
   });
 
   final double kScreenHeight;
@@ -49,7 +50,7 @@ class MenuBottomSheet extends StatelessWidget {
       musicArtistName: song.musicArtistName,
       musicPathInDevice: song.musicPathInDevice,
       musicFormat: song.musicFormat,
-      musicUri: musicUri,
+      musicUri: song.musicUri,
       musicFileSize: song.musicFileSize,
     );
   }
@@ -85,7 +86,10 @@ class MenuBottomSheet extends StatelessWidget {
               Navigator.pop(context);
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => AddToPlaylistPage(),
+                  builder: (context) => AddToPlaylistPage(
+                    song: song,
+                    favoriteController: favouriteController,
+                  ),
                 ),
               );
             },

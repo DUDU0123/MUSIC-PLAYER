@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,7 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 class AudioController extends GetxController {
   final AudioPlayer audioPlayer = AudioPlayer();
   RxList<AllMusicsModel> allSongsListFromDevice = <AllMusicsModel>[].obs;
-  RxInt currentSongIndex = RxInt(-1);
+  RxInt currentSongIndex = RxInt(0);
   RxBool isPlaying = false.obs;
   Rx<Duration> duration = const Duration().obs;
   Rx<Duration> position = const Duration().obs;
@@ -24,6 +25,17 @@ class AudioController extends GetxController {
 
   RxList<RecentlyPlayedModel> recentlyPlayedSongList =
       <RecentlyPlayedModel>[].obs;
+  Rx<LoopMode> loopMode = LoopMode.all.obs;
+  RxBool isLoopOneSong = false.obs;
+  RxBool isShuffleSongs = false.obs;
+  // RxString musicName = ''.obs;
+  // RxString musicAlbum = ''.obs;
+  // RxString musicArtist = ''.obs;
+  // RxInt musicFileSize = 0.obs;
+  // RxString musicPathInDevice = ''.obs;
+  // RxString musicUri = ''.obs;
+  // RxString musicFormat = ''.obs;
+  // RxInt musicId = 0.obs;
 
 // function for making slider move according to song position duration
   changeToSeconds(int seconds) {
@@ -33,23 +45,30 @@ class AudioController extends GetxController {
 
   // for initializing audio player
   Future<void> intializeAudioPlayer(List<AllMusicsModel> songs) async {
-    print("Initializing");
-    await audioPlayer.setAudioSource(
-      ConcatenatingAudioSource(
-        children: songs.map((song) {
-          return AudioSource.uri(
-            Uri.parse(song.musicUri),
-            tag: MediaItem(
-              id: song.id.toString(),
-              title: song.musicName,
-            ),
-          );
-        }).toList(),
-      ),
-      initialIndex: currentSongIndex.value,
-      // initialPosition: audioPlayer.position,
-      preload: false,
-    );
+    log("Initializing");
+    try {
+      await audioPlayer.setAudioSource(
+        ConcatenatingAudioSource(
+          children: songs.map((song) {
+            log(song.musicUri);
+            log(song.musicPathInDevice);
+            return AudioSource.uri(
+              Uri.parse(song.musicUri),
+              tag: MediaItem(
+                id: song.id.toString(),
+                title: song.musicName,
+                album: song.musicAlbumName
+              ),
+            );
+          }).toList(),
+        ),
+        initialIndex: currentSongIndex.value,
+        // initialPosition: audioPlayer.position,
+        preload: false,
+      );
+    } catch (e) {
+      log("Error on play intialize: $e");
+    }
 
     audioPlayer.playbackEventStream.listen((event) {
       if (event.processingState == ProcessingState.completed) {
@@ -81,10 +100,10 @@ class AudioController extends GetxController {
   Future<void> requestPermissionAndFetchSongsAndInitializePlayer() async {
     var status = await requestPermission();
     if (status.isGranted) {
-      print("Granted");
+      log("Granted");
       await fetchSongsFromDeviceStorage();
 
-      intializeAudioPlayer(allSongsListFromDevice);
+      await intializeAudioPlayer(allSongsListFromDevice);
     } else {
       debugPrint("Permission Denied");
       await requestPermission();
@@ -94,8 +113,9 @@ class AudioController extends GetxController {
   // requesting permission to access the storage
   Future<PermissionStatus> requestPermission() async {
     try {
-      print("requesting");
+      log("requesting");
       var status = await Permission.storage.request();
+      log(status.toString());
       return status;
     } catch (e) {
       debugPrint(e.toString());
@@ -107,7 +127,7 @@ class AudioController extends GetxController {
   Future<void> fetchSongsFromDeviceStorage() async {
     final OnAudioQuery onAudioQuery = OnAudioQuery();
     try {
-      print("Fetching");
+      log("Fetching");
       final songs = await onAudioQuery.querySongs(
           sortType: null,
           uriType: UriType.EXTERNAL,
@@ -140,7 +160,7 @@ class AudioController extends GetxController {
   }
 
   void initializeRecentlyPlayedSongs() {
-    print("Debug: Initializing Recently Played Songs");
+    log("Debug: Initializing Recently Played Songs");
     recentlyPlayedBox = Hive.box<RecentlyPlayedModel>('recent');
     recentlyPlayedSongList.value = recentlyPlayedBox.values.toList();
     if (recentlyPlayedBox.isEmpty) {
@@ -166,28 +186,41 @@ class AudioController extends GetxController {
   }
 
   // play a song
-  Future<void> playSong(int index, {bool? isRecentlyPlayed = false}) async {
-    if (allSongsListFromDevice.isEmpty) {
+  Future<void> playSong(int index,
+      {bool? isRecentlyPlayed = false, Duration? lastPlayedPosition}) async {
+    if (allSongsListFromDevice.isEmpty ||
+        index < 0 ||
+        index >= allSongsListFromDevice.length) {
+      log("SOMETHING HAPPENED");
       return;
     }
+
     currentSongIndex.value = index;
     await audioPlayer.seek(Duration.zero, index: index);
+    if (lastPlayedPosition != null) {
+      await audioPlayer.seek(lastPlayedPosition, index: index);
+    } else {
+      await audioPlayer.seek(Duration.zero, index: index);
+    }
     await audioPlayer.play();
     isPlaying.value = true;
     audioPlayer.durationStream.listen(
       (d) {
-        duration.value = d ?? Duration();
+        duration.value = d ?? const Duration();
+        log(duration.value.toString());
       },
     );
 
     audioPlayer.durationStream.listen((p) {
-      position.value = p ?? Duration();
+      position.value = p ?? const Duration();
+      log(position.value.toString());
     });
-
+    log("Current");
     currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
-    print(
-        "${currentPlayingSong.value!.id} ${currentPlayingSong.value!.musicName} ${currentPlayingSong.value!.musicAlbumName}");
-    if (isRecentlyPlayed != null) {
+
+    log("After current");
+    log("${currentPlayingSong.value!.id} ${currentPlayingSong.value!.musicName} ${currentPlayingSong.value!.musicAlbumName}");
+    if (isRecentlyPlayed != null && currentPlayingSong.value!=null) {
       if (!isRecentlyPlayed && index != null) {
         // Update the recently played list
         Box<RecentlyPlayedModel> recentlyPlayedBox =
@@ -197,11 +230,34 @@ class AudioController extends GetxController {
                 defaultValue:
                     RecentlyPlayedModel(recentlyPlayedSongsList: [])) ??
             RecentlyPlayedModel(recentlyPlayedSongsList: []);
+            recentlyPlayedModel.removeRecentlyPlayedSong(currentPlayingSong.value!);
         recentlyPlayedModel.addRecentlyPlayedSong(currentPlayingSong.value!);
         recentlyPlayedBox.put('recent', recentlyPlayedModel);
         update();
       }
     }
+  }
+
+  songLoopModesControlling() {
+    if (isLoopOneSong.value) {
+      // If loop one song is enabled, switch to loop all
+      isLoopOneSong.value = false;
+      isShuffleSongs.value = false;
+      loopMode.value = LoopMode.all;
+    } else if (isShuffleSongs.value) {
+      // If shuffle is enabled, switch to loop one song
+      isShuffleSongs.value = false;
+      isLoopOneSong.value = true;
+      loopMode.value = LoopMode.one;
+    } else {
+      // If loop all is enabled, switch to shuffle
+      isShuffleSongs.value = true;
+      loopMode.value = LoopMode.all;
+    }
+
+    // Set the loop mode on the audioPlayer
+    audioPlayer.setLoopMode(loopMode.value);
+    // update();
   }
 
   // songStop function
@@ -236,6 +292,98 @@ class AudioController extends GetxController {
     await fetchSongsFromDeviceStorage();
     return allSongsListFromDevice;
   }
+
+  //   Future<void> deleteSongPermanently(AllMusicsModel song, BuildContext context) async {
+  //   try {
+  //     // Stop the song if it's currently playing
+  //     await stopSong();
+
+  //     // Remove the song from the UI
+  //     allSongsListFromDevice.remove(song);
+  //     update();
+
+  //     // Delete the song file from device storage
+  //     await File(song.musicPathInDevice).delete();
+
+  //     // Remove the song from Hive box
+  //     musicBox.delete(song.id);
+
+  //     // If the deleted song is the currently playing song, reset the current song index
+  //     if (currentPlayingSong.value?.id == song.id) {
+  //       currentSongIndex.value = -1;
+  //       currentPlayingSong.value = null;
+  //     }
+
+  //     // Update the recently played list to remove the deleted song
+  // Box<RecentlyPlayedModel> recentlyPlayedBox =
+  //     Hive.box<RecentlyPlayedModel>('recent');
+  // RecentlyPlayedModel recentlyPlayedModel = recentlyPlayedBox.get(
+  //         'recent',
+  //         defaultValue:
+  //             RecentlyPlayedModel(recentlyPlayedSongsList: [])) ??
+  //     RecentlyPlayedModel(recentlyPlayedSongsList: []);
+  // recentlyPlayedModel.removeRecentlyPlayedSong(song);
+  // recentlyPlayedBox.put('recent', recentlyPlayedModel);
+
+  //     snackBarCommonWidget(
+  //       // You can customize the context and contentText as per your application
+  //       context,
+  //       contentText: "Song deleted permanently",
+  //     );
+  //   } catch (e) {
+  //     print("Error deleting song: $e");
+  //     snackBarCommonWidget(
+  //       // You can customize the context and contentText as per your application
+  //       context,
+  //       contentText: "Error deleting song",
+  //     );
+  //   }
+  // }
+
+  // Future<void> deleteSongsPermentaly(
+  //     List<int> songIds, BuildContext context) async {
+  //   var status = await requestPermission();
+  //   if (status.isGranted) {
+  //     await stopSong();
+  //     try {
+  //       for (var songId in songIds) {
+  //         AllMusicsModel? songToDelete = allSongsListFromDevice
+  //             .firstWhereOrNull((song) => song.id == songId);
+  //         if (songToDelete != null) {
+  //           allSongsListFromDevice.remove(songToDelete);
+  //           update();
+
+  //           if (currentPlayingSong.value?.id == songId) {
+  //             currentSongIndex.value = -1;
+  //             currentPlayingSong.value = null;
+  //           }
+
+  //           await audioPlayer.pause();
+
+  //           if (songToDelete.musicPathInDevice != null &&
+  //               songToDelete.musicPathInDevice.isNotEmpty) {
+  //             await File(songToDelete.musicPathInDevice).delete();
+  //           }
+  //           musicBox.delete(songId);
+  //           Box<RecentlyPlayedModel> recentlyPlayedBox =
+  //               Hive.box<RecentlyPlayedModel>('recent');
+  //           RecentlyPlayedModel recentlyPlayedModel = recentlyPlayedBox.get(
+  //                   'recent',
+  //                   defaultValue:
+  //                       RecentlyPlayedModel(recentlyPlayedSongsList: [])) ??
+  //               RecentlyPlayedModel(recentlyPlayedSongsList: []);
+  //           recentlyPlayedModel.removeRecentlyPlayedSong(songToDelete);
+  //           recentlyPlayedBox.put('recent', recentlyPlayedModel);
+  //         }
+  //       }
+  //     } catch (e) {
+  //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //         content: TextWidgetCommon(text: "Error !!!!! $e", fontSize: 20.sp),
+  //         duration: const Duration(minutes: 10),
+  //       ));
+  //     }
+  //   }
+  // }
 
   @override
   void onClose() {
