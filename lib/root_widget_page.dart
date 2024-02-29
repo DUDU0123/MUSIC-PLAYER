@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
-import 'package:music_player/tab_screen.dart';
-import 'package:music_player/views/main_screen.dart/main_screen.dart';
+import 'package:music_player/views/main_screen.dart/tab_screen.dart';
 
 class RootWidgetPage extends StatelessWidget {
   const RootWidgetPage({super.key});
@@ -13,16 +12,16 @@ class RootWidgetPage extends StatelessWidget {
     return ScreenUtilInit(
       builder: (BuildContext context, Widget? _) {
         return GetMaterialApp(
-          theme: ThemeData(
-            scaffoldBackgroundColor: kBlack,
-            appBarTheme: AppBarTheme(
-              backgroundColor: kBlack,
+            theme: ThemeData(
+              scaffoldBackgroundColor: kBlack,
+              appBarTheme: AppBarTheme(
+                backgroundColor: kBlack,
+              ),
             ),
-          ),
-          debugShowCheckedModeBanner: false,
-          home: TabScreen()
-          //const MainScreen(),
-        );
+            debugShowCheckedModeBanner: false,
+            home: TabScreen()
+            //const MainScreen(),
+            );
       },
     );
   }

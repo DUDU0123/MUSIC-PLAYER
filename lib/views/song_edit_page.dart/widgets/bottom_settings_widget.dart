@@ -178,7 +178,7 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                                         }
                                       }
                                       log("Remaining songs in Hive box: ${allMusicController.musicBox.length}");
-                                   //  audioController.deleteSongsPermentaly( selectedSongIds, context);
+                                     audioController.deleteSongsPermentaly( selectedSongIds, context);
                                       log("Remaining songs in Hive box: ${allMusicController.musicBox.length}");
                                     },
                                   );

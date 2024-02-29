@@ -95,7 +95,7 @@ class FavoriteController extends GetxController {
     final uniqueFavorites = favoriteSongs.toSet().toList();
     favoriteSongs.clear();
     favoriteSongs.assignAll(uniqueFavorites);
-    print('After load: ${favoriteBox.values}');
+  //  print('After load: ${favoriteBox.values}');
   }
 
   void onTapFavorite(FavoriteModel song, BuildContext context) {

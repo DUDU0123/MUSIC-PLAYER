@@ -275,14 +275,17 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             audioController: audioController,
           ),
           MusicArtistPage(
+            audioController: audioController,
             songModel: songModel,
             favoriteController: favoriteController,
           ),
           MusicAlbumPage(
+            audioController: audioController,
             songModel: songModel,
             favoriteController: favoriteController,
           ),
           MusicPlaylistPage(
+            audioController: audioController,
             songModel: songModel,
             favoriteController: favoriteController,
           ),

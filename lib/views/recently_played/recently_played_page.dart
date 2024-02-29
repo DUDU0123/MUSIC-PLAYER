@@ -86,7 +86,7 @@ class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                             artistName: music.musicArtistName,
                             songTitle: music.musicName,
                             songFormat: music.musicFormat,
-                            songSize: music.musicFileSize.toString(),
+                            songSize: audioController.convertToMBorKB(music.musicFileSize),
                             songPathIndevice: music.musicPathInDevice,
                             pageType: PageTypeEnum.recentlyPlayedPage,
                             songId: music.id,

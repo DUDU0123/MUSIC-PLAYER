@@ -1,7 +1,7 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
@@ -9,9 +9,11 @@ import 'package:music_player/views/common_widgets/center_title_appbar_common_wid
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 
 class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
-  const AddSongInPlaylistFromSelectingSongs({super.key, required this.playListID});
+  const AddSongInPlaylistFromSelectingSongs({
+    super.key,
+    required this.playListID,
+  });
   final int playListID;
-
   @override
   State<AddSongInPlaylistFromSelectingSongs> createState() =>
       _AddSongInPlaylistFromSelectingSongsState();
@@ -22,7 +24,6 @@ class _AddSongInPlaylistFromSelectingSongsState
   bool isSelected = false;
   PlaylistController playlistController = Get.put(PlaylistController());
   bool isAllSelected = false;
-  
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +50,11 @@ class _AddSongInPlaylistFromSelectingSongsState
           ListView.builder(
             shrinkWrap: true,
             padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-            itemCount: playlistController.fullSongListToAddToPlaylist.value.length,
+            itemCount:
+                playlistController.fullSongListToAddToPlaylist.value.length,
             itemBuilder: (context, index) {
-              AllMusicsModel musicList = playlistController.fullSongListToAddToPlaylist.value[index];
+              AllMusicsModel musicList =
+                  playlistController.fullSongListToAddToPlaylist.value[index];
               return Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
                 child: CheckboxListTile(
@@ -78,7 +81,8 @@ class _AddSongInPlaylistFromSelectingSongsState
                   onChanged: (value) {
                     setState(() {
                       musicList.musicSelected = value ?? false;
-                      isSelected = playlistController.fullSongListToAddToPlaylist.value
+                      isSelected = playlistController
+                          .fullSongListToAddToPlaylist.value
                           .any((checkbox) => checkbox.musicSelected == true);
                     });
                   },
@@ -91,18 +95,15 @@ class _AddSongInPlaylistFromSelectingSongsState
             left: kScreenWidth / 2 - 50,
             child: GestureDetector(
               onTap: () {
-                // Navigator.pop(
-                //     context,
-                //     playlistController.fullSongListToAddToPlaylist.value
-                //         .where((music) => music.musicSelected == true)
-                //         .toList());
-               
+                List<AllMusicsModel> selectedSongList = playlistController
+                    .fullSongListToAddToPlaylist.value
+                    .where((music) => music.musicSelected == true)
+                    .toList();
+                log("IT'S FROM ADD PAGE: ${selectedSongList.length}");
+                playlistController.addSongsToDBPlaylist(
+                    selectedSongList, widget.playListID);
 
-                        // List<AllMusicsModel> selectedSongList = playlistController.fullSongListToAddToPlaylist.value
-                        // .where((music) => music.musicSelected == true)
-                        // .toList();
-                        // playlistController.addSongsToPlaylist(selectedSongList, widget.playListID);
-              Navigator.pop(context);
+                Get.back();
               },
               child: Container(
                 margin: EdgeInsets.only(bottom: 20.h),

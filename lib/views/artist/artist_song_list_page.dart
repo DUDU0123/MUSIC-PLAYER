@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
@@ -14,11 +15,12 @@ class ArtistSongListPage extends StatelessWidget {
   const ArtistSongListPage(
       {super.key,
       required this.artistName,
-      required this.artistSongs, required this.favoriteController, required this.songModel,});
+      required this.artistSongs, required this.favoriteController, required this.songModel, required this.audioController,});
   final String artistName;
    final FavoriteController favoriteController;
   final List<AllMusicsModel> artistSongs;
   final AllMusicsModel songModel;
+  final AudioController audioController;
 
  
 
@@ -83,7 +85,7 @@ class ArtistSongListPage extends StatelessWidget {
             songTitle: artistSongs[index].musicName,
             songFormat: artistSongs[index].musicFormat,
             songPathIndevice: artistSongs[index].musicPathInDevice,
-            songSize: "${artistSongs[index].musicFileSize}MB",
+            songSize: audioController.convertToMBorKB(artistSongs[index].musicFileSize),
           );
         },
       ),

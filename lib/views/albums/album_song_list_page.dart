@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
+import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
@@ -18,12 +19,13 @@ class AlbumSongListPage extends StatelessWidget {
   const AlbumSongListPage(
       {super.key,
       required this.albumName,
-      required this.albumSongs, required this.favoriteController, required this.songModel,
+      required this.albumSongs, required this.favoriteController, required this.songModel, required this.audioController,
       });
   final String albumName;
   final List<AllMusicsModel> albumSongs;
    final FavoriteController favoriteController;
    final AllMusicsModel songModel;
+   final AudioController audioController;
 
 
 
@@ -70,7 +72,7 @@ class AlbumSongListPage extends StatelessWidget {
           ],
         ),
       ),
-      body:albumSongs.isEmpty?DefaultCommonWidget(text: "No songs available"): ListView.builder(
+      body:albumSongs.isEmpty?const DefaultCommonWidget(text: "No songs available"): ListView.builder(
         itemCount: albumSongs.length,
         padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
         itemBuilder: (context, index) {
@@ -89,7 +91,7 @@ class AlbumSongListPage extends StatelessWidget {
             songTitle: albumSongs[index].musicName,
             songFormat: albumSongs[index].musicFormat,
             songPathIndevice: albumSongs[index].musicPathInDevice,
-            songSize: "${albumSongs[index].musicFileSize}MB",
+            songSize: audioController.convertToMBorKB(albumSongs[index].musicFileSize),
           );
         },
       ),

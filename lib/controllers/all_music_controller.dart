@@ -3,9 +3,11 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/album_artist_functions_common.dart';
+import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 
 class AllMusicController extends GetxController {
   AudioController audioController = Get.put(AudioController());
+  
   @override
   void onInit() {
     getAlbumSongs();
@@ -26,26 +28,26 @@ class AllMusicController extends GetxController {
 
   // getting artist with songs
    getArtistSongs() {
-    final List<AllMusicsModel> allMusics = musicBox.values.toList();
-    allMusics.forEach((music) {
+    final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
+    allMusics.value.forEach((music) {
       final artistName = capitalizeFirstLetter(music.musicArtistName);
-      if (!artistMap.containsKey(artistName)) {
-        artistMap[artistName] = [];
+      if (!artistMap.value.containsKey(artistName)) {
+        artistMap.value[artistName] = [];
       }
-      artistMap[artistName]!.add(music);
+      artistMap.value[artistName]!.add(music);
     });
     update();
   }
 
   // getting album with songs
    getAlbumSongs() {
-    final List<AllMusicsModel> allMusics = musicBox.values.toList();
-    allMusics.forEach((music) {
+    final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
+    allMusics.value.forEach((music) {
       final albumName = capitalizeFirstLetter(music.musicAlbumName);
-      if (!albumsMap.containsKey(albumName)) {
-        albumsMap[albumName] = [];
+      if (!albumsMap.value.containsKey(albumName)) {
+        albumsMap.value[albumName] = [];
       }
-      albumsMap[albumName]!.add(music);
+      albumsMap.value[albumName]!.add(music);
     });
     update();
   }

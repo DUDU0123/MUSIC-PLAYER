@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -36,7 +38,7 @@ class AddToPlaylistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //  PlaylistController playlistController = Get.find();
-    print(song.musicName);
+    log(song.musicName);
     favouriteSong();
     return Scaffold(
       appBar: AppBar(

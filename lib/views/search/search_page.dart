@@ -7,7 +7,6 @@ import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/search_controller.dart';
-import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/common_widgets/textfield_common_widget.dart';
@@ -79,7 +78,7 @@ class SearchPage extends StatelessWidget {
                 return MusicTileWidget(
                   songTitle: searchSong[index].musicName,
                   songFormat: searchSong[index].musicFormat,
-                  songSize: searchSong[index].musicFileSize.toString(),
+                  songSize: audioController.convertToMBorKB(searchSong[index].musicFileSize),
                   songPathIndevice: searchSong[index].musicPathInDevice,
                   pageType: PageTypeEnum.searchPage,
                   songId: searchSong[index].id,

@@ -1,6 +1,9 @@
+import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
@@ -9,6 +12,8 @@ import 'package:music_player/views/common_widgets/ontap_text_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/add_to_playlist/add_to_playlist_page.dart';
 import 'package:music_player/views/view_details_page.dart/view_details_page.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
 
 class MenuBottomSheet extends StatelessWidget {
   MenuBottomSheet({
@@ -39,6 +44,7 @@ class MenuBottomSheet extends StatelessWidget {
   final int songId;
   final AllMusicsModel song;
   final FavoriteController favouriteController;
+  AudioController audioController = Get.put(AudioController());
 
   FavoriteModel? favsong;
 
@@ -76,11 +82,11 @@ class MenuBottomSheet extends StatelessWidget {
       ),
       padding: const EdgeInsets.symmetric(vertical: 20),
       height: pageType == PageTypeEnum.playListPage
-          ? kScreenHeight / 1.93
+          ? kScreenHeight / 2.2
           : kScreenHeight / 2.2,
       child: Column(
         children: [
-          OnTapTextWidget(
+         pageType != PageTypeEnum.playListPage? OnTapTextWidget(
             text: "Add to Playlist",
             onTap: () {
               Navigator.pop(context);
@@ -93,10 +99,34 @@ class MenuBottomSheet extends StatelessWidget {
                 ),
               );
             },
-          ),
+          ):const SizedBox(),
           OnTapTextWidget(
             text: "Send Song",
-            onTap: () {},
+            onTap: () async {
+              if (song != null &&
+                  song.musicPathInDevice != null &&
+                  song.musicPathInDevice.isNotEmpty) {
+              //  var status =await audioController.requestPermission();
+                try {
+                  // if (status.isGranted) {
+                    //List<XFile> files = [XFile(song.musicPathInDevice)];
+                  try {
+                   // await Share.shareXFiles(files);
+                   log(song.musicPathInDevice);
+                   await Share.share(File(song.musicPathInDevice).readAsBytesSync().toString());
+                   //File.fromRawPath(rawPath)
+                  } catch (e) {
+                    log(e.toString());
+                  }
+                  // }else{
+                  //   log("Not Granted");
+                  // }
+                  
+                } catch (e) {
+                  log("Error on send song : $e");
+                }
+              }
+            },
           ),
           OnTapTextWidget(
             text: "View Details",
@@ -109,7 +139,7 @@ class MenuBottomSheet extends StatelessWidget {
                     artistName: artistName,
                     albumName: albumName,
                     songFormat: songFormat,
-                    songSize: songSize.toString(),
+                    songSize: songSize,
                     songPathIndevice: songPathIndevice,
                   ),
                 ),
@@ -118,10 +148,12 @@ class MenuBottomSheet extends StatelessWidget {
           ),
           GetBuilder<FavoriteController>(builder: (controller) {
             return OnTapTextWidget(
-              text: controller.isFavorite(favsong!.id)? "Remove from Favorites":"Add to Favorites",
+              text: controller.isFavorite(favsong!.id)
+                  ? "Remove from Favorites"
+                  : "Add to Favorites",
               onTap: () {
                 Navigator.pop(context);
-                 print("not to favourites");
+                print("not to favourites");
                 if (favsong != null) {
                   print("adding to favourites");
                   controller.onTapFavorite(favsong!, context);
@@ -132,7 +164,9 @@ class MenuBottomSheet extends StatelessWidget {
           pageType == PageTypeEnum.playListPage
               ? OnTapTextWidget(
                   text: "Remove From Playlist",
-                  onTap: () {},
+                  onTap: () {
+                    
+                  },
                 )
               : const SizedBox(),
           OnTapTextWidget(

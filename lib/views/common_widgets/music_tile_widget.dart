@@ -137,7 +137,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                           return TextWidgetCommon(
                             overflow: TextOverflow.ellipsis,
                             text:
-                                "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName}",
+                                "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName == "<unknown>" ? "Unknown Album" : widget.albumName}",
                             fontSize: 10.sp,
                             color: widget.audioController != null
                                 ? widget.audioController!.isPlaying.value &&
@@ -152,7 +152,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                         TextWidgetCommon(
                             overflow: TextOverflow.ellipsis,
                             text:
-                                "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName}",
+                                "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName == "<unknown>" ? "Unknown Album" : widget.albumName}",
                             fontSize: 10.sp,
                             color: widget.audioController != null
                                 ? widget.audioController!.isPlaying.value &&

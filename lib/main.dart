@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
+  
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
@@ -18,6 +19,7 @@ Future<void> main() async {
   final directory =
       await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
+  
   Hive.registerAdapter(AllMusicsModelAdapter());
   Hive.registerAdapter(PlaylistAdapter());
   Hive.registerAdapter(FavoriteModelAdapter());

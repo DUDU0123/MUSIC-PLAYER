@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -17,9 +16,11 @@ class PlaylistController extends GetxController {
   final _songAddedToPlaylistController = StreamController<Playlist>.broadcast();
   Stream<Playlist> get onSongAddedToPlaylist =>
       _songAddedToPlaylistController.stream;
-  RxInt selectedPlaylistId = RxInt(-1);
+  RxInt selectedPlaylistId = RxInt(0);
   set setSelectedPlaylistId(int value) => selectedPlaylistId.value = value;
   int get getSelectedPlaylistId => selectedPlaylistId.value;
+  Box<Playlist> playlistBox = Hive.box<Playlist>('playlist');
+  RxList<Playlist> currentPlaylistSongList = <Playlist>[].obs;
 
   @override
   void onInit() {
@@ -28,115 +29,38 @@ class PlaylistController extends GetxController {
     addingAllSongsToList();
   }
 
-  void addingAllSongsToList() async {
-    Box<AllMusicsModel> hiveBox = await Hive.openBox<AllMusicsModel>('musics');
-    fullSongListToAddToPlaylist.value = hiveBox.values.map((music) {
-      return AllMusicsModel(
-        id: music.id,
-        musicName: music.musicName,
-        musicAlbumName: music.musicAlbumName,
-        musicArtistName: music.musicArtistName,
-        musicPathInDevice: music.musicPathInDevice,
-        musicFormat: music.musicFormat,
-        musicUri: music.musicUri,
-        musicFileSize: music.musicFileSize,
-      );
-    }).toList();
-  }
+  addSongsToDBPlaylist(List<AllMusicsModel> playlistSongs, int playlistID) {
+    currentPlaylistSongList.value = playlistBox.values.toList();
 
-  Future<void> loadPlaylistsFromHive() async {
-    var hiveBox = await Hive.openBox<Playlist>('playlist');
-    listOfPlaylist.assignAll(hiveBox.values.toList());
-
-    // Initialize playlistSongLengths with default lengths
-    playlistSongLengths.assignAll(List<int>.filled(listOfPlaylist.length, 0));
-  }
-
-  // addSongsToPlaylist
-  // addSongsToPlaylist(List<AllMusicsModel> songs, int playlistId) async {
-  //   var hiveBox = await Hive.openBox<Playlist>('playlist');
-  //    final List<Playlist> currentPlaylistSongList = hiveBox.values.toList();
-  //   currentPlaylistSongList.map((onePlaylist) => onePlaylist.id == playlistId).toList();
-  //   // check if song already available in playlist
-  //   // check if playlist already available
-  //   // if playlist not available create one
-  //   // if selected songs not available in that particular playlist , then add the songs to the playlist
-  // }
-
-  // addToPlaylist(List<AllMusicsModel> songs) {
-  //   var songList = [];
-  //   listOfPlaylist.map((playlist) {
-  //     return playlist.playlistSongs!.map((e) {
-  //       return songs;
-  //     }).toList();
-  //   });
-  // }
-
-  // addSongListToPlaylist(List<AllMusicsModel> songs, int playlistId) {
-  //   final correctSongs = listOfPlaylist.value
-  //       .where((playlist) => playlist.id == playlistId)
-  //       .map((playlist) => songs)
-  //       .toList();
-  // }
-
-  // addSongsToPlaylist
-  addSongsToPlaylist(List<AllMusicsModel> songs, int playlistId) async {
-    var hiveBox = await Hive.openBox<Playlist>('playlist');
-    final List<Playlist> currentPlaylistSongList = hiveBox.values.toList();
-
-    // Find the playlist with the specified playlistId
-    Playlist? selectedPlaylist = currentPlaylistSongList.firstWhere(
-      (playlist) => playlist.id == playlistId,
-      orElse: () => Playlist(name: '', id: 0),
-    );
-
-    if (selectedPlaylist != null) {
-      // Check if the songs are not already in the playlist
-      for (var song in songs) {
-        if (!selectedPlaylist.playlistSongs!.contains(song)) {
-          log("Song Added: ${song.musicName}");
-          selectedPlaylist.playlistSongs?.add(song);
+    Playlist? selectedPlaylist;
+    try {
+      selectedPlaylist = currentPlaylistSongList
+          .firstWhere((playlist) => playlist.id == playlistID);
+    } catch (e) {
+      log("Playlist with id $playlistID not found");
+    }
+    try {
+      Playlist newPlaylist =
+          Playlist(id: selectedPlaylist!.id, name: selectedPlaylist.name);
+      for (var song in playlistSongs) {
+        if (!selectedPlaylist!.playlistSongs!.contains(song)) {
+          log("Song name: ${song.musicName}");
+          selectedPlaylist!.playlistSongs?.add(song);
         }
       }
-
-      // Update the playlist in Hive
-      hiveBox.put(playlistId, selectedPlaylist);
-    } else {
-      // If the playlist with the specified id does not exist, you can handle it accordingly.
-      print("Playlist with id $playlistId not found");
+      playlistBox.put(playlistID, selectedPlaylist!);
+    } catch (e) {
+      log("ERROR ON ADDING SONGS: $e");
     }
-  }
-
-  // retrive all songs in a particular playlist
-  // Future<List<AllMusicsModel>?> getPlayListSongs(int playListId) async {
-  //   var hiveBox = await Hive.openBox<Playlist>('playlist');
-  //   Playlist? playlist = hiveBox.getAt(playListId);
-  //   return playlist?.playlistSongs;
-    
-  // }
-
-  Future<List<AllMusicsModel>?> getPlayListSongs(int playListId) async {
-  var hiveBox = await Hive.openBox<Playlist>('playlist');
-  Playlist? playlist = hiveBox.getAt(playListId);
-
-  // Check if the playlist is not null and playlistSongs is not null
-  if (playlist != null && playlist.playlistSongs != null) {
-    return playlist.playlistSongs;
-  } else {
-    // Return an empty list if the playlist or playlistSongs is null
-    return [];
-  }
-}
-
-  // Retrieve all playlists from Hive
-  Future<List<Playlist>> getPlaylists() async {
-    final playlistBox = await Hive.openBox<Playlist>('playlist');
-    return playlistBox.values.toList();
+    update();
   }
 
   void playlistCreation(
       {required String playlistName, required int index}) async {
     bool isPlaylistAlreadyAdded = false;
+    while (listOfPlaylist.any((playlist) => playlist.id == index)) {
+      index++;
+    }
     for (var playlistList in listOfPlaylist) {
       if (playlistList.name == playlistName || playlistList.name == '') {
         isPlaylistAlreadyAdded = true;
@@ -161,13 +85,77 @@ class PlaylistController extends GetxController {
     update();
   }
 
-  // getter for get all playlist
-  List<Playlist> get allPlaylists => listOfPlaylist;
+  //playlist delete function
+  void playlistDelete({required int index}) async {
+    log("Deleting playlist at index: $index");
+    if (index >= 0 && index < listOfPlaylist.length) {
+      var hiveBox = await Hive.openBox<Playlist>('playlist');
+      log("Before deletion: ${hiveBox.values}");
+      listOfPlaylist.removeAt(index);
+      await hiveBox.deleteAt(index);
+      log("After deletion: ${listOfPlaylist.toList()}");
+    }
+  }
 
-  @override
-  void onClose() {
-    super.onClose();
-    _songAddedToPlaylistController.close();
+  void playlistUpdateName({
+    required int index,
+    required String newPlaylistName,
+  }) async {
+    if (index >= 0 &&
+        index < listOfPlaylist.length &&
+        newPlaylistName.isNotEmpty &&
+        newPlaylistName != '') {
+      var hiveBox = await Hive.openBox<Playlist>('playlist');
+      var updatedPlaylist = listOfPlaylist[index];
+      var updatedPlaylistWithName = Playlist(
+        name: newPlaylistName,
+        id: index,
+        playlistSongs: updatedPlaylist.playlistSongs,
+      );
+
+      hiveBox.putAt(index, updatedPlaylistWithName);
+      listOfPlaylist[index] = updatedPlaylistWithName;
+      log(updatedPlaylistWithName.name);
+      log(updatedPlaylistWithName.id.toString());
+    }
+  }
+
+  String getPlaylistName({required int index}) {
+    if (index >= 0 && index < listOfPlaylist.length) {
+      return listOfPlaylist[index].name;
+    }
+    return "";
+  }
+
+  int getPlaylistID({required int index}) {
+    if (index >= 0 && index < listOfPlaylist.length) {
+      return listOfPlaylist[index].id != null ? listOfPlaylist[index].id! : 0;
+    }
+    return 0;
+  }
+
+  Future<List<AllMusicsModel>?> getPlayListSongs(int playListId) async {
+    var hiveBox = await Hive.openBox<Playlist>('playlist');
+    Playlist? playlist = hiveBox.getAt(playListId);
+
+    // Check if the playlist is not null and playlistSongs is not null
+    if (playlist != null && playlist.playlistSongs != null) {
+      return playlist.playlistSongs;
+    } else {
+      // Return an empty list if the playlist or playlistSongs is null
+      return [];
+    }
+  }
+
+  onTapRemoveFromPlaylist(
+      {required AllMusicsModel song, required int playlistId}) async {
+    var playlistBox = await Hive.openBox<Playlist>('playlist');
+    Playlist? selectedPlaylist = playlistBox.getAt(playlistId);
+
+    if (selectedPlaylist!.playlistSongs!.contains(song)) {
+      selectedPlaylist.playlistSongs!.remove(song);
+      playlistBox.delete(song.id);
+    }
   }
 
   // on tapping on the playlist add the song to the playlist
@@ -193,15 +181,11 @@ class PlaylistController extends GetxController {
         log("Playlist before update: ${selectedPlaylist.playlistSongs}");
         // Notify the stream with the updated playlist
         setSelectedPlaylistId = playlistId;
-
         // Notify the stream with the updated playlist
         _songAddedToPlaylistController.add(selectedPlaylist);
-        // Print statement for debugging
         log("Playlist after update: ${selectedPlaylist.playlistSongs}");
-        // Show a snackbar or perform any other action to notify the user
         snackBarCommonWidget(context, contentText: "Song added to playlist");
       } else {
-        // Show a snackbar or perform any other action to notify the user
         snackBarCommonWidget(context, contentText: "Song already in playlist");
       }
     } else {
@@ -209,45 +193,49 @@ class PlaylistController extends GetxController {
     }
   }
 
-// playlist delete function
-  void playlistDelete({required int index}) async {
-    print("Deleting playlist at index: $index");
-    if (index >= 0 && index < listOfPlaylist.length) {
-      var hiveBox = await Hive.openBox<Playlist>('playlist');
-      print("Before deletion: ${hiveBox.values}");
-      listOfPlaylist.removeAt(index);
-      await hiveBox.deleteAt(index);
-      print("After deletion: ${listOfPlaylist.toList()}");
-    }
-  }
+  // Get all playlist
+  List<Playlist> get allPlaylists => listOfPlaylist;
 
-  void playlistUpdateName({
-    required int index,
-    required String newPlaylistName,
-  }) async {
-    if (index >= 0 &&
-        index < listOfPlaylist.length &&
-        newPlaylistName.isNotEmpty &&
-        newPlaylistName != '') {
-      var hiveBox = await Hive.openBox<Playlist>('playlist');
-      var updatedPlaylist = listOfPlaylist[index];
-      var updatedPlaylistWithName = Playlist(
-        name: newPlaylistName,
-        id: index,
-        playlistSongs: updatedPlaylist.playlistSongs,
+  void addingAllSongsToList() async {
+    Box<AllMusicsModel> hiveBox = await Hive.openBox<AllMusicsModel>('musics');
+    fullSongListToAddToPlaylist.value = hiveBox.values.map((music) {
+      return AllMusicsModel(
+        id: music.id,
+        musicName: music.musicName,
+        musicAlbumName: music.musicAlbumName,
+        musicArtistName: music.musicArtistName,
+        musicPathInDevice: music.musicPathInDevice,
+        musicFormat: music.musicFormat,
+        musicUri: music.musicUri,
+        musicFileSize: music.musicFileSize,
       );
-
-      hiveBox.putAt(index, updatedPlaylistWithName);
-      listOfPlaylist[index] = updatedPlaylistWithName;
-      print(updatedPlaylistWithName.name);
-      print(updatedPlaylistWithName.id);
-    }
+    }).toList();
   }
 
-  String getPlaylistName({required int index}) {
-    if (index >= 0 && index < listOfPlaylist.length) {
-      return listOfPlaylist[index].name;
-    }
-    return "";
+  Future<void> loadPlaylistsFromHive() async {
+    var hiveBox = await Hive.openBox<Playlist>('playlist');
+    listOfPlaylist.assignAll(hiveBox.values.toList());
+    // Initialize playlistSongLengths with default lengths
+    playlistSongLengths.assignAll(List<int>.filled(listOfPlaylist.length, 0));
+  }
+
+  // retrive all songs in a particular playlist
+  // Future<List<AllMusicsModel>?> getPlayListSongs(int playListId) async {
+  //   var hiveBox = await Hive.openBox<Playlist>('playlist');
+  //   Playlist? playlist = hiveBox.getAt(playListId);
+  //   return playlist?.playlistSongs;
+
+  // }
+
+  // Retrieve all playlists from Hive
+  Future<List<Playlist>> getPlaylists() async {
+    final playlistBox = await Hive.openBox<Playlist>('playlist');
+    return playlistBox.values.toList();
+  }
+
+  @override
+  void onClose() {
+    super.onClose();
+    _songAddedToPlaylistController.close();
   }
 }

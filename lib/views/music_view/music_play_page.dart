@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -9,7 +11,7 @@ import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/menu_bottom_sheet.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
-import 'package:music_player/views/current_playlist/current_playlist.dart';
+import 'package:music_player/views/song_lyrics.dart/song_lyrics_page.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
@@ -107,7 +109,14 @@ class MusicPlayPage extends StatelessWidget {
                           borderRadius: BorderRadius.circular(60),
                           color: kMusicIconContainerColor,
                         ),
-                        child: ArtWorkWidgetMusicPlayingPage(songId: songId),
+                        child: Obx(() {
+                          return ArtWorkWidgetMusicPlayingPage(
+                              songId: audioController
+                                          .currentPlayingSong.value !=
+                                      null
+                                  ? audioController.currentPlayingSong.value!.id
+                                  : songId);
+                        }),
                       ),
                     ),
                     kHeight15,
@@ -172,26 +181,41 @@ class MusicPlayPage extends StatelessWidget {
                           // song name
                           SizedBox(
                             width: kScreenWidth / 1.6,
-                            child: TextWidgetCommon(
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                              text: songTitle,
-                              fontSize: 23.sp,
-                              color: kWhite,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            child: Obx(() {
+                              return TextWidgetCommon(
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                text:
+                                    audioController.currentPlayingSong.value !=
+                                            null
+                                        ? audioController
+                                            .currentPlayingSong.value!.musicName
+                                        : songTitle,
+                                fontSize: 23.sp,
+                                color: kWhite,
+                                fontWeight: FontWeight.w500,
+                              );
+                            }),
                           ),
                           kHeight5,
                           // song artist name
-                          TextWidgetCommon(
-                            overflow: TextOverflow.ellipsis,
-                            text: artistName == '<unknown>'
-                                ? 'Unknown Artist'
-                                : artistName,
-                            fontSize: 10.sp,
-                            color: kGrey,
-                            fontWeight: FontWeight.w400,
-                          ),
+                          Obx(() {
+                            return TextWidgetCommon(
+                              overflow: TextOverflow.ellipsis,
+                              text: audioController.currentPlayingSong.value !=
+                                      null
+                                  ? audioController.currentPlayingSong.value!
+                                              .musicArtistName ==
+                                          '<unknown>'
+                                      ? 'Unknown Artist'
+                                      : audioController.currentPlayingSong
+                                          .value!.musicArtistName
+                                  : artistName,
+                              fontSize: 10.sp,
+                              color: kGrey,
+                              fontWeight: FontWeight.w400,
+                            );
+                          }),
                         ],
                       ),
                       // control buttons
@@ -227,6 +251,7 @@ class MusicPlayPage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10),
                                   color: kRed),
                               child: Obx(() {
+                                log(audioController.isPlaying.value.toString());
                                 return Icon(
                                   audioController.isPlaying.value
                                       ? Icons.pause
@@ -259,16 +284,26 @@ class MusicPlayPage extends StatelessWidget {
                             onPressed: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
-                                  builder: (context) => CurrentPlayListPage(
+                                  builder: (context) => MusicLyricsPage(
                                     // currentPlayingsongs:  ,
-                                    songModel: songModel,
-                                    songId: songId,
+                                    songModel: audioController
+                                                .currentPlayingSong.value !=
+                                            null
+                                        ? audioController
+                                            .currentPlayingSong.value!
+                                        : songModel,
+                                    songId: audioController
+                                                .currentPlayingSong.value !=
+                                            null
+                                        ? audioController
+                                            .currentPlayingSong.value!.id
+                                        : songId,
                                   ),
                                 ),
                               );
                             },
                             icon: Icon(
-                              Icons.list,
+                              Icons.lyrics_outlined,
                               size: 30,
                               color: kWhite,
                             ),
@@ -277,24 +312,42 @@ class MusicPlayPage extends StatelessWidget {
                           GetBuilder<FavoriteController>(
                               global: true,
                               builder: (favoriteController) {
-                                return IconButton(
-                                  onPressed: () {
-                                    FavoriteModel favoriteMusic =
-                                        getFavoriteModelFromAllMusicModel(
-                                            songModel);
-                                    favoriteController.onTapFavorite(
-                                        favoriteMusic, context);
-                                  },
-                                  icon: Icon(
-                                    favoriteController.isFavorite(songId)
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    size: 30,
-                                    color: favoriteController.isFavorite(songId)
-                                        ? kRed
-                                        : kWhite,
-                                  ),
-                                );
+                                return Obx(() {
+                                  return IconButton(
+                                    onPressed: () {
+                                      FavoriteModel favoriteMusic =
+                                          getFavoriteModelFromAllMusicModel(
+                                              songModel);
+                                      favoriteController.onTapFavorite(
+                                          favoriteMusic, context);
+                                    },
+                                    icon: Icon(
+                                      favoriteController.isFavorite(
+                                              audioController.currentPlayingSong
+                                                          .value !=
+                                                      null
+                                                  ? audioController
+                                                      .currentPlayingSong
+                                                      .value!
+                                                      .id
+                                                  : 0)
+                                          ? Icons.favorite
+                                          : Icons.favorite_border,
+                                      size: 30,
+                                      color: favoriteController.isFavorite(
+                                              audioController.currentPlayingSong
+                                                          .value !=
+                                                      null
+                                                  ? audioController
+                                                      .currentPlayingSong
+                                                      .value!
+                                                      .id
+                                                  : 0)
+                                          ? kRed
+                                          : kWhite,
+                                    ),
+                                  );
+                                });
                               }),
 
                           // song loop shuffle
@@ -312,7 +365,7 @@ class MusicPlayPage extends StatelessWidget {
                                     )
                                   : Image.asset(
                                       "assets/shuffle.png",
-                                      scale: 15.sp,
+                                      scale: 18.sp,
                                       color: kWhite,
                                     ),
                             );
@@ -327,17 +380,36 @@ class MusicPlayPage extends StatelessWidget {
                                 builder: (context) {
                                   return MenuBottomSheet(
                                     favouriteController: favoriteController,
-                                    song: songModel,
+                                    song: audioController
+                                                .currentPlayingSong.value !=
+                                            null
+                                        ? audioController
+                                            .currentPlayingSong.value!
+                                        : songModel,
                                     songId: songId,
-                                    musicUri: musicUri,
+                                    musicUri: audioController
+                                        .currentPlayingSong.value!.musicUri,
                                     kScreenHeight: kScreenHeight,
                                     pageType: PageTypeEnum.musicViewPage,
-                                    songName: songTitle,
-                                    artistName: artistName,
-                                    albumName: albumName,
-                                    songFormat: songFormat,
-                                    songSize: songSize.toString(),
-                                    songPathIndevice: songPathIndevice,
+                                    songName: audioController
+                                        .currentPlayingSong.value!.musicName,
+                                    artistName: audioController
+                                        .currentPlayingSong
+                                        .value!
+                                        .musicArtistName,
+                                    albumName: audioController
+                                        .currentPlayingSong
+                                        .value!
+                                        .musicAlbumName,
+                                    songFormat: audioController
+                                        .currentPlayingSong.value!.musicFormat,
+                                    songSize: audioController.convertToMBorKB(audioController
+                                        .currentPlayingSong.value!.musicFileSize),
+                                       
+                                    songPathIndevice: audioController
+                                        .currentPlayingSong
+                                        .value!
+                                        .musicPathInDevice,
                                   );
                                 },
                               );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
@@ -19,10 +20,11 @@ class MusicPlaylistPage extends StatelessWidget {
   MusicPlaylistPage({
     super.key,
     required this.favoriteController,
-    required this.songModel,
+    required this.songModel, required this.audioController,
   });
 
   final FavoriteController favoriteController;
+  final AudioController audioController;
 
   final PlaylistController playlistController = Get.put(PlaylistController());
   final AllMusicsModel songModel;
@@ -67,6 +69,7 @@ class MusicPlaylistPage extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => FavouriteMusicListPage(
+                        audioController: audioController,
                         songModel: songModel,
                       ),
                     ),
@@ -133,12 +136,15 @@ class MusicPlaylistPage extends StatelessWidget {
                 );
               },
               onTap: () async {
+               var playlistSongs = await playlistController.getPlayListSongs(playlistController.getPlaylistID(index: index-3));
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => PlaylistSongListPage(
+                      audioController: audioController,
+                      playlistSongsList: playlistSongs,
                       songModel: songModel,
                       favoriteController: favoriteController,
-                      playlistId: index,
+                      playlistId: playlistController.getPlaylistID(index: index-3),
                       playlistName:
                           playlistController.getPlaylistName(index: index - 3),
                     ),

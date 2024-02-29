@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
+import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/artist/artist_song_list_page.dart';
@@ -14,9 +15,10 @@ class MusicArtistPage extends StatelessWidget {
   const MusicArtistPage({
     super.key,
     required this.favoriteController,
-    required this.songModel,
+    required this.songModel, required this.audioController,
   });
   final FavoriteController favoriteController;
+  final AudioController audioController;
   final AllMusicsModel songModel;
 
   @override
@@ -46,7 +48,8 @@ class MusicArtistPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => ArtistSongListPage(
-                      songModel: songModel,
+                      audioController: audioController,
+                      songModel: audioController.currentPlayingSong.value!=null?audioController.currentPlayingSong.value!:songModel,
                       favoriteController: favoriteController,
                       artistName: artistName,
                       artistSongs: artistSongs,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
@@ -12,15 +13,16 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class FavouriteMusicListPage extends StatelessWidget {
-
-
   FavouriteMusicListPage({
-    super.key, required this.songModel,
+    super.key,
+    required this.songModel,
+    required this.audioController,
     // required this.favouriteController,
   });
   // final FavoriteController favouriteController;
- final FavoriteController favouriteController = Get.put(FavoriteController());
+  final FavoriteController favouriteController = Get.put(FavoriteController());
   final AllMusicsModel songModel;
+  final AudioController audioController;
 
   @override
   Widget build(BuildContext context) {
@@ -49,11 +51,11 @@ class FavouriteMusicListPage extends StatelessWidget {
                           id: e.id,
                           musicName: e.musicName,
                           musicAlbumName: e.musicAlbumName,
-                          musicArtistName:e.musicArtistName,
+                          musicArtistName: e.musicArtistName,
                           musicPathInDevice: e.musicPathInDevice,
                           musicFormat: e.musicFormat,
                           musicUri: e.musicUri,
-                          musicFileSize: e.musicFileSize,
+                          musicFileSize: int.parse(audioController.convertToMBorKB(e.musicFileSize)),
                         );
                       }).toList(),
                     ),
@@ -80,12 +82,13 @@ class FavouriteMusicListPage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(horizontal: 10.h),
                     child: MusicTileWidget(
                       songModel: songModel,
-                     favoriteController: favouriteController,
-                      musicUri: favouriteController.favoriteSongs[index].musicUri,
+                      favoriteController: favouriteController,
+                      musicUri:
+                          favouriteController.favoriteSongs[index].musicUri,
                       // audioPlayer: audioPlayer,
                       // musicBox: musicBox,
-                      albumName:
-                          favouriteController.favoriteSongs[index].musicAlbumName,
+                      albumName: favouriteController
+                          .favoriteSongs[index].musicAlbumName,
                       artistName: favouriteController
                           .favoriteSongs[index].musicArtistName,
                       // isPlaying: false,
@@ -93,9 +96,9 @@ class FavouriteMusicListPage extends StatelessWidget {
                           favouriteController.favoriteSongs[index].musicName,
                       songFormat:
                           favouriteController.favoriteSongs[index].musicFormat,
-                      songSize: favouriteController
-                          .favoriteSongs[index].musicFileSize
-                          .toString(),
+                      songSize: audioController.convertToMBorKB(
+                          favouriteController
+                              .favoriteSongs[index].musicFileSize),
                       songPathIndevice: favouriteController
                           .favoriteSongs[index].musicPathInDevice,
                       pageType: PageTypeEnum.favoritePage,
