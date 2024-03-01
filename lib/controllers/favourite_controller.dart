@@ -7,7 +7,6 @@ import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 
-
 class FavoriteController extends GetxController {
   RxList<FavoriteModel> favoriteSongs = <FavoriteModel>[].obs;
   int initialFavoriteSongsLength = 0;
@@ -35,13 +34,23 @@ class FavoriteController extends GetxController {
     Get.back();
   }
 
-  void loadFavoriteSongs() {
-    log('Before load: ${favoriteBox.values}');
-    favoriteSongs.assignAll(favoriteBox.values.cast<FavoriteModel>());
-    final uniqueFavorites = favoriteSongs.toSet().toList();
+
+// loading favorite songs after checking any songs are in favorite list which is deleted, then filtering it
+  void loadFavoriteSongs() async {
+    // Get the unique favorite songs
+    final uniqueFavorites =
+        favoriteBox.values.cast<FavoriteModel>().toSet().toList();
+    // Filter out songs not present in allSongsListFromDevice
+    final filteredFavorites = uniqueFavorites.where((favoriteSong) {
+      return audioController.allSongsListFromDevice
+          .any((song) => song.id == favoriteSong.id);
+    }).toList();
+    // Assign the filtered favorites to favoriteSongs
+    favoriteSongs.assignAll(filteredFavorites);
+    // Ensure that there are no duplicates in favoriteSongs
+    final uniqueFilteredFavorites = favoriteSongs.toSet().toList();
     favoriteSongs.clear();
-    favoriteSongs.assignAll(uniqueFavorites);
-  //  print('After load: ${favoriteBox.values}');
+    favoriteSongs.assignAll(uniqueFilteredFavorites);
   }
 
   void onTapFavorite(FavoriteModel song, BuildContext context) {

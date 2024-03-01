@@ -2,11 +2,14 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
+import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
+import 'package:music_player/models/playlist_model.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/ontap_text_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
@@ -29,6 +32,7 @@ class MenuBottomSheet extends StatelessWidget {
     required this.musicUri,
     required this.song,
     required this.favouriteController,
+    this.playListID,
   });
 
   final double kScreenHeight;
@@ -43,9 +47,11 @@ class MenuBottomSheet extends StatelessWidget {
   final int songId;
   final AllMusicsModel song;
   final FavoriteController favouriteController;
+  final int? playListID;
   AudioController audioController = Get.put(AudioController());
 
   FavoriteModel? favsong;
+
 
   favouriteSong() {
     favsong = FavoriteModel(
@@ -85,42 +91,45 @@ class MenuBottomSheet extends StatelessWidget {
           : kScreenHeight / 1.8,
       child: Column(
         children: [
-         pageType != PageTypeEnum.playListPage? OnTapTextWidget(
-            text: "Add to Playlist",
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => AddToPlaylistPage(
-                    song: song,
-                    favoriteController: favouriteController,
-                  ),
-                ),
-              );
-            },
-          ):const SizedBox(),
+          pageType != PageTypeEnum.playListPage
+              ? OnTapTextWidget(
+                  text: "Add to Playlist",
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AddToPlaylistPage(
+                          song: song,
+                          favoriteController: favouriteController,
+                        ),
+                      ),
+                    );
+                  },
+                )
+              : const SizedBox(),
           OnTapTextWidget(
             text: "Send Song",
             onTap: () async {
               if (song != null &&
                   song.musicPathInDevice != null &&
                   song.musicPathInDevice.isNotEmpty) {
-              //  var status =await audioController.requestPermission();
+                //  var status =await audioController.requestPermission();
                 try {
                   // if (status.isGranted) {
-                    //List<XFile> files = [XFile(song.musicPathInDevice)];
+                  //List<XFile> files = [XFile(song.musicPathInDevice)];
                   try {
-                   // await Share.shareXFiles(files);
-                   log(song.musicPathInDevice);
-                   await Share.share(File(song.musicPathInDevice).readAsBytesSync().toString());
-                   //File.fromRawPath(rawPath)
+                    // await Share.shareXFiles(files);
+                    log(song.musicPathInDevice);
+                    await Share.share(File(song.musicPathInDevice)
+                        .readAsBytesSync()
+                        .toString());
+                    //File.fromRawPath(rawPath)
                   } catch (e) {
                     log(e.toString());
                   }
                   // }else{
                   //   log("Not Granted");
                   // }
-                  
                 } catch (e) {
                   log("Error on send song : $e");
                 }
@@ -152,21 +161,31 @@ class MenuBottomSheet extends StatelessWidget {
                   : "Add to Favorites",
               onTap: () {
                 Navigator.pop(context);
-                print("not to favourites");
+                log("not to favourites");
                 if (favsong != null) {
-                  print("adding to favourites");
+                  log("adding to favourites");
                   controller.onTapFavorite(favsong!, context);
                 }
               },
             );
           }),
           pageType == PageTypeEnum.playListPage
-              ? OnTapTextWidget(
-                  text: "Remove From Playlist",
-                  onTap: () {
-                    
-                  },
-                )
+              ? GetBuilder<PlaylistController>(
+                  init: PlaylistController(),
+                  builder: (controller) {
+                    return OnTapTextWidget(
+                      text: "Remove From Playlist",
+                      onTap: () {
+                        if (playListID != null) {
+                          controller.onTapRemoveFromPlaylist(
+                            songId: songId,
+                            playlistId: playListID!,
+                          );
+                        }
+                        Get.back();
+                      },
+                    );
+                  })
               : const SizedBox(),
           OnTapTextWidget(
             text: "Delete Song",

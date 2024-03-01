@@ -164,14 +164,34 @@ class PlaylistController extends GetxController {
   }
 
   onTapRemoveFromPlaylist(
-      {required AllMusicsModel song, required int playlistId}) async {
+      {required int songId, required int playlistId}) async {
+    log("Removing..");
     var playlistBox = await Hive.openBox<Playlist>('playlist');
     Playlist? selectedPlaylist = playlistBox.getAt(playlistId);
+    if (selectedPlaylist != null && selectedPlaylist.playlistSongs != null) {
+      // Find the song with the specified songId in the playlist
+      int indexOfSong = selectedPlaylist.playlistSongs!.indexWhere(
+        (song) => song.id == songId,
+      );
 
-    if (selectedPlaylist!.playlistSongs!.contains(song)) {
-      selectedPlaylist.playlistSongs!.remove(song);
-      playlistBox.delete(song.id);
+      if (indexOfSong != -1) {
+        selectedPlaylist.playlistSongs!.removeAt(indexOfSong);
+        playlistBox.putAt(playlistId, selectedPlaylist);
+        Get.snackbar(
+          "Song Removed",
+          "Song removed from playlist",
+          backgroundColor: kBlack,
+          colorText: kWhite,
+          duration: const Duration(seconds: 1),
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        log("Song with id $songId not found in the playlist.");
+      }
+    } else {
+      log("Playlist not found or doesn't have songs.");
     }
+    update();
   }
 
   // on tapping on the playlist add the song to the playlist

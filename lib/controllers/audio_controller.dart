@@ -40,8 +40,8 @@ class AudioController extends GetxController {
     audioPlayer.seek(seekDurationSlider.value);
   }
 
-  setSong(AllMusicsModel song){
-    if (songNow!=null) {
+  setSong(AllMusicsModel song) {
+    if (songNow != null) {
       songNow!.value = song;
     }
   }
@@ -70,11 +70,10 @@ class AudioController extends GetxController {
         preload: false,
       );
       if (audioPlayer.position > Duration.zero) {
-      // Seek to the last played position
-      await audioPlayer.seek(audioPlayer.position);
-    }
-     currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
-   
+        // Seek to the last played position
+        await audioPlayer.seek(audioPlayer.position);
+      }
+      currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
     } catch (e) {
       log("Error on play intialize: $e");
     }
@@ -87,7 +86,7 @@ class AudioController extends GetxController {
         } else {
           if (audioPlayer.loopMode == LoopMode.all) {
             currentPlayingSong.value =
-              allSongsListFromDevice[currentSongIndex.value];
+                allSongsListFromDevice[currentSongIndex.value];
             //play song
             playSong(0);
           } else {
@@ -190,7 +189,7 @@ class AudioController extends GetxController {
     }
   }
 
-  Future initializeRecentlyPlayedSongs() async{
+  Future initializeRecentlyPlayedSongs() async {
     log("Debug: Initializing Recently Played Songs");
     recentlyPlayedBox = Hive.box<RecentlyPlayedModel>('recent');
     recentlyPlayedSongList.value = recentlyPlayedBox.values.toList();
@@ -248,7 +247,6 @@ class AudioController extends GetxController {
       log(position.value.toString());
     });
     log("Current");
-    
 
     log("After current");
     log("${currentPlayingSong.value!.id} ${currentPlayingSong.value!.musicName} ${currentPlayingSong.value!.musicAlbumName}");
@@ -310,6 +308,7 @@ class AudioController extends GetxController {
   Future<void> playNextSong() async {
     if (currentSongIndex < allSongsListFromDevice.length - 1) {
       currentSongIndex++;
+      isPlaying.value = true;
       await playSong(currentSongIndex.value);
     } else {
       Get.snackbar("Play Back", "No songs to play next",
@@ -324,6 +323,7 @@ class AudioController extends GetxController {
   Future<void> playPreviousSong() async {
     if (currentSongIndex > 0) {
       currentSongIndex--;
+      isPlaying.value = true;
       await playSong(currentSongIndex.value);
     } else {
       Get.snackbar("Play Next", "No songs to play previous",

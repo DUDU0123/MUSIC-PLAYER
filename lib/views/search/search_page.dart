@@ -14,7 +14,7 @@ import 'package:music_player/views/common_widgets/textfield_common_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 
 class SearchPage extends StatefulWidget {
-  SearchPage(
+  const SearchPage(
       {super.key,
       required this.favoriteController,
       required this.audioController});

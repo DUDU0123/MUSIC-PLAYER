@@ -27,7 +27,7 @@ class MusicTileWidget extends StatefulWidget {
     this.audioController,
     this.onTap,
     required this.musicUri,
-    required this.favoriteController,
+    required this.favoriteController, this.playListID,
   });
 
   final String songTitle;
@@ -35,6 +35,7 @@ class MusicTileWidget extends StatefulWidget {
   final String albumName;
   final String songFormat;
   final String songSize;
+  final int? playListID;
   final String songPathIndevice;
   final PageTypeEnum pageType;
   final int songId;
@@ -180,6 +181,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                         "widget.songModel: ${widget.songModel}");
                                     if (widget.songModel != null) {
                                       return MenuBottomSheet(
+                                        playListID: widget.playListID,
                                         favouriteController:
                                             widget.favoriteController,
                                         song: widget.songModel!,

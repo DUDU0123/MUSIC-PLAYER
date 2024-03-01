@@ -26,11 +26,11 @@ class MusicArtistPage extends StatelessWidget {
   Widget build(BuildContext context) {
     AllMusicController allMusicController = Get.put(AllMusicController());
     return Scaffold(
-      body: allMusicController.artistMap.isNotEmpty
-          ? FutureBuilder(
+      body: FutureBuilder(
               future: allMusicController.fetchAllArtistMusicData(),
               builder: (context, snapshot) {
-                return Obx(() {
+                if (snapshot.connectionState == ConnectionState.done) {
+                  return Obx(() {
                   return ListView.builder(
                     itemCount: allMusicController.artistMap.length,
                     padding: EdgeInsets.symmetric(vertical: 15.h),
@@ -69,8 +69,9 @@ class MusicArtistPage extends StatelessWidget {
                     },
                   );
                 });
+                }
+                return const DefaultCommonWidget(text: "No artists available");
               })
-          : const DefaultCommonWidget(text: "No artist available"),
     );
   }
 }
