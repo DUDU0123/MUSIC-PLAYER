@@ -12,10 +12,8 @@ import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/add_to_playlist/add_to_playlist_page.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
-import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/song_edit_page.dart/widgets/icon_text_widget.dart';
-
 class BottomSettingsWidget extends StatefulWidget {
   BottomSettingsWidget({
     super.key,
@@ -36,12 +34,9 @@ class BottomSettingsWidget extends StatefulWidget {
 }
 
 class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
-  // final void Function() removeSongFromFavourites;
-
   FavoriteModel? favSong;
   AllMusicController allmusicController = Get.put(AllMusicController());
   AudioController audioController = Get.put(AudioController());
-
   favouriteSong() {
     favSong = FavoriteModel(
       id: widget.song.id,
@@ -54,14 +49,13 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
       musicFileSize: widget.song.musicFileSize,
     );
   }
-
   @override
   Widget build(BuildContext context) {
     favouriteSong();
     AllMusicController allMusicController = Get.put(AllMusicController());
     final kScreenWidth = MediaQuery.of(context).size.width;
     return Container(
-      height: 55.h,
+      height: 60.h,
       margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 15.w),
       width: kScreenWidth,
       padding: EdgeInsets.only(top: 5.h),
@@ -109,28 +103,6 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                   : const SizedBox(
                       width: 0,
                     ),
-              // widget.pageType != PageTypeEnum.favoritePage && widget
-              //     ? IconTextWidget(
-              //         isSongSelected: widget.isSelected,
-              //         icon: Icons.favorite_outline,
-              //         iconName: "Favorite",
-              //         onTap: () {
-              //           // need to send song details to add to favourites
-              //           if (favSong != null) {
-              //             log(favSong!.musicName);
-              //             widget.favoriteController
-              //                 .onTapFavorite(favSong!, context);
-              //           }
-              //           // widget.isSelected! ? Navigator.pop(context) : null;
-              //           // widget.isSelected!
-              //           //     ? snackBarCommonWidget(
-              //           //         context,
-              //           //         contentText: "Added To favorites",
-              //           //       )
-              //           //     : null;
-              //         },
-              //       )
-              //     : const SizedBox(),
               widget.pageType != PageTypeEnum.playListPage &&
                       widget.pageType != PageTypeEnum.favoritePage
                   ? IconTextWidget(
@@ -156,40 +128,44 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                       height: 0,
                       width: 0,
                     ),
-                    kWidth10,
-              IconTextWidget(
-                isSongSelected: widget.isSelected,
-                onTap: () {
-                  // need to send song details to delete the song permenantly
-                  widget.isSelected!
-                      ? showDialog(
-                          context: context,
-                          builder: (context) {
-                            return DeleteDialogBox(
-                                    contentText:
-                                        "Do you want to delete the song?",
-                                    deleteAction: () {
-                                      List<int> selectedSongIds = [];
-                                      for (var song in widget.songList) {
-                                        if (song.musicSelected == true) {
-                                          selectedSongIds.add(song.id);
-                                          log(song.id.toString());
-                                          log(song.musicName);
-                                        }
+              kWidth10,
+              GetBuilder<AudioController>(
+                init: AudioController(),
+                builder: (controller) {
+                  return IconTextWidget(
+                    isSongSelected: widget.isSelected,
+                    onTap: () {
+                      // need to send song details to delete the song permenantly
+                      widget.isSelected!
+                          ? showDialog(
+                              context: context,
+                              builder: (context) {
+                                return DeleteDialogBox(
+                                  contentText: "Do you want to delete the song?",
+                                  deleteAction: () {
+                                    List<int> selectedSongIds = [];
+                                    for (var song in widget.songList) {
+                                      if (song.musicSelected == true) {
+                                        selectedSongIds.add(song.id);
+                                        log(song.id.toString());
+                                        log(song.musicName);
                                       }
-                                      log("Remaining songs in Hive box: ${allMusicController.musicBox.length}");
-                                     audioController.deleteSongsPermentaly( selectedSongIds, context);
-                                      log("Remaining songs in Hive box: ${allMusicController.musicBox.length}");
-                                    },
-                                  );
-                          },
-                        )
-                      : const SizedBox();
-
-                      
-                },
-                icon: Icons.delete_outline_outlined,
-                iconName: "Delete",
+                                    }
+                                    log("Remaining songs in Hive box: ${controller.musicBox.length}");
+                                    controller.deleteSongsPermentaly(
+                                        selectedSongIds, context);
+                                    log("Remaining songs in Hive box: ${controller.musicBox.length}");
+                                    Get.back();
+                                  },
+                                );
+                              },
+                            )
+                          : const SizedBox();
+                    },
+                    icon: Icons.delete_outline_outlined,
+                    iconName: "Delete",
+                  );
+                }
               ),
             ],
           ),

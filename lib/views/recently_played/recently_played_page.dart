@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
+import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/recently_played_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
@@ -86,7 +87,7 @@ class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                             artistName: music.musicArtistName,
                             songTitle: music.musicName,
                             songFormat: music.musicFormat,
-                            songSize: audioController.convertToMBorKB(music.musicFileSize),
+                            songSize: AppUsingCommonFunctions.convertToMBorKB(music.musicFileSize),
                             songPathIndevice: music.musicPathInDevice,
                             pageType: PageTypeEnum.recentlyPlayedPage,
                             songId: music.id,

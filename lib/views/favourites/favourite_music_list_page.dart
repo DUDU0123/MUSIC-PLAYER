@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
+import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
@@ -42,6 +43,7 @@ class FavouriteMusicListPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
+                      audioController: audioController,
                       song: songModel,
                       favoriteController: favouriteController,
                       pageType: PageTypeEnum.favoritePage,
@@ -55,7 +57,7 @@ class FavouriteMusicListPage extends StatelessWidget {
                           musicPathInDevice: e.musicPathInDevice,
                           musicFormat: e.musicFormat,
                           musicUri: e.musicUri,
-                          musicFileSize: int.parse(audioController.convertToMBorKB(e.musicFileSize)),
+                          musicFileSize: AppUsingCommonFunctions.convertToMBorKBInt(e.musicFileSize),
                         );
                       }).toList(),
                     ),
@@ -96,7 +98,7 @@ class FavouriteMusicListPage extends StatelessWidget {
                           favouriteController.favoriteSongs[index].musicName,
                       songFormat:
                           favouriteController.favoriteSongs[index].musicFormat,
-                      songSize: audioController.convertToMBorKB(
+                      songSize: AppUsingCommonFunctions.convertToMBorKB(
                           favouriteController
                               .favoriteSongs[index].musicFileSize),
                       songPathIndevice: favouriteController

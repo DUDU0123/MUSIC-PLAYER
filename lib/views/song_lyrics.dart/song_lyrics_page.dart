@@ -4,9 +4,6 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/models/allmusics_model.dart';
-import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
-import 'package:music_player/views/common_widgets/text_widget_common.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 
 class MusicLyricsPage extends StatelessWidget {
   const MusicLyricsPage({
@@ -28,7 +25,7 @@ class MusicLyricsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final kScreenWidth = MediaQuery.of(context).size.width;
+    //final kScreenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

@@ -3,22 +3,25 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/album_artist_functions_common.dart';
-import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 
 class AllMusicController extends GetxController {
   AudioController audioController = Get.put(AudioController());
-  
-  @override
-  void onInit() {
-    getAlbumSongs();
-    getArtistSongs();
-    super.onInit();
+
+  // @override
+  // void onInit() {
+  //   getAlbumSongs();
+  //   getArtistSongs();
+  //   super.onInit();
+  // }
+
+  Future<List<AllMusicsModel>> fetchAllAlbumMusicData() async {
+    await getAlbumSongs();
+    return audioController.allSongsListFromDevice;
   }
 
-  // Future<void> fetchAllMusicData() async {
-  //   await getAlbumSongs();
-  //   await getArtistSongs();
-  // }
+  Future<void> fetchAllArtistMusicData() async {
+    await getArtistSongs();
+  }
 
   final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
   final RxMap<String, List<AllMusicsModel>> artistMap =
@@ -27,30 +30,33 @@ class AllMusicController extends GetxController {
       <String, List<AllMusicsModel>>{}.obs;
 
   // getting artist with songs
-   getArtistSongs() {
+  getArtistSongs() {
     final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
-    allMusics.value.forEach((music) {
+    for (var music in allMusics) {
       final artistName = capitalizeFirstLetter(music.musicArtistName);
-      if (!artistMap.value.containsKey(artistName)) {
-        artistMap.value[artistName] = [];
+      if (!artistMap.containsKey(artistName)) {
+        artistMap[artistName] = [];
       }
-      artistMap.value[artistName]!.add(music);
-    });
+      if (!artistMap[artistName]!.contains(music)) {
+        artistMap[artistName]!.add(music);
+      }
+    }
     update();
   }
 
   // getting album with songs
-   getAlbumSongs() {
+  getAlbumSongs() {
     final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
-    allMusics.value.forEach((music) {
+    for (var music in allMusics) {
       final albumName = capitalizeFirstLetter(music.musicAlbumName);
-      if (!albumsMap.value.containsKey(albumName)) {
-        albumsMap.value[albumName] = [];
+      if (!albumsMap.containsKey(albumName)) {
+        albumsMap[albumName] = [];
       }
-      albumsMap.value[albumName]!.add(music);
-    });
+
+      if (!albumsMap[albumName]!.contains(music)) {
+        albumsMap[albumName]!.add(music);
+      }
+    }
     update();
   }
-
-
 }

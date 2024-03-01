@@ -75,7 +75,7 @@ class ViewDetailsPage extends StatelessWidget {
             kHeight20,
             DetailsRowWidget(
               fieldName: "Size",
-              fieldValue: '$songSize',
+              fieldValue: songSize,
             ),
             kHeight20,
             DetailsRowWidget(

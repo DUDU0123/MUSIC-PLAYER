@@ -3,22 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/center_title_appbar_common_widget.dart';
+import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
-
 class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
   const AddSongInPlaylistFromSelectingSongs({
     super.key,
-    required this.playListID,
+    required this.playListID, required this.audioController,
   });
   final int playListID;
+  final AudioController audioController;
   @override
   State<AddSongInPlaylistFromSelectingSongs> createState() =>
       _AddSongInPlaylistFromSelectingSongsState();
 }
-
 class _AddSongInPlaylistFromSelectingSongsState
     extends State<AddSongInPlaylistFromSelectingSongs> {
   bool isSelected = false;
@@ -45,7 +46,7 @@ class _AddSongInPlaylistFromSelectingSongsState
           ],
         ),
       ),
-      body: Stack(
+      body: widget.audioController.allSongsListFromDevice.isNotEmpty?  Stack(
         children: [
           ListView.builder(
             shrinkWrap: true,
@@ -125,10 +126,9 @@ class _AddSongInPlaylistFromSelectingSongsState
             ),
           ),
         ],
-      ),
+      ):  const DefaultCommonWidget(text: "No songs available"),
     );
   }
-
   toggleSelection() {
     setState(() {
       if (isAllSelected || isSelected) {
@@ -138,7 +138,6 @@ class _AddSongInPlaylistFromSelectingSongsState
       }
     });
   }
-
   selectAllSongs() {
     for (var element in playlistController.fullSongListToAddToPlaylist.value) {
       setState(() {
@@ -148,7 +147,6 @@ class _AddSongInPlaylistFromSelectingSongsState
       });
     }
   }
-
   deselectAllSongs() {
     for (var element in playlistController.fullSongListToAddToPlaylist.value) {
       setState(() {

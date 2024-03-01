@@ -3,9 +3,9 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:music_player/constants/colors.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/playlist_model.dart';
-import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 
 class PlaylistController extends GetxController {
   RxList<Playlist> listOfPlaylist = <Playlist>[].obs;
@@ -40,15 +40,24 @@ class PlaylistController extends GetxController {
       log("Playlist with id $playlistID not found");
     }
     try {
-      Playlist newPlaylist =
-          Playlist(id: selectedPlaylist!.id, name: selectedPlaylist.name);
-      for (var song in playlistSongs) {
-        if (!selectedPlaylist!.playlistSongs!.contains(song)) {
-          log("Song name: ${song.musicName}");
-          selectedPlaylist!.playlistSongs?.add(song);
+      // Playlist newPlaylist =
+      //     Playlist(id: selectedPlaylist!.id, name: selectedPlaylist.name);
+      if (selectedPlaylist != null) {
+        for (var song in playlistSongs) {
+          if (!selectedPlaylist.playlistSongs!.contains(song)) {
+            log("Song name: ${song.musicName}");
+            selectedPlaylist.playlistSongs?.add(song);
+          }
         }
+        playlistBox.put(playlistID, selectedPlaylist);
       }
-      playlistBox.put(playlistID, selectedPlaylist!);
+      // for (var song in playlistSongs) {
+      //   if (!selectedPlaylist!.playlistSongs!.contains(song)) {
+      //     log("Song name: ${song.musicName}");
+      //     selectedPlaylist.playlistSongs?.add(song);
+      //   }
+      // }
+      // playlistBox.put(playlistID, selectedPlaylist!);
     } catch (e) {
       log("ERROR ON ADDING SONGS: $e");
     }
@@ -136,13 +145,20 @@ class PlaylistController extends GetxController {
 
   Future<List<AllMusicsModel>?> getPlayListSongs(int playListId) async {
     var hiveBox = await Hive.openBox<Playlist>('playlist');
-    Playlist? playlist = hiveBox.getAt(playListId);
 
-    // Check if the playlist is not null and playlistSongs is not null
-    if (playlist != null && playlist.playlistSongs != null) {
-      return playlist.playlistSongs;
+    if (playListId >= 0 && playListId < listOfPlaylist.length) {
+      Playlist? playlist = hiveBox.getAt(playListId);
+
+      // Check if the playlist is not null and playlistSongs is not null
+      if (playlist != null && playlist.playlistSongs != null) {
+        return playlist.playlistSongs;
+      } else {
+        // Return an empty list if the playlist or playlistSongs is null
+        return [];
+      }
     } else {
-      // Return an empty list if the playlist or playlistSongs is null
+      // Handle the case where playListId is out of bounds
+      log("Invalid playlist ID: $playListId");
       return [];
     }
   }
@@ -184,9 +200,23 @@ class PlaylistController extends GetxController {
         // Notify the stream with the updated playlist
         _songAddedToPlaylistController.add(selectedPlaylist);
         log("Playlist after update: ${selectedPlaylist.playlistSongs}");
-        snackBarCommonWidget(context, contentText: "Song added to playlist");
+        Get.snackbar(
+          "Song Added",
+          "Song added to playlist",
+          colorText: kWhite,
+          backgroundColor: kBlack,
+          duration: const Duration(seconds: 1),
+          snackPosition: SnackPosition.BOTTOM,
+        );
       } else {
-        snackBarCommonWidget(context, contentText: "Song already in playlist");
+        Get.snackbar(
+          "Song Added",
+          "Song already in playlist",
+          colorText: kWhite,
+          backgroundColor: kBlack,
+          duration: const Duration(seconds: 1),
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } else {
       log("Playlist with id $playlistId not found");

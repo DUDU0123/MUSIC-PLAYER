@@ -12,7 +12,6 @@ import 'package:music_player/views/common_widgets/ontap_text_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/add_to_playlist/add_to_playlist_page.dart';
 import 'package:music_player/views/view_details_page.dart/view_details_page.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 
 class MenuBottomSheet extends StatelessWidget {
@@ -83,7 +82,7 @@ class MenuBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 20),
       height: pageType == PageTypeEnum.playListPage
           ? kScreenHeight / 2.2
-          : kScreenHeight / 2.2,
+          : kScreenHeight / 1.8,
       child: Column(
         children: [
          pageType != PageTypeEnum.playListPage? OnTapTextWidget(

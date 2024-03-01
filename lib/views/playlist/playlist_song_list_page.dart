@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
+import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
@@ -59,6 +60,7 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                         MaterialPageRoute(
                           builder: (context) =>
                               AddSongInPlaylistFromSelectingSongs(
+                                audioController: widget.audioController,
                             playListID: widget.playlistId,
                           ),
                         ),
@@ -78,6 +80,7 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => SongEditPage(
+                        audioController: widget.audioController,
                         song: widget.songModel,
                         favoriteController: widget.favoriteController,
                         pageType: PageTypeEnum.playListPage,
@@ -121,7 +124,7 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                           songTitle: widget.playlistSongsList![index].musicName,
                           songFormat:
                               widget.playlistSongsList![index].musicFormat,
-                          songSize: widget.audioController.convertToMBorKB(widget.playlistSongsList![index].musicFileSize)
+                          songSize: AppUsingCommonFunctions.convertToMBorKB(widget.playlistSongsList![index].musicFileSize)
                              ,
                           songPathIndevice: widget
                               .playlistSongsList![index].musicPathInDevice,

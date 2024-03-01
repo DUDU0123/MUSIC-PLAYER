@@ -5,15 +5,15 @@ import 'package:music_player/constants/colors.dart';
 class TextFieldCommonWidget extends StatelessWidget {
   const TextFieldCommonWidget({
     super.key,
-    required this.controller,
+    this.controller,
     required this.hintText,
     required this.labelText,
     this.validator,
     this.keyboardType,
-    this.errorText, this.onTap, this.hintStyle, this.onChanged, this.focusNode,
+    this.errorText, this.onTap, this.hintStyle, this.onChanged, this.focusNode, this.onFieldSubmitted,
   });
 
-  final TextEditingController controller;
+  final TextEditingController? controller;
   final String hintText;
   final TextInputType? keyboardType;
   final String labelText;
@@ -22,11 +22,14 @@ class TextFieldCommonWidget extends StatelessWidget {
   final void Function(String)? onChanged;
   final void Function()? onTap;
   final TextStyle? hintStyle;
+  final void Function(String)? onFieldSubmitted;
   final FocusNode? focusNode;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      textInputAction: TextInputAction.done,
+      onFieldSubmitted: onFieldSubmitted,
       focusNode: focusNode,
       onChanged: onChanged,
       onTap: onTap,

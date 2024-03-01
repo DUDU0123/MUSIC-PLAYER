@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:music_player/controllers/audio_controller.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 

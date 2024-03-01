@@ -15,20 +15,16 @@ import 'package:music_player/views/favourites/favourite_music_list_page.dart';
 import 'package:music_player/views/playlist/playlist_song_list_page.dart';
 import 'package:music_player/views/playlist/widgets/playlist_single_tile_widget.dart';
 import 'package:music_player/views/recently_played/recently_played_page.dart';
-
 class MusicPlaylistPage extends StatelessWidget {
   MusicPlaylistPage({
     super.key,
     required this.favoriteController,
     required this.songModel, required this.audioController,
   });
-
   final FavoriteController favoriteController;
   final AudioController audioController;
-
   final PlaylistController playlistController = Get.put(PlaylistController());
   final AllMusicsModel songModel;
-
   @override
   Widget build(BuildContext context) {
     TextEditingController newPlaylistController = TextEditingController();

@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -7,13 +6,14 @@ import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
+import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/menu_bottom_sheet.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
+import 'package:music_player/views/music_view/widgets/artwork_getting_widget.dart';
 import 'package:music_player/views/song_lyrics.dart/song_lyrics_page.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
-import 'package:on_audio_query/on_audio_query.dart';
 
 class MusicPlayPage extends StatelessWidget {
   const MusicPlayPage({
@@ -56,7 +56,6 @@ class MusicPlayPage extends StatelessWidget {
       musicUri: allMusic.musicUri,
     );
   }
-
   //late AllMusicsModel currentPlayingSong;
   // Duration currentPosition = audioController.currentPlaybackPosition;
 
@@ -317,7 +316,9 @@ class MusicPlayPage extends StatelessWidget {
                                     onPressed: () {
                                       FavoriteModel favoriteMusic =
                                           getFavoriteModelFromAllMusicModel(
-                                              songModel);
+                                              audioController.currentPlayingSong
+                                                      .value ??
+                                                  songModel);
                                       favoriteController.onTapFavorite(
                                           favoriteMusic, context);
                                     },
@@ -388,28 +389,50 @@ class MusicPlayPage extends StatelessWidget {
                                         : songModel,
                                     songId: songId,
                                     musicUri: audioController
-                                        .currentPlayingSong.value!.musicUri,
+                                                .currentPlayingSong.value !=
+                                            null
+                                        ? audioController
+                                            .currentPlayingSong.value!.musicUri
+                                        : musicUri,
                                     kScreenHeight: kScreenHeight,
                                     pageType: PageTypeEnum.musicViewPage,
                                     songName: audioController
-                                        .currentPlayingSong.value!.musicName,
+                                                .currentPlayingSong.value !=
+                                            null
+                                        ? audioController
+                                            .currentPlayingSong.value!.musicName
+                                        : songTitle,
                                     artistName: audioController
-                                        .currentPlayingSong
-                                        .value!
-                                        .musicArtistName,
+                                                .currentPlayingSong.value !=
+                                            null
+                                        ? audioController.currentPlayingSong
+                                            .value!.musicArtistName
+                                        : artistName,
                                     albumName: audioController
-                                        .currentPlayingSong
-                                        .value!
-                                        .musicAlbumName,
+                                                .currentPlayingSong.value !=
+                                            null
+                                        ? audioController.currentPlayingSong
+                                            .value!.musicAlbumName
+                                        : albumName,
                                     songFormat: audioController
-                                        .currentPlayingSong.value!.musicFormat,
-                                    songSize: audioController.convertToMBorKB(audioController
-                                        .currentPlayingSong.value!.musicFileSize),
-                                       
+                                                .currentPlayingSong.value !=
+                                            null
+                                        ? audioController.currentPlayingSong
+                                            .value!.musicFormat
+                                        : songFormat,
+                                    songSize: AppUsingCommonFunctions
+                                        .convertToMBorKB(audioController
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? audioController.currentPlayingSong
+                                                .value!.musicFileSize
+                                            : AppUsingCommonFunctions.parseSongSize(songSize)),
                                     songPathIndevice: audioController
-                                        .currentPlayingSong
-                                        .value!
-                                        .musicPathInDevice,
+                                                .currentPlayingSong.value !=
+                                            null
+                                        ? audioController.currentPlayingSong
+                                            .value!.musicPathInDevice
+                                        : songPathIndevice,
                                   );
                                 },
                               );
@@ -428,30 +451,6 @@ class MusicPlayPage extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class ArtWorkWidgetMusicPlayingPage extends StatelessWidget {
-  const ArtWorkWidgetMusicPlayingPage({
-    super.key,
-    required this.songId,
-  });
-  final int songId;
-
-  @override
-  Widget build(BuildContext context) {
-    return QueryArtworkWidget(
-      id: songId,
-      type: ArtworkType.AUDIO,
-      artworkFit: BoxFit.cover,
-      nullArtworkWidget: Center(
-        child: Icon(
-          Icons.music_note,
-          size: 200,
-          color: kGrey,
         ),
       ),
     );

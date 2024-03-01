@@ -2,20 +2,17 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/permission_request_class.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/recently_played_model.dart';
-import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:on_audio_query/on_audio_query.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class AudioController extends GetxController {
   final AudioPlayer audioPlayer = AudioPlayer();
@@ -25,6 +22,7 @@ class AudioController extends GetxController {
   Rx<Duration> duration = const Duration().obs;
   Rx<Duration> position = const Duration().obs;
   Rx<AllMusicsModel?> currentPlayingSong = Rx<AllMusicsModel?>(null);
+  Rx<AllMusicsModel>? songNow;
   Box<RecentlyPlayedModel> recentlyPlayedBox =
       Hive.box<RecentlyPlayedModel>('recent');
   Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
@@ -36,29 +34,16 @@ class AudioController extends GetxController {
   RxBool isShuffleSongs = false.obs;
   Rx<PageTypeEnum> pageType = PageTypeEnum.homePage.obs;
 
-  PageTypeEnum setPageType(PageTypeEnum pageTypeEnum) {
-    pageType.value = pageTypeEnum;
-    return pageType.value;
-  }
-
-  String convertToMBorKB(int bytes) {
-    const int kB = 1024;
-    const int mB = kB * 1024;
-
-    if (bytes >= mB) {
-      return '${(bytes / mB).toStringAsFixed(2)} MB';
-    } else if (bytes >= kB) {
-      return '${(bytes / kB).toStringAsFixed(2)} KB';
-    } else {
-      return '$bytes Bytes';
-    }
-  }
-
   // function for making slider move according to song position duration
-
   changeToSeconds(int seconds) {
     Rx<Duration> seekDurationSlider = Duration(seconds: seconds).obs;
     audioPlayer.seek(seekDurationSlider.value);
+  }
+
+  setSong(AllMusicsModel song){
+    if (songNow!=null) {
+      songNow!.value = song;
+    }
   }
 
   // for initializing audio player
@@ -73,26 +58,36 @@ class AudioController extends GetxController {
             return AudioSource.uri(
               Uri.parse(song.musicUri),
               tag: MediaItem(
-                  id: song.id.toString(),
-                  title: song.musicName,
-                  album: song.musicAlbumName),
+                id: song.id.toString(),
+                title: song.musicName,
+                album: song.musicAlbumName,
+              ),
             );
           }).toList(),
         ),
         initialIndex: currentSongIndex.value,
-        // initialPosition: audioPlayer.position,
+        initialPosition: audioPlayer.position,
         preload: false,
       );
+      if (audioPlayer.position > Duration.zero) {
+      // Seek to the last played position
+      await audioPlayer.seek(audioPlayer.position);
+    }
+     currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
+   
     } catch (e) {
       log("Error on play intialize: $e");
     }
-
     audioPlayer.playbackEventStream.listen((event) {
       if (event.processingState == ProcessingState.completed) {
         if (currentSongIndex < allSongsListFromDevice.length - 1) {
+          currentPlayingSong.value =
+              allSongsListFromDevice[currentSongIndex.value];
           playNextSong();
         } else {
           if (audioPlayer.loopMode == LoopMode.all) {
+            currentPlayingSong.value =
+              allSongsListFromDevice[currentSongIndex.value];
             //play song
             playSong(0);
           } else {
@@ -100,6 +95,9 @@ class AudioController extends GetxController {
             stopSong();
           }
         }
+        // Update UI with the new song details
+        currentPlayingSong.value =
+            allSongsListFromDevice[currentSongIndex.value];
       }
     });
     audioPlayer.durationStream.listen(
@@ -112,23 +110,11 @@ class AudioController extends GetxController {
       position.value = p;
     });
   }
-  Future<bool> permissionStorage() async {
 
-    DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-    var k = await deviceInfoPlugin.androidInfo;
-    PermissionStatus permissionStatus;
-    if (int.parse(k.version.release) < 13) {
-      //if it is android version below 13 then asking for storage permission
-      permissionStatus = await Permission.storage.request();
-    } else {
-      //if it is android 13 or above asking video permission
-      permissionStatus = await Permission.audio.request();
-    }
-    return permissionStatus.isGranted;
-  }
   //request permission , if granted fetch songs and initialize audio player
   Future<void> requestPermissionAndFetchSongsAndInitializePlayer() async {
-    var status = await permissionStorage();
+    log("CALLING REQUESTFETCHINITIALIZE AGAIN");
+    var status = await PermissionRequestClass.permissionStorage();
     if (status) {
       log("Granted");
       await fetchSongsFromDeviceStorage();
@@ -136,21 +122,7 @@ class AudioController extends GetxController {
       await intializeAudioPlayer(allSongsListFromDevice);
     } else {
       debugPrint("Permission Denied");
-      await permissionStorage();
-    }
-  }
-
-  // requesting permission to access the storage
-  Future<PermissionStatus> requestPermission() async {
-    try {
-      log("requesting");
-      var status = await Permission.manageExternalStorage.request();
-      await Permission.audio.request();
-      log(status.toString());
-      return status;
-    } catch (e) {
-      debugPrint(e.toString());
-      return PermissionStatus.denied;
+      await PermissionRequestClass.permissionStorage();
     }
   }
 
@@ -187,18 +159,18 @@ class AudioController extends GetxController {
 
       List<AllMusicsModel> allsongs =
           songs.map((song) => AllMusicsModel.fromSongModel(song)).toList();
-      final k = <AllMusicsModel>[];
+      List<AllMusicsModel> songsList = <AllMusicsModel>[];
 
       for (var element in allsongs) {
         if (File(element.musicPathInDevice).existsSync()) {
-          k.add(element);
+          songsList.add(element);
         }
       }
-      allSongsListFromDevice.addAll(k);
+      allSongsListFromDevice.addAll(songsList);
 
       await addSongsToDB(allSongsListFromDevice);
     } catch (e) {
-      print(e.toString());
+      log(e.toString());
     }
   }
 
@@ -218,7 +190,7 @@ class AudioController extends GetxController {
     }
   }
 
-  void initializeRecentlyPlayedSongs() {
+  Future initializeRecentlyPlayedSongs() async{
     log("Debug: Initializing Recently Played Songs");
     recentlyPlayedBox = Hive.box<RecentlyPlayedModel>('recent');
     recentlyPlayedSongList.value = recentlyPlayedBox.values.toList();
@@ -255,6 +227,7 @@ class AudioController extends GetxController {
     }
 
     currentSongIndex.value = index;
+    currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
     await audioPlayer.seek(Duration.zero, index: index);
     if (lastPlayedPosition != null) {
       await audioPlayer.seek(lastPlayedPosition, index: index);
@@ -275,7 +248,7 @@ class AudioController extends GetxController {
       log(position.value.toString());
     });
     log("Current");
-    currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
+    
 
     log("After current");
     log("${currentPlayingSong.value!.id} ${currentPlayingSong.value!.musicName} ${currentPlayingSong.value!.musicAlbumName}");
@@ -362,15 +335,16 @@ class AudioController extends GetxController {
   }
 
   Future<List<AllMusicsModel>> getAllSongs() async {
+    log("CALLING GET ALL SONGS");
     await fetchSongsFromDeviceStorage();
     return allSongsListFromDevice;
   }
 
-
+  // function for delete a song permanently
   Future<void> deleteSongsPermentaly(
       List<int> songIds, BuildContext context) async {
-    var status = await requestPermission();
-    if (status.isGranted) {
+    var status = await PermissionRequestClass.permissionStorageToDelete();
+    if (status) {
       await stopSong();
       try {
         for (var songId in songIds) {
@@ -378,6 +352,7 @@ class AudioController extends GetxController {
               .firstWhereOrNull((song) => song.id == songId);
           if (songToDelete != null) {
             allSongsListFromDevice.remove(songToDelete);
+
             update();
 
             if (currentPlayingSong.value?.id == songId) {
@@ -403,13 +378,23 @@ class AudioController extends GetxController {
             recentlyPlayedBox.put('recent', recentlyPlayedModel);
           }
         }
+        Get.snackbar(
+          "Deleted",
+          "Deleted successfully!",
+          duration: const Duration(seconds: 1),
+          colorText: kWhite,
+        );
       } catch (e) {
         log(e.toString());
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: TextWidgetCommon(text: "Error !!!!! $e", fontSize: 20.sp),
-          duration: const Duration(minutes: 10),
-        ));
+        Get.snackbar(
+          "Error !!!!!",
+          "$e",
+          duration: const Duration(seconds: 1),
+          colorText: kWhite,
+        );
       }
+    } else {
+      log("Permission Denied to delete a file");
     }
   }
 
@@ -419,9 +404,3 @@ class AudioController extends GetxController {
     super.onClose();
   }
 }
-
-// class MyPermissionStorage {
-
-  
-//   static 
-// }
