@@ -14,10 +14,11 @@ class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
   const AddSongInPlaylistFromSelectingSongs({
     super.key,
     required this.playListID,
-    required this.audioController,
+    required this.audioController, required this.playlistController,
   });
   final int playListID;
   final AudioController audioController;
+  final PlaylistController playlistController;
   @override
   State<AddSongInPlaylistFromSelectingSongs> createState() =>
       _AddSongInPlaylistFromSelectingSongsState();
@@ -26,7 +27,6 @@ class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
 class _AddSongInPlaylistFromSelectingSongsState
     extends State<AddSongInPlaylistFromSelectingSongs> {
   bool isSelected = false;
-  PlaylistController playlistController = Get.put(PlaylistController());
   bool isAllSelected = false;
 
   @override
@@ -52,87 +52,96 @@ class _AddSongInPlaylistFromSelectingSongsState
       body: widget.audioController.allSongsListFromDevice.isNotEmpty
           ? Stack(
               children: [
-                Obx(() {
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    padding:
-                        EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-                    itemCount: playlistController
-                        .fullSongListToAddToPlaylist.value.length,
-                    itemBuilder: (context, index) {
-                      AllMusicsModel musicList = playlistController
-                          .fullSongListToAddToPlaylist.value[index];
-                      return Padding(
+                GetBuilder<PlaylistController>(
+                    init: widget.playlistController,
+                    builder: (controller) {
+                      return ListView.builder(
+                        shrinkWrap: true,
                         padding: EdgeInsets.symmetric(
-                            horizontal: 10.w, vertical: 5.h),
-                        child: CheckboxListTile(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          checkColor: kWhite,
-                          activeColor: kRed,
-                          tileColor: kTileColor,
-                          title: TextWidgetCommon(
-                            overflow: TextOverflow.ellipsis,
-                            text: musicList.musicName,
-                            fontSize: 16.sp,
-                            color: kWhite,
-                          ),
-                          subtitle: TextWidgetCommon(
-                            overflow: TextOverflow.ellipsis,
-                            text:
-                                "${musicList.musicArtistName}-${musicList.musicAlbumName}",
-                            fontSize: 10.sp,
-                            color: kGrey,
-                          ),
-                          value: musicList.musicSelected ?? false,
-                          onChanged: (value) {
-                            setState(() {
-                              musicList.musicSelected = value ?? false;
-                              isSelected = playlistController
-                                  .fullSongListToAddToPlaylist.value
-                                  .any((checkbox) =>
-                                      checkbox.musicSelected == true);
-                            });
-                          },
-                        ),
+                            vertical: 15.h, horizontal: 10.w),
+                        itemCount:
+                            controller.fullSongListToAddToPlaylist.value.length,
+                        itemBuilder: (context, index) {
+                          AllMusicsModel musicList = controller
+                              .fullSongListToAddToPlaylist.value[index];
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 10.w, vertical: 5.h),
+                            child: CheckboxListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              checkColor: kWhite,
+                              activeColor: kRed,
+                              tileColor: kTileColor,
+                              title: TextWidgetCommon(
+                                overflow: TextOverflow.ellipsis,
+                                text: musicList.musicName,
+                                fontSize: 16.sp,
+                                color: kWhite,
+                              ),
+                              subtitle: TextWidgetCommon(
+                                overflow: TextOverflow.ellipsis,
+                                text:
+                                    "${musicList.musicArtistName}-${musicList.musicAlbumName}",
+                                fontSize: 10.sp,
+                                color: kGrey,
+                              ),
+                              value: musicList.musicSelected ?? false,
+                              onChanged: (value) {
+                                setState(() {
+                                  musicList.musicSelected = value ?? false;
+                                  isSelected = controller
+                                      .fullSongListToAddToPlaylist.value
+                                      .any((checkbox) =>
+                                          checkbox.musicSelected == true);
+                                });
+                              },
+                            ),
+                          );
+                        },
                       );
-                    },
-                  );
-                }),
+                    }),
                 Positioned(
                   bottom: 20.h,
                   left: kScreenWidth / 2 - 50,
-                  child: GestureDetector(
-                    onTap: () {
-                      List<AllMusicsModel> selectedSongList = playlistController
-                          .fullSongListToAddToPlaylist.value
-                          .where((music) => music.musicSelected == true)
-                          .toList();
-                      log("IT'S FROM ADD PAGE: ${selectedSongList.length}");
-                      playlistController.addSongsToDBPlaylist(
-                          selectedSongList, widget.playListID);
+                  child: GetBuilder<PlaylistController>(
+                      init: widget.playlistController,
+                      builder: (controller) {
+                        return GestureDetector(
+                          onTap: () {
+                            List<AllMusicsModel> selectedSongList =
+                                controller
+                                    .fullSongListToAddToPlaylist.value
+                                    .where(
+                                        (music) => music.musicSelected == true)
+                                    .toList();
+                            log("IT'S FROM ADD PAGE: ${selectedSongList.length}");
+                            log("ID PLAYLIST: ${widget.playListID}");
+                            controller.addSongsToDBPlaylist(
+                                selectedSongList, widget.playListID);
 
-                      Get.back();
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(bottom: 20.h),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: kMenuBtmSheetColor,
-                      ),
-                      height: 50,
-                      width: 100,
-                      child: Center(
-                        child: TextWidgetCommon(
-                          text: "Add",
-                          fontSize: 16.sp,
-                          color: isSelected ? kWhite : kGrey,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  ),
+                            Get.back();
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(bottom: 20.h),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: kMenuBtmSheetColor,
+                            ),
+                            height: 50,
+                            width: 100,
+                            child: Center(
+                              child: TextWidgetCommon(
+                                text: "Add",
+                                fontSize: 16.sp,
+                                color: isSelected ? kWhite : kGrey,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
                 ),
               ],
             )
@@ -151,7 +160,7 @@ class _AddSongInPlaylistFromSelectingSongsState
   }
 
   selectAllSongs() {
-    for (var element in playlistController.fullSongListToAddToPlaylist.value) {
+    for (var element in widget.playlistController.fullSongListToAddToPlaylist.value) {
       setState(() {
         element.musicSelected = true;
         isSelected = true;
@@ -161,7 +170,7 @@ class _AddSongInPlaylistFromSelectingSongsState
   }
 
   deselectAllSongs() {
-    for (var element in playlistController.fullSongListToAddToPlaylist.value) {
+    for (var element in widget.playlistController.fullSongListToAddToPlaylist.value) {
       setState(() {
         element.musicSelected = false;
         isSelected = false;

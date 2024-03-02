@@ -80,7 +80,8 @@ class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 15.w),
                           child: MusicTileWidget(
-                            songModel: widget.songModel,
+                            audioController: audioController,
+                            songModel: music,
                             favoriteController: widget.favoriteController,
                             musicUri: music.musicUri,
                             albumName: music.musicAlbumName,

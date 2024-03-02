@@ -80,6 +80,9 @@ class _SearchPageState extends State<SearchPage> {
               itemBuilder: (context, index) {
                 var searchSong = searchFilterController.filteredSongs.value;
                 return MusicTileWidget(
+                  onTap: () {
+                    
+                  },
                   songTitle: searchSong[index].musicName,
                   songFormat: searchSong[index].musicFormat,
                   songSize: AppUsingCommonFunctions.convertToMBorKB(searchSong[index].musicFileSize),

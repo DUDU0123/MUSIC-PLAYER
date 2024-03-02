@@ -27,6 +27,7 @@ class PlaylistSongListPage extends StatefulWidget {
     required this.songModel,
     this.playlistSongsList,
     required this.audioController,
+    required this.playlistController,
   });
   final String playlistName;
   final int playlistId;
@@ -34,14 +35,13 @@ class PlaylistSongListPage extends StatefulWidget {
   final AllMusicsModel songModel;
   final List<AllMusicsModel>? playlistSongsList;
   final AudioController audioController;
+  final PlaylistController playlistController;
 
   @override
   State<PlaylistSongListPage> createState() => _PlaylistSongListPageState();
 }
 
 class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
-  PlaylistController playlistController = Get.put(PlaylistController());
-
   @override
   Widget build(BuildContext context) {
     log("ID OF PLAYLIST: ${widget.playlistId} and PLAYLIST NAME: ${widget.playlistName}");
@@ -57,7 +57,7 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
           appBarText: widget.playlistName,
           actions: [
             GetBuilder<PlaylistController>(
-                init: playlistController,
+                init: widget.playlistController,
                 builder: (controller) {
                   return IconButton(
                     onPressed: () async {
@@ -65,6 +65,7 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                         MaterialPageRoute(
                           builder: (context) =>
                               AddSongInPlaylistFromSelectingSongs(
+                            playlistController: widget.playlistController,
                             audioController: widget.audioController,
                             playListID: widget.playlistId,
                           ),
@@ -107,20 +108,25 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
       body: widget.playlistSongsList != null
           ? widget.playlistSongsList!.isNotEmpty
               ? GetBuilder<PlaylistController>(
-                init: playlistController,
-                builder: (controller) {
-                  return ListView.builder(
+                  init: widget.playlistController,
+                  builder: (controller) {
+                    return ListView.builder(
                       itemCount: widget.playlistSongsList!.length,
                       itemBuilder: (context, index) {
                         if (index < widget.playlistSongsList!.length) {
                           return Padding(
                             padding: EdgeInsets.symmetric(horizontal: 15.w),
                             child: MusicTileWidget(
+                              onTap: () {},
+                              audioController: widget.audioController,
                               playListID: widget.playlistId,
-                              songModel: widget.songModel,
+                              songModel: selectedPlaylist != null
+                                  ? selectedPlaylist.playlistSongs![index]
+                                  : widget.songModel,
                               favoriteController: widget.favoriteController,
                               musicUri: selectedPlaylist != null
-                                  ? selectedPlaylist.playlistSongs![index].musicUri
+                                  ? selectedPlaylist
+                                      .playlistSongs![index].musicUri
                                   : '',
                               albumName: selectedPlaylist != null
                                   ? selectedPlaylist
@@ -131,7 +137,8 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                                       .playlistSongs![index].musicArtistName
                                   : '',
                               songTitle: selectedPlaylist != null
-                                  ? selectedPlaylist.playlistSongs![index].musicName
+                                  ? selectedPlaylist
+                                      .playlistSongs![index].musicName
                                   : '',
                               songFormat: selectedPlaylist != null
                                   ? selectedPlaylist
@@ -157,8 +164,7 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                         }
                       },
                     );
-                }
-              )
+                  })
               : const DefaultCommonWidget(
                   text: "No songs available",
                 )

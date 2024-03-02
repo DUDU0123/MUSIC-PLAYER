@@ -4,15 +4,14 @@ import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
+import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/ontap_text_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
-import 'package:music_player/views/add_to_playlist/add_to_playlist_page.dart';
 import 'package:music_player/views/view_details_page.dart/view_details_page.dart';
-import 'package:share_plus/share_plus.dart';
 
 class MenuBottomSheet extends StatelessWidget {
   MenuBottomSheet({
@@ -49,7 +48,6 @@ class MenuBottomSheet extends StatelessWidget {
 
   FavoriteModel? favsong;
 
-
   favouriteSong() {
     favsong = FavoriteModel(
       id: song.id,
@@ -85,42 +83,13 @@ class MenuBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 20),
       height: pageType == PageTypeEnum.playListPage
           ? kScreenHeight / 2.2
-          : kScreenHeight / 2.2,
+          : kScreenHeight / 2.5,
       child: Column(
         children: [
-          pageType != PageTypeEnum.playListPage
-              ? OnTapTextWidget(
-                  text: "Add to Playlist",
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => AddToPlaylistPage(
-                          song: song,
-                          favoriteController: favouriteController,
-                        ),
-                      ),
-                    );
-                  },
-                )
-              : const SizedBox(),
           OnTapTextWidget(
             text: "Send Song",
             onTap: () async {
-              if (song != null &&
-                  song.musicPathInDevice != null &&
-                  song.musicPathInDevice.isNotEmpty) {
-                try {
-                  List<XFile> files = [XFile(song.musicPathInDevice)];
-                  try {
-                    await Share.shareXFiles(files);
-                  } catch (e) {
-                    log(e.toString());
-                  }
-                } catch (e) {
-                  log("Error on send song : $e");
-                }
-              }
+              AppUsingCommonFunctions.sendOneSong(song);
               Get.back();
             },
           ),
@@ -175,21 +144,27 @@ class MenuBottomSheet extends StatelessWidget {
                     );
                   })
               : const SizedBox(),
-          OnTapTextWidget(
-            text: "Delete Song",
-            onTap: () {
-              Navigator.pop(context);
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return DeleteDialogBox(
-                    contentText: "Do you want to delete the song?",
-                    deleteAction: () {},
-                  );
-                },
-              );
-            },
-          ),
+          GetBuilder<AudioController>(
+              init: audioController,
+              builder: (controller) {
+                return OnTapTextWidget(
+                  text: "Delete Song",
+                  onTap: () {
+                    Navigator.pop(context);
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return DeleteDialogBox(
+                          contentText: "Do you want to delete the song?",
+                          deleteAction: () {
+                            controller.deleteSongsPermentaly([songId], context);
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+              }),
           Divider(
             thickness: 1,
             color: kGrey,

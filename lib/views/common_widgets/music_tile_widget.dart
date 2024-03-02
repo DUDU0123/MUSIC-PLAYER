@@ -24,7 +24,7 @@ class MusicTileWidget extends StatefulWidget {
     required this.pageType,
     required this.songId,
     required this.songModel,
-    this.audioController,
+   required this.audioController,
     this.onTap,
     required this.musicUri,
     required this.favoriteController, this.playListID,
@@ -41,7 +41,7 @@ class MusicTileWidget extends StatefulWidget {
   final int songId;
   final String musicUri;
   final AllMusicsModel songModel;
-  final AudioController? audioController;
+  final AudioController audioController;
   final void Function()? onTap;
   final FavoriteController favoriteController;
   // Duration lastPlayedPosition = Duration.zero;
@@ -184,8 +184,8 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                         playListID: widget.playListID,
                                         favouriteController:
                                             widget.favoriteController,
-                                        song: widget.songModel!,
-                                        musicUri: widget.musicUri,
+                                        song: widget.songModel,
+                                        musicUri:widget.musicUri,
                                         songId: widget.songId,
                                         kScreenHeight: kScreenHeight,
                                         pageType: widget.pageType,

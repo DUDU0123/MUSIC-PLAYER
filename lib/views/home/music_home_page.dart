@@ -76,7 +76,7 @@ class MusicHomePage extends StatelessWidget {
                     songSize: AppUsingCommonFunctions.convertToMBorKB(
                         song.musicFileSize),
                     onTap: () async {
-                       audioController.isPlaying.value = true;
+                      audioController.isPlaying.value = true;
                       bool isRecentlyPlayed =
                           audioController.isSongRecentlyPlayed(
                               song, audioController.musicBox.values.toList());
@@ -102,7 +102,8 @@ class MusicHomePage extends StatelessWidget {
                             artistName: song.musicArtistName,
                             songFormat: song.musicFormat,
                             songPathIndevice: song.musicPathInDevice,
-                            songSize: AppUsingCommonFunctions.convertToMBorKB(song.musicFileSize),
+                            songSize: AppUsingCommonFunctions.convertToMBorKB(
+                                song.musicFileSize),
                             songTitle: song.musicName,
                             songId: song.id,
                             songModel: song,

@@ -73,7 +73,8 @@ class AlbumSongListPage extends StatelessWidget {
                   padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
                   itemBuilder: (context, index) {
                     return MusicTileWidget(
-                      songModel: songModel,
+                      audioController: audioController,
+                      songModel: albumSongs[index],
                       favoriteController: favoriteController,
                       musicUri: albumSongs[index].musicUri,
                       songId: albumSongs[index].id,

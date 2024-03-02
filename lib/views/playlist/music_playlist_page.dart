@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -15,11 +17,13 @@ import 'package:music_player/views/favourites/favourite_music_list_page.dart';
 import 'package:music_player/views/playlist/playlist_song_list_page.dart';
 import 'package:music_player/views/playlist/widgets/playlist_single_tile_widget.dart';
 import 'package:music_player/views/recently_played/recently_played_page.dart';
+
 class MusicPlaylistPage extends StatelessWidget {
   MusicPlaylistPage({
     super.key,
     required this.favoriteController,
-    required this.songModel, required this.audioController,
+    required this.songModel,
+    required this.audioController,
   });
   final FavoriteController favoriteController;
   final AudioController audioController;
@@ -46,9 +50,9 @@ class MusicPlaylistPage extends StatelessWidget {
                         playlsitNameGiverController: newPlaylistController,
                         onPressed: () {
                           PlaylistController.to.playlistCreation(
-                          index: index,
-                          playlistName: newPlaylistController.text,
-                        );
+                            index: index,
+                            playlistName: newPlaylistController.text,
+                          );
                           Navigator.pop(context);
                         },
                       );
@@ -65,6 +69,7 @@ class MusicPlaylistPage extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => FavouriteMusicListPage(
+                        favouriteController: favoriteController,
                         audioController: audioController,
                         songModel: songModel,
                       ),
@@ -132,15 +137,21 @@ class MusicPlaylistPage extends StatelessWidget {
                 );
               },
               onTap: () async {
-               var playlistSongs = await playlistController.getPlayListSongs(playlistController.getPlaylistID(index: index-3));
+                var playlistID =
+                    playlistController.getPlaylistID(index: index - 3);
+                log("Selected Playlist ID: $playlistID");
+                var playlistSongs = await playlistController.getPlayListSongs(
+                    playlistController.getPlaylistID(index: index - 3));
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => PlaylistSongListPage(
+                      playlistController: playlistController,
                       audioController: audioController,
                       playlistSongsList: playlistSongs,
                       songModel: songModel,
                       favoriteController: favoriteController,
-                      playlistId: playlistController.getPlaylistID(index: index-3),
+                      playlistId:
+                          playlistController.getPlaylistID(index: index - 3),
                       playlistName:
                           playlistController.getPlaylistName(index: index - 3),
                     ),
@@ -148,7 +159,7 @@ class MusicPlaylistPage extends StatelessWidget {
                 );
               },
               title: PlaylistController.to.getPlaylistName(index: index - 3),
-              songLength: 0,
+              songLength: 2,
               pageType: PageTypeEnum.playListPage,
             );
           },

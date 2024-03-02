@@ -1,4 +1,9 @@
+import 'dart:developer';
+
+import 'package:get/get.dart';
+import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:share_plus/share_plus.dart';
 
 class AppUsingCommonFunctions {
   static bool shouldShowAllOptions(
@@ -42,6 +47,44 @@ class AppUsingCommonFunctions {
       return (bytes / kB).toInt(); // Return size in KB as an integer
     } else {
       return bytes; // Return size in Bytes
+    }
+  }
+
+  // function to send more song
+  static void sendMoreSong(List<AllMusicsModel> songs) async {
+    for (var song in songs) {
+      if (song != null &&
+          song.musicPathInDevice != null &&
+          song.musicPathInDevice.isNotEmpty&&songs.length<10) {
+        try {
+          List<XFile> listOfSongs = [XFile(song.musicPathInDevice)];
+          try {
+            await Share.shareXFiles(listOfSongs);
+          } catch (e) {
+            log(e.toString());
+          }
+        } catch (e) {
+          Get.snackbar("Error Occured", "An error occured on sending the song");
+        }
+      }
+    }
+  }
+
+  // function to send one song
+  static void sendOneSong(AllMusicsModel song) async {
+    if (song != null &&
+        song.musicPathInDevice != null &&
+        song.musicPathInDevice.isNotEmpty) {
+      try {
+        List<XFile> listOfSongs = [XFile(song.musicPathInDevice)];
+        try {
+          await Share.shareXFiles(listOfSongs);
+        } catch (e) {
+          log(e.toString());
+        }
+      } catch (e) {
+        Get.snackbar("Error Occured", "An error occured on sending the song");
+      }
     }
   }
 }

@@ -34,7 +34,6 @@ class FavoriteController extends GetxController {
     Get.back();
   }
 
-
 // loading favorite songs after checking any songs are in favorite list which is deleted, then filtering it
   void loadFavoriteSongs() async {
     // Get the unique favorite songs
@@ -56,11 +55,13 @@ class FavoriteController extends GetxController {
   void onTapFavorite(FavoriteModel song, BuildContext context) {
     if (isFavorite(song.id)) {
       // Song is already a favorite, remove it
+      log(song.musicName);
       favoriteSongs.remove(song);
       favoriteBox.delete(song.id);
       snackBarCommonWidget(context, contentText: "Removed from favorites");
     } else {
       // Song is not a favorite, add it
+      log(song.musicName);
       favoriteSongs.add(song);
       favoriteBox.put(song.id, song);
       snackBarCommonWidget(context, contentText: "Added to favorites");

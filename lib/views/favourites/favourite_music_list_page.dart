@@ -14,14 +14,15 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class FavouriteMusicListPage extends StatelessWidget {
-  FavouriteMusicListPage({
+  const FavouriteMusicListPage({
     super.key,
     required this.songModel,
     required this.audioController,
+    required this.favouriteController,
     // required this.favouriteController,
   });
-  // final FavoriteController favouriteController;
-  final FavoriteController favouriteController = Get.put(FavoriteController());
+  final FavoriteController favouriteController;
+  // final FavoriteController favouriteController = Get.put(FavoriteController());
   final AllMusicsModel songModel;
   final AudioController audioController;
 
@@ -57,7 +58,9 @@ class FavouriteMusicListPage extends StatelessWidget {
                           musicPathInDevice: e.musicPathInDevice,
                           musicFormat: e.musicFormat,
                           musicUri: e.musicUri,
-                          musicFileSize: AppUsingCommonFunctions.convertToMBorKBInt(e.musicFileSize),
+                          musicFileSize:
+                              AppUsingCommonFunctions.convertToMBorKBInt(
+                                  e.musicFileSize),
                         );
                       }).toList(),
                     ),
@@ -79,11 +82,24 @@ class FavouriteMusicListPage extends StatelessWidget {
             : ListView.builder(
                 itemCount: favouriteController.favoriteSongs.length,
                 itemBuilder: (context, index) {
+                 List<AllMusicsModel> songModel = favouriteController.favoriteSongs
+                      .map((favmodel) => AllMusicsModel(
+                            id: favmodel.id,
+                            musicName: favmodel.musicName,
+                            musicAlbumName: favmodel.musicAlbumName,
+                            musicArtistName: favmodel.musicArtistName,
+                            musicPathInDevice: favmodel.musicPathInDevice,
+                            musicFormat: favmodel.musicFormat,
+                            musicUri: favmodel.musicUri,
+                            musicFileSize: favmodel.musicFileSize,
+                          )).toList();
+
                   favouriteController.favoriteSongs.toList().toSet();
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.h),
                     child: MusicTileWidget(
-                      songModel: songModel,
+                      audioController: audioController,
+                      songModel: songModel[index],
                       favoriteController: favouriteController,
                       musicUri:
                           favouriteController.favoriteSongs[index].musicUri,
