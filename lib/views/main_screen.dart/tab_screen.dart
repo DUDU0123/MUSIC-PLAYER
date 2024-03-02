@@ -232,13 +232,15 @@ class _TabScreenState extends State<TabScreen> {
             currentSong: currentSong,
           ),
         ),
-        floatingActionButton: audioController.allSongsListFromDevice.isNotEmpty
-            ? FloatingButtonOnBottom(
+        floatingActionButton: 
+        // audioController.allSongsListFromDevice.isNotEmpty
+        //     ? 
+            FloatingButtonOnBottom(
                 currentSong: currentSong,
                 audioController: audioController,
                 favoriteController: favoriteController,
               )
-            : const SizedBox(),
+            // : const SizedBox(),
       ),
     );
   }

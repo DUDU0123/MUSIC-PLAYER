@@ -8,18 +8,14 @@ import 'package:music_player/models/recently_played_model.dart';
 import 'package:music_player/root_widget_page.dart';
 import 'package:path_provider/path_provider.dart';
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
-  
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
-  final directory =
-      await getApplicationDocumentsDirectory();
+  final directory = await getApplicationDocumentsDirectory();
   Hive.init(directory.path);
-  
   Hive.registerAdapter(AllMusicsModelAdapter());
   Hive.registerAdapter(PlaylistAdapter());
   Hive.registerAdapter(FavoriteModelAdapter());
@@ -32,4 +28,3 @@ Future<void> main() async {
     const RootWidgetPage(),
   );
 }
-

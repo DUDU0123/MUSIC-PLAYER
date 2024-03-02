@@ -1,15 +1,12 @@
 import 'dart:developer';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
-import 'package:music_player/models/playlist_model.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/ontap_text_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
@@ -88,7 +85,7 @@ class MenuBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 20),
       height: pageType == PageTypeEnum.playListPage
           ? kScreenHeight / 2.2
-          : kScreenHeight / 1.8,
+          : kScreenHeight / 2.2,
       child: Column(
         children: [
           pageType != PageTypeEnum.playListPage
@@ -113,27 +110,18 @@ class MenuBottomSheet extends StatelessWidget {
               if (song != null &&
                   song.musicPathInDevice != null &&
                   song.musicPathInDevice.isNotEmpty) {
-                //  var status =await audioController.requestPermission();
                 try {
-                  // if (status.isGranted) {
-                  //List<XFile> files = [XFile(song.musicPathInDevice)];
+                  List<XFile> files = [XFile(song.musicPathInDevice)];
                   try {
-                    // await Share.shareXFiles(files);
-                    log(song.musicPathInDevice);
-                    await Share.share(File(song.musicPathInDevice)
-                        .readAsBytesSync()
-                        .toString());
-                    //File.fromRawPath(rawPath)
+                    await Share.shareXFiles(files);
                   } catch (e) {
                     log(e.toString());
                   }
-                  // }else{
-                  //   log("Not Granted");
-                  // }
                 } catch (e) {
                   log("Error on send song : $e");
                 }
               }
+              Get.back();
             },
           ),
           OnTapTextWidget(
