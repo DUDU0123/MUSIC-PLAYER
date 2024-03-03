@@ -366,7 +366,7 @@ class AudioController extends GetxController {
                 songToDelete.musicPathInDevice.isNotEmpty) {
               await File(songToDelete.musicPathInDevice).delete();
             }
-            musicBox.delete(songId);
+           await musicBox.delete(songId);
             Box<RecentlyPlayedModel> recentlyPlayedBox =
                 Hive.box<RecentlyPlayedModel>('recent');
             RecentlyPlayedModel recentlyPlayedModel = recentlyPlayedBox.get(
@@ -396,6 +396,8 @@ class AudioController extends GetxController {
     } else {
       log("Permission Denied to delete a file");
     }
+   
+    fetchSongsFromDeviceStorage();
   }
 
   @override

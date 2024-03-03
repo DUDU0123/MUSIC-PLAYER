@@ -23,12 +23,14 @@ class MusicPlaylistPage extends StatelessWidget {
     super.key,
     required this.favoriteController,
     required this.songModel,
-    required this.audioController,
+    required this.audioController, required this.playlistController,
   });
   final FavoriteController favoriteController;
   final AudioController audioController;
-  final PlaylistController playlistController = Get.put(PlaylistController());
+  final PlaylistController playlistController;
   final AllMusicsModel songModel;
+
+  
   @override
   Widget build(BuildContext context) {
     TextEditingController newPlaylistController = TextEditingController();
@@ -69,6 +71,7 @@ class MusicPlaylistPage extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => FavouriteMusicListPage(
+                        playlistController: playlistController,
                         favouriteController: favoriteController,
                         audioController: audioController,
                         songModel: songModel,
@@ -101,67 +104,69 @@ class MusicPlaylistPage extends StatelessWidget {
                 ),
               );
             }
-            return ContainerTileWidget(
-              deletePlaylistMethod: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => DeleteDialogBox(
-                    contentText: "Do you want to delete the playlist?",
-                    deleteAction: () {
-                      playlistController.playlistDelete(index: index - 3);
-                      Navigator.pop(context);
-                      snackBarCommonWidget(context,
-                          contentText: "Deleted Successfully");
-                    },
-                  ),
-                );
-              },
-              editPlaylistNameMethod: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return NewPlayListDialogBoxWidget(
-                      editOrNew: "Edit Playlist",
-                      onPressed: () {
-                        PlaylistController.to.playlistUpdateName(
-                          index: index - 3,
-                          newPlaylistName: editPlaylistController.text,
-                        );
+            return Obx(() {
+              return ContainerTileWidget(
+                deletePlaylistMethod: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => DeleteDialogBox(
+                      contentText: "Do you want to delete the playlist?",
+                      deleteAction: () {
+                        playlistController.playlistDelete(index: index - 3);
                         Navigator.pop(context);
                         snackBarCommonWidget(context,
-                            contentText: "Edited Successfully");
+                            contentText: "Deleted Successfully");
                       },
-                      playlsitNameGiverController: editPlaylistController,
-                    );
-                  },
-                );
-              },
-              onTap: () async {
-                var playlistID =
-                    playlistController.getPlaylistID(index: index - 3);
-                log("Selected Playlist ID: $playlistID");
-                var playlistSongs = await playlistController.getPlayListSongs(
-                    playlistController.getPlaylistID(index: index - 3));
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => PlaylistSongListPage(
-                      playlistController: playlistController,
-                      audioController: audioController,
-                      playlistSongsList: playlistSongs,
-                      songModel: songModel,
-                      favoriteController: favoriteController,
-                      playlistId:
-                          playlistController.getPlaylistID(index: index - 3),
-                      playlistName:
-                          playlistController.getPlaylistName(index: index - 3),
                     ),
-                  ),
-                );
-              },
-              title: PlaylistController.to.getPlaylistName(index: index - 3),
-              songLength: 2,
-              pageType: PageTypeEnum.playListPage,
-            );
+                  );
+                },
+                editPlaylistNameMethod: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return NewPlayListDialogBoxWidget(
+                        editOrNew: "Edit Playlist",
+                        onPressed: () {
+                          PlaylistController.to.playlistUpdateName(
+                            index: index - 3,
+                            newPlaylistName: editPlaylistController.text,
+                          );
+                          Navigator.pop(context);
+                          snackBarCommonWidget(context,
+                              contentText: "Edited Successfully");
+                        },
+                        playlsitNameGiverController: editPlaylistController,
+                      );
+                    },
+                  );
+                },
+                onTap: () async {
+                  var playlistID =
+                      playlistController.getPlaylistID(index: index - 3);
+                  log("Selected Playlist ID: $playlistID");
+                  var playlistSongs = await playlistController.getPlayListSongs(
+                      playlistController.getPlaylistID(index: index - 3));
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => PlaylistSongListPage(
+                        playlistController: playlistController,
+                        audioController: audioController,
+                        playlistSongsList: playlistSongs,
+                        songModel: songModel,
+                        favoriteController: favoriteController,
+                        playlistId:
+                            playlistController.getPlaylistID(index: index - 3),
+                        playlistName: playlistController.getPlaylistName(
+                            index: index - 3),
+                      ),
+                    ),
+                  );
+                },
+                title: PlaylistController.to.getPlaylistName(index: index - 3),
+                songLength: playlistController.playlistSongLengths[index-3],
+                pageType: PageTypeEnum.playListPage,
+              );
+            });
           },
         );
       }),

@@ -8,6 +8,7 @@ import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
+import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
@@ -21,13 +22,14 @@ class BottomSettingsWidget extends StatefulWidget {
     required this.pageType,
     required this.songList,
     required this.favoriteController,
-    required this.song,
+    required this.song, required this.playlistController,
   });
   bool? isSelected;
   final PageTypeEnum pageType;
   final List<AllMusicsModel> songList;
   final FavoriteController favoriteController;
   final AllMusicsModel song;
+  final PlaylistController playlistController;
 
   @override
   State<BottomSettingsWidget> createState() => _BottomSettingsWidgetState();
@@ -80,28 +82,42 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                       icon: Icons.share_outlined,
                       iconName: "Send",
                     )
-                  : IconTextWidget(
-                      isSongSelected: widget.isSelected,
-                      onTap: () {
-                        // need to remove the song
-                        switch (widget.pageType) {
-                          case PageTypeEnum.favoritePage:
-                            widget.favoriteController
-                                .removeFromFavorite(widget.songList, context);
-                            setState(() {
-                              widget.isSelected =
-                                  false; // or update based on your logic
-                            });
-                            break;
-                            case PageTypeEnum.playListPage:
-                              
-                            break;
-                          default:
+                  : widget.pageType == PageTypeEnum.favoritePage
+                      ? GetBuilder<FavoriteController>(
+                        init: widget.favoriteController,
+                        builder: (controller) {
+                          return IconTextWidget(
+                              isSongSelected: widget.isSelected,
+                              onTap: () {
+                                controller
+                                    .removeFromFavorite(widget.songList, context);
+                                setState(() {
+                                  widget.isSelected =
+                                      false; // or update based on your logic
+                                });
+                              },
+                              icon: Icons.logout_outlined,
+                              iconName: "Remove",
+                            );
                         }
-                      },
-                      icon: Icons.logout_outlined,
-                      iconName: "Remove",
-                    ),
+                      )
+                      : GetBuilder<PlaylistController>(
+                          init: PlaylistController(),
+                          builder: (controller) {
+                            return IconTextWidget(
+                              isSongSelected: widget.isSelected,
+                              onTap: () {
+                                controller
+                                    .removeSongsFromPlaylist(widget.songList);
+                                setState(() {
+                                  widget.isSelected =
+                                      false; // or update based on your logic
+                                });
+                              },
+                              icon: Icons.logout_outlined,
+                              iconName: "Remove",
+                            );
+                          }),
               GetBuilder<AudioController>(
                   init: AudioController(),
                   builder: (controller) {
@@ -116,7 +132,7 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                                   return DeleteDialogBox(
                                     contentText:
                                         "Do you want to delete the song?",
-                                    deleteAction: () {
+                                    deleteAction: () async {
                                       List<int> selectedSongIds = [];
                                       for (var song in widget.songList) {
                                         if (song.musicSelected == true) {
@@ -128,8 +144,9 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                                       log("Remaining songs in Hive box: ${controller.musicBox.length}");
                                       controller.deleteSongsPermentaly(
                                           selectedSongIds, context);
-                                      log("Remaining songs in Hive box: ${controller.musicBox.length}");
+
                                       Get.back();
+                                      log("Remaining songs in Hive box: ${controller.musicBox.length}");
                                     },
                                   );
                                 },

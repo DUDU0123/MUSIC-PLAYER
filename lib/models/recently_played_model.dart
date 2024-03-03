@@ -31,6 +31,34 @@ class RecentlyPlayedModel {
     }
   }
 
+  // void addRecentlyPlayedSong(AllMusicsModel song) {
+  //   bool isSongAvailable = AudioController().allSongsListFromDevice.contains(song);
+
+  //   if (isSongAvailable) {
+  //     bool isSongAlreadyAdded = false;
+
+  //     for (var addedSong in recentlyPlayedSongsList) {
+  //       if (addedSong == song) {
+  //         isSongAlreadyAdded = true;
+  //         break;
+  //       }
+  //     }
+
+  //     if (!isSongAlreadyAdded) {
+  //       // Optionally, you can limit the size of the list to keep only the most recent songs
+  //       // You can adjust this limit based on your requirements
+  //       if (recentlyPlayedSongsList.length >= 10) {
+  //         recentlyPlayedSongsList.removeAt(0);
+  //       }
+
+  //       recentlyPlayedSongsList.add(song);
+  //     }
+  //   } else {
+  //     // Remove the song from the recently played list if it is not available in allSongsListFromDevice
+  //     recentlyPlayedSongsList.remove(song);
+  //   }
+  // }
+
   void removeRecentlyPlayedSong(AllMusicsModel song) {
     recentlyPlayedSongsList.removeWhere((recentlyPlayedSong) =>
         recentlyPlayedSong.id == song.id);

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
+import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
@@ -20,7 +22,7 @@ class AlbumSongListPage extends StatelessWidget {
     required this.albumSongs,
     required this.favoriteController,
     required this.songModel,
-    required this.audioController, required this.allMusicController,
+    required this.audioController, required this.allMusicController, required this.playlistController,
   });
   final String albumName;
   final List<AllMusicsModel> albumSongs;
@@ -28,6 +30,7 @@ class AlbumSongListPage extends StatelessWidget {
   final AllMusicsModel songModel;
   final AudioController audioController;
   final AllMusicController allMusicController;
+  final PlaylistController playlistController;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,6 +48,7 @@ class AlbumSongListPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
+                      playlistController: playlistController,
                       audioController: audioController,
                       song: songModel,
                       favoriteController: favoriteController,
@@ -68,27 +72,32 @@ class AlbumSongListPage extends StatelessWidget {
           : FutureBuilder(
             future: allMusicController.fetchAllAlbumMusicData(),
             builder: (context, snapshot) {
-              return ListView.builder(
-                  itemCount: albumSongs.length,
-                  padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-                  itemBuilder: (context, index) {
-                    return MusicTileWidget(
-                      audioController: audioController,
-                      songModel: albumSongs[index],
-                      favoriteController: favoriteController,
-                      musicUri: albumSongs[index].musicUri,
-                      songId: albumSongs[index].id,
-                      pageType: PageTypeEnum.albumSongListPage,
-                      albumName: albumSongs[index].musicAlbumName,
-                      artistName: albumSongs[index].musicArtistName,
-                      songTitle: albumSongs[index].musicName,
-                      songFormat: albumSongs[index].musicFormat,
-                      songPathIndevice: albumSongs[index].musicPathInDevice,
-                      songSize: AppUsingCommonFunctions.convertToMBorKB(
-                          albumSongs[index].musicFileSize),
+              return GetBuilder<AllMusicController>(
+                init: allMusicController,
+                builder: (controller) {
+                  return ListView.builder(
+                      itemCount: albumSongs.length,
+                      padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
+                      itemBuilder: (context, index) {
+                        return MusicTileWidget(
+                          audioController: audioController,
+                          songModel: albumSongs[index],
+                          favoriteController: favoriteController,
+                          musicUri: albumSongs[index].musicUri,
+                          songId: albumSongs[index].id,
+                          pageType: PageTypeEnum.albumSongListPage,
+                          albumName: albumSongs[index].musicAlbumName,
+                          artistName: albumSongs[index].musicArtistName,
+                          songTitle: albumSongs[index].musicName,
+                          songFormat: albumSongs[index].musicFormat,
+                          songPathIndevice: albumSongs[index].musicPathInDevice,
+                          songSize: AppUsingCommonFunctions.convertToMBorKB(
+                              albumSongs[index].musicFileSize),
+                        );
+                      },
                     );
-                  },
-                );
+                }
+              );
             }
           ),
     );

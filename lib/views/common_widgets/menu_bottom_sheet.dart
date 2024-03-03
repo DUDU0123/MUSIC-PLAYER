@@ -156,8 +156,10 @@ class MenuBottomSheet extends StatelessWidget {
                       builder: (context) {
                         return DeleteDialogBox(
                           contentText: "Do you want to delete the song?",
-                          deleteAction: () {
+                          deleteAction: () async {
                             controller.deleteSongsPermentaly([songId], context);
+                          
+                            Get.back();
                           },
                         );
                       },

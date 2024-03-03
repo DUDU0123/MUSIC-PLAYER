@@ -86,6 +86,7 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => SongEditPage(
+                        playlistController: widget.playlistController,
                         audioController: widget.audioController,
                         song: widget.songModel,
                         favoriteController: widget.favoriteController,
@@ -120,43 +121,27 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                               onTap: () {},
                               audioController: widget.audioController,
                               playListID: widget.playlistId,
-                              songModel: selectedPlaylist != null
-                                  ? selectedPlaylist.playlistSongs![index]
-                                  : widget.songModel,
+                              songModel: widget.playlistSongsList![index],
                               favoriteController: widget.favoriteController,
-                              musicUri: selectedPlaylist != null
-                                  ? selectedPlaylist
-                                      .playlistSongs![index].musicUri
-                                  : '',
-                              albumName: selectedPlaylist != null
-                                  ? selectedPlaylist
-                                      .playlistSongs![index].musicAlbumName
-                                  : '',
-                              artistName: selectedPlaylist != null
-                                  ? selectedPlaylist
-                                      .playlistSongs![index].musicArtistName
-                                  : '',
-                              songTitle: selectedPlaylist != null
-                                  ? selectedPlaylist
-                                      .playlistSongs![index].musicName
-                                  : '',
-                              songFormat: selectedPlaylist != null
-                                  ? selectedPlaylist
-                                      .playlistSongs![index].musicFormat
-                                  : '',
+                              musicUri:
+                                  widget.playlistSongsList![index].musicUri,
+                              albumName: widget
+                                  .playlistSongsList![index].musicAlbumName,
+                              artistName: widget
+                                  .playlistSongsList![index].musicArtistName,
+                              songTitle:
+                                  widget.playlistSongsList![index].musicName,
+                              songFormat:
+                                  widget.playlistSongsList![index].musicFormat,
                               songSize: AppUsingCommonFunctions.convertToMBorKB(
                                   selectedPlaylist != null
                                       ? selectedPlaylist
                                           .playlistSongs![index].musicFileSize
                                       : 0),
-                              songPathIndevice: selectedPlaylist != null
-                                  ? selectedPlaylist
-                                      .playlistSongs![index].musicPathInDevice
-                                  : '',
+                              songPathIndevice: widget
+                                  .playlistSongsList![index].musicPathInDevice,
                               pageType: PageTypeEnum.playListPage,
-                              songId: selectedPlaylist != null
-                                  ? selectedPlaylist.playlistSongs![index].id
-                                  : 0,
+                              songId: widget.playlistSongsList![index].id,
                             ),
                           );
                         } else {

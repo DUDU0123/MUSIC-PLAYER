@@ -5,6 +5,7 @@ import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
+import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
@@ -18,13 +19,14 @@ class FavouriteMusicListPage extends StatelessWidget {
     super.key,
     required this.songModel,
     required this.audioController,
-    required this.favouriteController,
+    required this.favouriteController, required this.playlistController,
     // required this.favouriteController,
   });
   final FavoriteController favouriteController;
   // final FavoriteController favouriteController = Get.put(FavoriteController());
   final AllMusicsModel songModel;
   final AudioController audioController;
+  final PlaylistController playlistController;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +46,7 @@ class FavouriteMusicListPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
+                      playlistController: playlistController,
                       audioController: audioController,
                       song: songModel,
                       favoriteController: favouriteController,

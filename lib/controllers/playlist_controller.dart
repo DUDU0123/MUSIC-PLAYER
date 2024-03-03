@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/playlist_model.dart';
 import 'package:uuid/uuid.dart';
@@ -14,14 +15,15 @@ class PlaylistController extends GetxController {
   RxList<AllMusicsModel> fullSongListToAddToPlaylist = <AllMusicsModel>[].obs;
   static PlaylistController get to => Get.find();
   // Add a StreamController to notify PlaylistSongListPage
-  final _songAddedToPlaylistController = StreamController<Playlist>.broadcast();
-  Stream<Playlist> get onSongAddedToPlaylist =>
-      _songAddedToPlaylistController.stream;
-  RxInt selectedPlaylistId = RxInt(0);
-  set setSelectedPlaylistId(int value) => selectedPlaylistId.value = value;
-  int get getSelectedPlaylistId => selectedPlaylistId.value;
+  // final _songAddedToPlaylistController = StreamController<Playlist>.broadcast();
+  // Stream<Playlist> get onSongAddedToPlaylist =>
+  //     _songAddedToPlaylistController.stream;
+  // RxInt selectedPlaylistId = RxInt(0);
+  // set setSelectedPlaylistId(int value) => selectedPlaylistId.value = value;
+  // int get getSelectedPlaylistId => selectedPlaylistId.value;
   Box<Playlist> playlistBox = Hive.box<Playlist>('playlist');
   RxList<Playlist> currentPlaylistSongList = <Playlist>[].obs;
+  AudioController audioController = Get.put(AudioController());
 
   @override
   void onInit() {
@@ -52,17 +54,11 @@ class PlaylistController extends GetxController {
         }
         playlistBox.put(playlistID, selectedPlaylist);
       }
-      // for (var song in playlistSongs) {
-      //   if (!selectedPlaylist!.playlistSongs!.contains(song)) {
-      //     log("Song name: ${song.musicName}");
-      //     selectedPlaylist.playlistSongs?.add(song);
-      //   }
-      // }
-      // playlistBox.put(playlistID, selectedPlaylist!);
     } catch (e) {
       log("ERROR ON ADDING SONGS: $e");
     }
     update();
+    updatePlaylistSongLengths();
   }
 
 //   void playlistCreation({required String playlistName}) async {
@@ -124,6 +120,7 @@ class PlaylistController extends GetxController {
       log(newPlaylist.playlistSongs.toString());
     }
     update();
+    updatePlaylistSongLengths();
   }
 
   //playlist delete function
@@ -136,23 +133,42 @@ class PlaylistController extends GetxController {
       await hiveBox.deleteAt(index);
       log("After deletion: ${listOfPlaylist.toList()}");
     }
+    update();
+    updatePlaylistSongLengths();
   }
 
 // just dummy I created
-  removeSongsFromPlaylist(List<AllMusicsModel> songs) {
-    for (var selectedSong in songs) {
-      currentPlaylistSongList
-          .removeWhere((playlistsong) => playlistsong.id == selectedSong.id);
-      playlistBox.delete(selectedSong.id);
-      Get.snackbar(
-        "Removed",
-        "Removed drom favorites",
-        colorText: kWhite,
-        backgroundColor: kBlack,
-        duration: const Duration(seconds: 1),
-        snackPosition: SnackPosition.BOTTOM,
-      );
+  // removeSongsFromPlaylist(List<AllMusicsModel> songs) {
+  //   for (var selectedSong in songs) {
+  //     currentPlaylistSongList
+  //         .removeWhere((playlistsong) => playlistsong.id == selectedSong.id);
+  //     playlistBox.delete(selectedSong.id);
+  //     Get.snackbar(
+  //       "Removed",
+  //       "Removed drom favorites",
+  //       colorText: kWhite,
+  //       backgroundColor: kBlack,
+  //       duration: const Duration(seconds: 1),
+  //       snackPosition: SnackPosition.BOTTOM,
+  //     );
+  //   }
+  //   update();
+  // }
+
+  void removeSongsFromPlaylist(List<AllMusicsModel> songsToRemove) {
+    if (currentPlaylistSongList.isNotEmpty) {
+      for (var songToRemove in songsToRemove) {
+        currentPlaylistSongList.forEach((playlist) {
+          if (playlist.playlistSongs!.contains(songToRemove)) {
+            playlist.playlistSongs!.remove(songToRemove);
+            playlistBox.put(playlist.id!, playlist);
+          }
+        });
+      }
+      update();
+      updatePlaylistSongLengths();
     }
+    Get.back();
   }
 
   //  void playlistUpdateName({
@@ -199,6 +215,7 @@ class PlaylistController extends GetxController {
       log(updatedPlaylistWithName.name);
       log(updatedPlaylistWithName.id.toString());
     }
+    updatePlaylistSongLengths();
   }
 
   String getPlaylistName({required int index}) {
@@ -241,6 +258,52 @@ class PlaylistController extends GetxController {
     }
   }
 
+//   Future<List<AllMusicsModel>?> getPlayListSongs(int playListId) async {
+//   var hiveBox = await Hive.openBox<Playlist>('playlist');
+
+//   if (playListId >= 0 && playListId < listOfPlaylist.length) {
+//     Playlist? playlist = hiveBox.getAt(playListId);
+
+//     // Check if the playlist is not null and playlistSongs is not null
+//     if (playlist != null && playlist.playlistSongs != null) {
+//       // Filter out songs that are not in audioController.allsongslistfromdevice
+//       List<AllMusicsModel> filteredSongs = playlist.playlistSongs!
+//           .where((song) => audioController.allSongsListFromDevice
+//               .contains(song)) // Assuming AllMusicsModel has proper equality comparison
+//           .toList();
+
+//       // Update the playlistSongs with the filtered list
+//       Playlist updatedPlaylist = Playlist(
+//         name: playlist.name,
+//         playlistSongs: filteredSongs,
+//         id: playListId
+//       );
+
+//       // Save the updated playlist back to Hive
+//       hiveBox.putAt(playListId, playlist);
+
+//       return filteredSongs;
+//     } else {
+//       // Return an empty list if the playlist or playlistSongs is null
+//       return [];
+//     }
+//   } else {
+//     // Handle the case where playListId is out of bounds
+//     log("Invalid playlist ID: $playListId");
+//     return [];
+//   }
+// }
+
+  // method to get paylist song length
+  void updatePlaylistSongLengths() {
+    playlistSongLengths.clear();
+    for (int i = 0; i < listOfPlaylist.length; i++) {
+      var playlistSongs = listOfPlaylist[i].playlistSongs;
+      int songLength = playlistSongs != null ? playlistSongs.length : 0;
+      playlistSongLengths.add(songLength);
+    }
+  }
+
   onTapRemoveFromPlaylist(
       {required int songId, required int playlistId}) async {
     log("Removing..");
@@ -270,6 +333,7 @@ class PlaylistController extends GetxController {
       log("Playlist not found or doesn't have songs.");
     }
     update();
+    updatePlaylistSongLengths();
   }
 
   // Get all playlist
@@ -296,17 +360,12 @@ class PlaylistController extends GetxController {
     listOfPlaylist.assignAll(hiveBox.values.toList());
     // Initialize playlistSongLengths with default lengths
     playlistSongLengths.assignAll(List<int>.filled(listOfPlaylist.length, 0));
+    updatePlaylistSongLengths();
   }
 
   // Retrieve all playlists from Hive
   Future<List<Playlist>> getPlaylists() async {
     final playlistBox = await Hive.openBox<Playlist>('playlist');
     return playlistBox.values.toList();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-    _songAddedToPlaylistController.close();
   }
 }

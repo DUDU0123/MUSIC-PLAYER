@@ -33,9 +33,7 @@ class FavoriteController extends GetxController {
     update();
     Get.back();
   }
-
-// loading favorite songs after checking any songs are in favorite list which is deleted, then filtering it
-  void loadFavoriteSongs() async {
+  Future<List<FavoriteModel>> loadFavoriteSongs() async {
     // Get the unique favorite songs
     final uniqueFavorites =
         favoriteBox.values.cast<FavoriteModel>().toSet().toList();
@@ -50,7 +48,25 @@ class FavoriteController extends GetxController {
     final uniqueFilteredFavorites = favoriteSongs.toSet().toList();
     favoriteSongs.clear();
     favoriteSongs.assignAll(uniqueFilteredFavorites);
+    return favoriteSongs;
   }
+// loading favorite songs after checking any songs are in favorite list which is deleted, then filtering it
+  // void loadFavoriteSongs() async {
+  //   // Get the unique favorite songs
+  //   final uniqueFavorites =
+  //       favoriteBox.values.cast<FavoriteModel>().toSet().toList();
+  //   // Filter out songs not present in allSongsListFromDevice
+  //   final filteredFavorites = uniqueFavorites.where((favoriteSong) {
+  //     return audioController.allSongsListFromDevice
+  //         .any((song) => song.id == favoriteSong.id);
+  //   }).toList();
+  //   // Assign the filtered favorites to favoriteSongs
+  //   favoriteSongs.assignAll(filteredFavorites);
+  //   // Ensure that there are no duplicates in favoriteSongs
+  //   final uniqueFilteredFavorites = favoriteSongs.toSet().toList();
+  //   favoriteSongs.clear();
+  //   favoriteSongs.assignAll(uniqueFilteredFavorites);
+  // }
 
   void onTapFavorite(FavoriteModel song, BuildContext context) {
     if (isFavorite(song.id)) {

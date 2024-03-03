@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
+import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/albums/album_song_list_page.dart';
 import 'package:music_player/views/common_widgets/container_tile_widget.dart';
@@ -17,12 +18,15 @@ class MusicAlbumPage extends StatelessWidget {
     super.key,
     required this.favoriteController,
     required this.songModel,
-    required this.audioController,
+    required this.audioController, required this.playlistController,
   });
   final FavoriteController favoriteController;
   final AllMusicsModel songModel;
   final AudioController audioController;
+  final PlaylistController playlistController;
   AllMusicController allMusicController = Get.put(AllMusicController());
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +53,7 @@ class MusicAlbumPage extends StatelessWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => AlbumSongListPage(
+                                playlistController: playlistController,
                                 allMusicController: allMusicController,
                                 audioController: audioController,
                                 songModel: songModel,

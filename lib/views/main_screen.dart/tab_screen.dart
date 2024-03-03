@@ -6,6 +6,7 @@ import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
+import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/controllers/tab_handle_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
@@ -30,6 +31,7 @@ class _TabScreenState extends State<TabScreen> {
   FavoriteController favoriteController = Get.put(FavoriteController());
   AllMusicController allMusicController = Get.put(AllMusicController());
   TabHandleController tabHandleController = Get.put(TabHandleController());
+  PlaylistController playlistController = Get.put(PlaylistController());
 
   SortMethod sortMethod = SortMethod.alphabetically;
   // TabType currentTabType = TabType.songs;
@@ -123,6 +125,7 @@ class _TabScreenState extends State<TabScreen> {
                 switch (value) {
                   case TopMenuItemEnum.manageSong:
                     Get.to(() => SongEditPage(
+                      playlistController: playlistController,
                           audioController: audioController,
                           favoriteController: favoriteController,
                           pageType: PageTypeEnum.homePage,
@@ -225,6 +228,7 @@ class _TabScreenState extends State<TabScreen> {
             });
           },
           children: TabViewList.tabViews(
+            playlistController: playlistController,
             allMusicController: allMusicController,
             favoriteController: favoriteController,
             audioController: audioController,

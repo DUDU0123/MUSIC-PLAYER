@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
+import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/center_title_appbar_common_widget.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
@@ -18,13 +19,14 @@ class SongEditPage extends StatefulWidget {
     required this.songList,
     required this.favoriteController,
     required this.song,
-    required this.audioController,
+    required this.audioController, required this.playlistController,
   });
   final PageTypeEnum pageType;
   final List<AllMusicsModel> songList;
   final FavoriteController favoriteController;
   final AllMusicsModel song;
   final AudioController audioController;
+  final PlaylistController playlistController;
 
   @override
   State<SongEditPage> createState() => _SongEditPageState();
@@ -39,6 +41,7 @@ class _SongEditPageState extends State<SongEditPage> {
   String songName = '';
   @override
   Widget build(BuildContext context) {
+    
     // final kScreenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: PreferredSize(
@@ -115,6 +118,7 @@ class _SongEditPageState extends State<SongEditPage> {
     
       bottomNavigationBar:widget.audioController.allSongsListFromDevice.isNotEmpty?
        BottomSettingsWidget(
+        playlistController: widget.playlistController,
         song: widget.song,
         favoriteController: widget.favoriteController,
         // removeSongFromFavourites: removeSongFromFavourites,

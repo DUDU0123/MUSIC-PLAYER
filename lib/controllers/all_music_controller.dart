@@ -16,13 +16,18 @@ class AllMusicController extends GetxController {
 
   Future<List<AllMusicsModel>> fetchAllAlbumMusicData() async {
     await getAlbumSongs();
+    update();
+    return audioController.allSongsListFromDevice;
+    
+  }
+
+  Future<List<AllMusicsModel>> fetchAllArtistMusicData() async {
+    await getArtistSongs();
+    update();
     return audioController.allSongsListFromDevice;
   }
 
-  Future<void> fetchAllArtistMusicData() async {
-    await getArtistSongs();
-  }
-
+  // we need to check if the allsongs list not containing the song , then only add music to artist and artist songs
   final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
   final RxMap<String, List<AllMusicsModel>> artistMap =
       <String, List<AllMusicsModel>>{}.obs;
@@ -30,18 +35,24 @@ class AllMusicController extends GetxController {
       <String, List<AllMusicsModel>>{}.obs;
 
   // getting artist with songs
-  getArtistSongs() {
+  getArtistSongs() async {
     final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
     for (var music in allMusics) {
       final artistName = capitalizeFirstLetter(music.musicArtistName);
       if (!artistMap.containsKey(artistName)) {
         artistMap[artistName] = [];
       }
-      if (!artistMap[artistName]!.contains(music)) {
+      // if (!artistMap[artistName]!.contains(music)) {
+      //   artistMap[artistName]!.add(music);
+      // }
+      // Check if the song is in allsongslistfromdevice before adding it
+      if (!artistMap[artistName]!.contains(music) &&
+          audioController.allSongsListFromDevice.contains(music)) {
         artistMap[artistName]!.add(music);
       }
+    
     }
-    update();
+     update();
   }
 
   // getting album with songs
@@ -53,7 +64,11 @@ class AllMusicController extends GetxController {
         albumsMap[albumName] = [];
       }
 
-      if (!albumsMap[albumName]!.contains(music)) {
+      // if (!albumsMap[albumName]!.contains(music)) {
+      //   albumsMap[albumName]!.add(music);
+      // }
+       if (!albumsMap[albumName]!.contains(music) &&
+          audioController.allSongsListFromDevice.contains(music)) {
         albumsMap[albumName]!.add(music);
       }
     }
