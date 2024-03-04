@@ -81,7 +81,7 @@ class _SearchPageState extends State<SearchPage> {
                 var searchSong = searchFilterController.filteredSongs.value;
                 return MusicTileWidget(
                   onTap: () {
-                    
+                    widget.audioController.playSong(searchFilterController.filteredSongs[index]);
                   },
                   songTitle: searchSong[index].musicName,
                   songFormat: searchSong[index].musicFormat,

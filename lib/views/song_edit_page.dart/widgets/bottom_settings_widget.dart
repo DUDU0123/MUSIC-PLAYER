@@ -22,7 +22,7 @@ class BottomSettingsWidget extends StatefulWidget {
     required this.pageType,
     required this.songList,
     required this.favoriteController,
-    required this.song, required this.playlistController,
+    required this.song, required this.playlistController, required this.audioController,
   });
   bool? isSelected;
   final PageTypeEnum pageType;
@@ -30,6 +30,7 @@ class BottomSettingsWidget extends StatefulWidget {
   final FavoriteController favoriteController;
   final AllMusicsModel song;
   final PlaylistController playlistController;
+  final AudioController audioController;
 
   @override
   State<BottomSettingsWidget> createState() => _BottomSettingsWidgetState();
@@ -102,7 +103,7 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                         }
                       )
                       : GetBuilder<PlaylistController>(
-                          init: PlaylistController(),
+                          init: widget.playlistController,
                           builder: (controller) {
                             return IconTextWidget(
                               isSongSelected: widget.isSelected,

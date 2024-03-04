@@ -19,7 +19,8 @@ class SongEditPage extends StatefulWidget {
     required this.songList,
     required this.favoriteController,
     required this.song,
-    required this.audioController, required this.playlistController,
+    required this.audioController,
+    required this.playlistController,
   });
   final PageTypeEnum pageType;
   final List<AllMusicsModel> songList;
@@ -41,7 +42,6 @@ class _SongEditPageState extends State<SongEditPage> {
   String songName = '';
   @override
   Widget build(BuildContext context) {
-    
     // final kScreenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: PreferredSize(
@@ -68,66 +68,71 @@ class _SongEditPageState extends State<SongEditPage> {
           ],
         ),
       ),
-      body: widget.audioController.allSongsListFromDevice.isNotEmpty? GetBuilder<AudioController>(
-        init: widget.audioController,
-        builder: (controller) {
-          return ListView.builder(
-              itemCount: widget.songList.length,
-              padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-              itemBuilder: (context, index) {
-                songID = widget.songList[index].id;
-                songName = widget.songList[index].musicName;
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                  child:  CheckboxListTile(
-                          checkColor: kWhite,
-                          activeColor: kRed,
-                          tileColor: kTileColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          title: TextWidgetCommon(
-                            text: widget.songList[index].musicName,
-                            fontSize: 17.sp,
-                            color: kWhite,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: TextWidgetCommon(
-                            overflow: TextOverflow.ellipsis,
-                            text:
-                                "${widget.songList[index].musicArtistName == '<unknown>' ? 'Unknown Artist' : widget.songList[index].musicArtistName}-${widget.songList[index].musicAlbumName}",
-                            fontSize: 10.sp,
-                            color: kGrey,
-                          ),
-                          value: widget.songList[index].musicSelected ?? false,
-                          onChanged: (value) {
-                            setState(() {
-                              widget.songList[index].musicSelected = value ?? false;
-                              isSelected = widget.songList.any(
-                                  (checkbox) => checkbox.musicSelected == true);
-                              controller.update();
-                            });
-                          },
-                        )
-                      
+      body: widget.audioController.allSongsListFromDevice.isNotEmpty
+          ? GetBuilder<AudioController>(
+              init: widget.audioController,
+              builder: (controller) {
+                return ListView.builder(
+                  itemCount: widget.songList.length,
+                  padding:
+                      EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
+                  itemBuilder: (context, index) {
+                    songID = widget.songList[index].id;
+                    songName = widget.songList[index].musicName;
+                    return Padding(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+                      child: CheckboxListTile(
+                        checkColor: kWhite,
+                        activeColor: kRed,
+                        tileColor: kTileColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        title: TextWidgetCommon(
+                          text: widget.songList[index].musicName,
+                          fontSize: 17.sp,
+                          color: kWhite,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        subtitle: TextWidgetCommon(
+                          overflow: TextOverflow.ellipsis,
+                          text:
+                              "${widget.songList[index].musicArtistName == '<unknown>' ? 'Unknown Artist' : widget.songList[index].musicArtistName}-${widget.songList[index].musicAlbumName}",
+                          fontSize: 10.sp,
+                          color: kGrey,
+                        ),
+                        value: widget.songList[index].musicSelected ?? false,
+                        onChanged: (value) {
+                          setState(() {
+                            widget.songList[index].musicSelected =
+                                value ?? false;
+                            isSelected = widget.songList.any(
+                                (checkbox) => checkbox.musicSelected == true);
+                            controller.update();
+                          });
+                        },
+                      ),
+                    );
+                  },
                 );
-              },
-            );
-        }
-      ):const DefaultCommonWidget(text: "No songs available"),
-    
-      bottomNavigationBar:widget.audioController.allSongsListFromDevice.isNotEmpty?
-       BottomSettingsWidget(
-        playlistController: widget.playlistController,
-        song: widget.song,
-        favoriteController: widget.favoriteController,
-        // removeSongFromFavourites: removeSongFromFavourites,
-        songList: widget.songList
-            .where((song) => song.musicSelected == true)
-            .toList(),
-        isSelected: isSelected,
-        pageType: widget.pageType,
-      ): const SizedBox(),
+              })
+          : const DefaultCommonWidget(text: "No songs available"),
+      bottomNavigationBar:
+          widget.audioController.allSongsListFromDevice.isNotEmpty
+              ? BottomSettingsWidget(
+                  audioController: widget.audioController,
+                  playlistController: widget.playlistController,
+                  song: widget.song,
+                  favoriteController: widget.favoriteController,
+                  // removeSongFromFavourites: removeSongFromFavourites,
+                  songList: widget.songList
+                      .where((song) => song.musicSelected == true)
+                      .toList(),
+                  isSelected: isSelected,
+                  pageType: widget.pageType,
+                )
+              : const SizedBox(),
     );
   }
 

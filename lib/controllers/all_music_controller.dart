@@ -18,7 +18,6 @@ class AllMusicController extends GetxController {
     await getAlbumSongs();
     update();
     return audioController.allSongsListFromDevice;
-    
   }
 
   Future<List<AllMusicsModel>> fetchAllArtistMusicData() async {

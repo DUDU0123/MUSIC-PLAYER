@@ -21,8 +21,7 @@ class RecentlyPlayedModel {
     }
 
     if (!isSongAlreadyAdded) {
-      // Optionally, you can limit the size of the list to keep only the most recent songs
-      // You can adjust this limit based on your requirements
+      // can adjust this limit based on your requirements
       if (recentlyPlayedSongsList.length >= 10) {
         recentlyPlayedSongsList.removeAt(0);
       }

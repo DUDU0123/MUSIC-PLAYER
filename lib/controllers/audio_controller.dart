@@ -73,6 +73,7 @@ class AudioController extends GetxController {
         // Seek to the last played position
         await audioPlayer.seek(audioPlayer.position);
       }
+
       currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
     } catch (e) {
       log("Error on play intialize: $e");
@@ -84,11 +85,12 @@ class AudioController extends GetxController {
               allSongsListFromDevice[currentSongIndex.value];
           playNextSong();
         } else {
-          if (audioPlayer.loopMode == LoopMode.all) {
+          if (audioPlayer.loopMode == LoopMode.all &&
+              currentPlayingSong.value != null) {
             currentPlayingSong.value =
                 allSongsListFromDevice[currentSongIndex.value];
             //play song
-            playSong(0);
+            playSong(currentPlayingSong.value!);
           } else {
             //stop
             stopSong();
@@ -215,9 +217,10 @@ class AudioController extends GetxController {
     });
   }
 
-  // play a song
-  Future<void> playSong(int index,
-      {bool? isRecentlyPlayed = false, Duration? lastPlayedPosition}) async {
+  Future<void> playSong(AllMusicsModel song) async {
+    int index = allSongsListFromDevice.indexWhere((s) => s.id == song.id);
+    bool isRecentlyPlayed = false;
+    log('Playing song at index: $index');
     if (allSongsListFromDevice.isEmpty ||
         index < 0 ||
         index >= allSongsListFromDevice.length) {
@@ -225,16 +228,22 @@ class AudioController extends GetxController {
       return;
     }
 
-    currentSongIndex.value = index;
-    currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
+    audioPlayer.playbackEventStream.listen((event) {
+      if (event.currentIndex != null) {
+        currentSongIndex.value = event.currentIndex!;
+        currentPlayingSong.value =
+            allSongsListFromDevice[currentSongIndex.value];
+      }
+    });
+    // currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
+    // index instead of currentSongIndex.value in seek
     await audioPlayer.seek(Duration.zero, index: index);
-    if (lastPlayedPosition != null) {
-      await audioPlayer.seek(lastPlayedPosition, index: index);
-    } else {
-      await audioPlayer.seek(Duration.zero, index: index);
-    }
     await audioPlayer.play();
     isPlaying.value = true;
+    if (currentPlayingSong.value != null) {
+      isRecentlyPlayed = isSongRecentlyPlayed(
+          currentPlayingSong.value!, musicBox.values.toList());
+    }
     audioPlayer.durationStream.listen(
       (d) {
         duration.value = d ?? const Duration();
@@ -251,10 +260,8 @@ class AudioController extends GetxController {
     log("After current");
     log("${currentPlayingSong.value!.id} ${currentPlayingSong.value!.musicName} ${currentPlayingSong.value!.musicAlbumName}");
     if (isRecentlyPlayed != null && currentPlayingSong.value != null) {
-      if (!isRecentlyPlayed && index != null) {
+      if (!isRecentlyPlayed && currentSongIndex != null) {
         // Update the recently played list
-        Box<RecentlyPlayedModel> recentlyPlayedBox =
-            Hive.box<RecentlyPlayedModel>('recent');
         RecentlyPlayedModel recentlyPlayedModel = recentlyPlayedBox.get(
                 'recent',
                 defaultValue:
@@ -267,8 +274,78 @@ class AudioController extends GetxController {
       }
     }
     // Update the current playing song
-    currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
+    update();
   }
+
+  // play a song
+  // Future<void> playSong(
+  //   int index, {
+  //   // bool? isRecentlyPlayed = false,
+  //   Duration? lastPlayedPosition,
+  // }) async {
+
+  //   bool isRecentlyPlayed = false;
+  //   log('Playing song at index: $index');
+  //   if (allSongsListFromDevice.isEmpty ||
+  //       index < 0 ||
+  //       index >= allSongsListFromDevice.length) {
+  //     log("SOMETHING HAPPENED");
+  //     return;
+  //   }
+
+  //   audioPlayer.playbackEventStream.listen((event) {
+  //     if (event.currentIndex != null) {
+  //       currentSongIndex.value = event.currentIndex!;
+  //       currentPlayingSong.value =
+  //           allSongsListFromDevice[currentSongIndex.value];
+  //     }
+  //   });
+  //   // currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
+  //   // index instead of currentSongIndex.value in seek
+  //   await audioPlayer.seek(Duration.zero, index: index);
+  //   if (lastPlayedPosition != null) {
+  //     await audioPlayer.seek(lastPlayedPosition, index: index);
+  //   } else {
+  //     await audioPlayer.seek(Duration.zero, index: index);
+  //   }
+  //   await audioPlayer.play();
+  //   isPlaying.value = true;
+  //   if (currentPlayingSong.value != null) {
+  //     isRecentlyPlayed = isSongRecentlyPlayed(
+  //         currentPlayingSong.value!, musicBox.values.toList());
+  //   }
+  //   audioPlayer.durationStream.listen(
+  //     (d) {
+  //       duration.value = d ?? const Duration();
+  //       log(duration.value.toString());
+  //     },
+  //   );
+
+  //   audioPlayer.durationStream.listen((p) {
+  //     position.value = p ?? const Duration();
+  //     log(position.value.toString());
+  //   });
+  //   log("Current");
+
+  //   log("After current");
+  //   log("${currentPlayingSong.value!.id} ${currentPlayingSong.value!.musicName} ${currentPlayingSong.value!.musicAlbumName}");
+  //   if (isRecentlyPlayed != null && currentPlayingSong.value != null) {
+  //     if (!isRecentlyPlayed && currentSongIndex != null) {
+  //       // Update the recently played list
+  //       RecentlyPlayedModel recentlyPlayedModel = recentlyPlayedBox.get(
+  //               'recent',
+  //               defaultValue:
+  //                   RecentlyPlayedModel(recentlyPlayedSongsList: [])) ??
+  //           RecentlyPlayedModel(recentlyPlayedSongsList: []);
+  //       recentlyPlayedModel.removeRecentlyPlayedSong(currentPlayingSong.value!);
+  //       recentlyPlayedModel.addRecentlyPlayedSong(currentPlayingSong.value!);
+  //       recentlyPlayedBox.put('recent', recentlyPlayedModel);
+  //       update();
+  //     }
+  //   }
+  //   // Update the current playing song
+  //   update();
+  // }
 
   songLoopModesControlling() {
     if (isLoopOneSong.value) {
@@ -304,12 +381,14 @@ class AudioController extends GetxController {
     isPlaying.value = false;
   }
 
-  // function for play next song
+
+
+// function for play next song
   Future<void> playNextSong() async {
     if (currentSongIndex < allSongsListFromDevice.length - 1) {
       currentSongIndex++;
       isPlaying.value = true;
-      await playSong(currentSongIndex.value);
+      await playSong(allSongsListFromDevice[currentSongIndex.value]);
     } else {
       Get.snackbar("Play Back", "No songs to play next",
           snackPosition: SnackPosition.BOTTOM,
@@ -319,12 +398,12 @@ class AudioController extends GetxController {
     }
   }
 
-  // function for play previous song
+// function for play previous song
   Future<void> playPreviousSong() async {
     if (currentSongIndex > 0) {
       currentSongIndex--;
       isPlaying.value = true;
-      await playSong(currentSongIndex.value);
+      await playSong(allSongsListFromDevice[currentSongIndex.value]);
     } else {
       Get.snackbar("Play Next", "No songs to play previous",
           snackPosition: SnackPosition.BOTTOM,
@@ -366,7 +445,7 @@ class AudioController extends GetxController {
                 songToDelete.musicPathInDevice.isNotEmpty) {
               await File(songToDelete.musicPathInDevice).delete();
             }
-           await musicBox.delete(songId);
+            await musicBox.delete(songId);
             Box<RecentlyPlayedModel> recentlyPlayedBox =
                 Hive.box<RecentlyPlayedModel>('recent');
             RecentlyPlayedModel recentlyPlayedModel = recentlyPlayedBox.get(
@@ -396,7 +475,7 @@ class AudioController extends GetxController {
     } else {
       log("Permission Denied to delete a file");
     }
-   
+    log("Music box length after deletion: ${musicBox.length}");
     fetchSongsFromDeviceStorage();
   }
 

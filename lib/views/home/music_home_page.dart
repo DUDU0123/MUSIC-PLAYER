@@ -76,16 +76,14 @@ class MusicHomePage extends StatelessWidget {
                         song.musicFileSize),
                     onTap: () async {
                       audioController.isPlaying.value = true;
-                      bool isRecentlyPlayed =
-                          audioController.isSongRecentlyPlayed(
-                              song, audioController.musicBox.values.toList());
-                      if (isRecentlyPlayed) {
-                        lastPlayedPosition =
-                            audioController.audioPlayer.position;
-                      }
-                      audioController.playSong(index,
-                          isRecentlyPlayed: isRecentlyPlayed,
-                          lastPlayedPosition: lastPlayedPosition);
+                      // bool isRecentlyPlayed =
+                      //     audioController.isSongRecentlyPlayed(
+                      //         song, audioController.musicBox.values.toList());
+                      // if (isRecentlyPlayed) {
+                      //   lastPlayedPosition =
+                      //       audioController.audioPlayer.position;
+                      // }
+                      audioController.playSong(song);
                       // log("FROM SONGGG:::::: ${song.musicName} ${song.id}");
                       //  log("Helloo BSCABJJKSN :::::: ${allMusicController.oneSong.musicName} ${allMusicController.oneSong.id}");
 
