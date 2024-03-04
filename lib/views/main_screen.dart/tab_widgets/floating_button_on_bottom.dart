@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
@@ -12,11 +13,12 @@ class FloatingButtonOnBottom extends StatelessWidget {
     super.key,
     required this.currentSong,
     required this.audioController,
-    required this.favoriteController,
+    required this.favoriteController, required this.allMusicController,
   });
 
   final AllMusicsModel currentSong;
   final AudioController audioController;
+  final AllMusicController allMusicController;
   final FavoriteController favoriteController;
 
   @override
@@ -36,6 +38,7 @@ class FloatingButtonOnBottom extends StatelessWidget {
           context: context,
           builder: (context) {
             return MusicPlayPage(
+              allMusicController: allMusicController,
               songModel: currentSong,
               songId: currentSong.id,
               songTitle: currentSong.musicName,

@@ -32,6 +32,7 @@ class _AddSongInPlaylistFromSelectingSongsState
 
   @override
   Widget build(BuildContext context) {
+    
     final kScreenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: PreferredSize(
@@ -84,7 +85,7 @@ class _AddSongInPlaylistFromSelectingSongsState
                               subtitle: TextWidgetCommon(
                                 overflow: TextOverflow.ellipsis,
                                 text:
-                                    "${musicList.musicArtistName}-${musicList.musicAlbumName}",
+                                    "${musicList.musicArtistName == "<unknown>" ? "Unknown Artisit" : musicList.musicArtistName}-${musicList.musicAlbumName == "<unknown>" ? "Unknown Album" : musicList.musicAlbumName}",
                                 fontSize: 10.sp,
                                 color: kGrey,
                               ),

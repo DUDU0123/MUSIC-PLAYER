@@ -50,6 +50,20 @@ class AudioController extends GetxController {
   Future<void> intializeAudioPlayer(List<AllMusicsModel> songs) async {
     log("Initializing");
     try {
+
+    //   // Sort the songs based on the currentSortMethod before creating the playlist
+    // List<int> sortedIndices = List.generate(songs.length, (index) => index);
+    // sortedIndices.sort((a, b) {
+    //   switch (currentSortMethod.value) {
+    //     case SortMethod.alphabetically:
+    //       return songs[a].musicName.compareTo(songs[b].musicName);
+    //     case SortMethod.byTimeAdded:
+    //       return songs[a].dateAdded!.compareTo(songs[b].dateAdded!);
+    //     // Add more cases for other sorting methods if needed
+    //     default:
+    //       return 0;
+    //   }
+    // });
       await audioPlayer.setAudioSource(
         ConcatenatingAudioSource(
           children: songs.map((song) {
@@ -167,6 +181,18 @@ class AudioController extends GetxController {
           songsList.add(element);
         }
       }
+
+       // Additional sorting logic based on user selection
+    switch (currentSortMethod.value) {
+      case SortMethod.alphabetically:
+        // Already sorted alphabetically, no additional sorting needed
+        break;
+      case SortMethod.byTimeAdded:
+        // Sort by date added (you can customize this based on your requirements)
+        songsList.sort((a, b) => a.formattedDateAdded!.compareTo(b.formattedDateAdded!));
+        break;
+      // Add more cases for other sorting methods if needed
+    }
       allSongsListFromDevice.addAll(songsList);
 
       await addSongsToDB(allSongsListFromDevice);

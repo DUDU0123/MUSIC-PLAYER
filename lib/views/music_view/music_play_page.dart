@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
+import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
@@ -30,7 +31,7 @@ class MusicPlayPage extends StatelessWidget {
     required this.songPathIndevice,
     required this.audioController,
     required this.musicUri,
-    required this.favoriteController,
+    required this.favoriteController, required this.allMusicController,
   });
 
   final AllMusicsModel songModel;
@@ -44,6 +45,7 @@ class MusicPlayPage extends StatelessWidget {
   final AudioController audioController;
   final String musicUri;
   final FavoriteController favoriteController;
+  final AllMusicController allMusicController;
 
   FavoriteModel getFavoriteModelFromAllMusicModel(AllMusicsModel allMusic) {
     return FavoriteModel(
@@ -285,6 +287,7 @@ class MusicPlayPage extends StatelessWidget {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                   builder: (context) => MusicLyricsPage(
+                                    allMusicController: allMusicController,
                                     // currentPlayingsongs:  ,
                                     songModel: audioController
                                                 .currentPlayingSong.value !=

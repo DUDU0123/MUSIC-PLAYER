@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/controllers/audio_controller.dart';
@@ -49,9 +51,8 @@ class AllMusicController extends GetxController {
           audioController.allSongsListFromDevice.contains(music)) {
         artistMap[artistName]!.add(music);
       }
-    
     }
-     update();
+    update();
   }
 
   // getting album with songs
@@ -66,11 +67,67 @@ class AllMusicController extends GetxController {
       // if (!albumsMap[albumName]!.contains(music)) {
       //   albumsMap[albumName]!.add(music);
       // }
-       if (!albumsMap[albumName]!.contains(music) &&
+      if (!albumsMap[albumName]!.contains(music) &&
           audioController.allSongsListFromDevice.contains(music)) {
         albumsMap[albumName]!.add(music);
       }
     }
     update();
+  }
+
+  // lyrics saver
+  void saveLyricsForCurrentSong(int songId, String lyrics) {
+    try {
+      final AllMusicsModel currentSong = musicBox.values.firstWhere(
+        (music) => music.id == songId,
+        orElse: () => AllMusicsModel(
+          id: 0,
+          musicName: "musicName",
+          musicAlbumName: "musicAlbumName",
+          musicArtistName: "musicArtistName",
+          musicPathInDevice: "musicPathInDevice",
+          musicFormat: "musicFormat",
+          musicUri: "musicUri",
+          musicFileSize: 0,
+        ),
+      );
+
+      if (currentSong != null) {
+        currentSong.lyrics = lyrics;
+        log("SONG LYRICS ::::::::::::::${currentSong.lyrics.toString()}");
+        musicBox.put(
+            songId,
+            AllMusicsModel(
+              id: currentSong.id,
+              musicName: currentSong.musicName,
+              musicAlbumName: currentSong.musicAlbumName,
+              musicArtistName: currentSong.musicArtistName,
+              musicPathInDevice: currentSong.musicPathInDevice,
+              musicFormat: currentSong.musicFormat,
+              musicUri: currentSong.musicUri,
+              musicFileSize: currentSong.musicFileSize,
+              lyrics: currentSong.lyrics,
+            ));
+            log("CURRENT ID: ${currentSong.id.toString()}");
+        update();
+      } else {
+        log('No song found with ID $songId');
+      }
+    } catch (e) {
+      log('Error while searching for the song: $e');
+    }
+  }
+
+  String getLyricsForSong(int songId)  {
+    try {
+      final AllMusicsModel? song = musicBox.get(songId);
+      log(name: "ID OF GET SONG", song!.id.toString());
+      log("heoejkaalala!!!!!!!!!!!!!! ${song?.lyrics}");
+
+      return song?.lyrics ?? '';
+    } catch (e) {
+      log('Error fetching lyrics for song ID $songId: $e');
+      return '';
+    }
   }
 }

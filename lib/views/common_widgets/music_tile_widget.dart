@@ -111,7 +111,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                         // widget.pageType != PageTypeEnum.currentPlayListPage
                         //     ? kScreenWidth / 1.9
                         //     : kScreenWidth / 1.6,
-                        child: widget.pageType == PageTypeEnum.homePage || widget.pageType==PageTypeEnum.searchPage? Obx(() {
+                        child: Obx(() {
                           return TextWidgetCommon(
                             overflow: TextOverflow.ellipsis,
                             text: widget.songTitle,
@@ -125,16 +125,11 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                     : kWhite
                                 : kWhite,
                           );
-                        }): TextWidgetCommon(
-                            overflow: TextOverflow.ellipsis,
-                            text: widget.songTitle,
-                            fontSize: 16.sp,
-                            color: kWhite,
-                          ),
+                        })
                       ),
                       SizedBox(
                         width: kScreenWidth / 2,
-                        child:widget.pageType == PageTypeEnum.homePage || widget.pageType==PageTypeEnum.searchPage? Obx(() {
+                        child:Obx(() {
                           return TextWidgetCommon(
                             overflow: TextOverflow.ellipsis,
                             text:
@@ -149,21 +144,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                     : kWhite
                                 : kWhite,
                           );
-                        }): 
-                        TextWidgetCommon(
-                            overflow: TextOverflow.ellipsis,
-                            text:
-                                "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName == "<unknown>" ? "Unknown Album" : widget.albumName}",
-                            fontSize: 10.sp,
-                            color: widget.audioController != null
-                                ? widget.audioController!.isPlaying.value &&
-                                        widget.audioController!
-                                                .currentPlayingSong.value?.id ==
-                                            widget.songId
-                                    ? kRed
-                                    : kWhite
-                                : kWhite,
-                          ),
+                        })
                       ),
                     ],
                   ),
@@ -203,7 +184,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                   },
                                 );
                               },
-                              icon: widget.pageType == PageTypeEnum.homePage || widget.pageType==PageTypeEnum.searchPage? Obx(() {
+                              icon: Obx(() {
                                 return Icon(
                                   Icons.more_vert,
                                   size: 26.sp,
@@ -220,11 +201,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                           : kWhite
                                       : kWhite,
                                 );
-                              }): Icon(
-                                  Icons.more_vert,
-                                  size: 26.sp,
-                                  color:kWhite,
-                                ),
+                              })
                             )
                           : const SizedBox(),
                     ],
@@ -236,8 +213,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
           Positioned(
             right: 45.w,
             top: 30.h,
-            child: widget.pageType == PageTypeEnum.homePage || widget.pageType==PageTypeEnum.searchPage? widget.audioController != null
-                ? Obx(() {
+            child:Obx(() {
                     return Icon(
                       Icons.multitrack_audio_rounded,
                       color: widget.audioController!.isPlaying.value &&
@@ -249,7 +225,6 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                       size: 26.sp,
                     );
                   })
-                : const SizedBox() : const SizedBox(),
           ),
 
           //     : const SizedBox()

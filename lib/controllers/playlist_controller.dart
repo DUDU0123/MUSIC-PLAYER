@@ -353,6 +353,7 @@ class PlaylistController extends GetxController {
         musicFileSize: music.musicFileSize,
       );
     }).toList();
+    update();
   }
 
   Future<void> loadPlaylistsFromHive() async {

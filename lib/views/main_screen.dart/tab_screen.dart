@@ -240,6 +240,7 @@ class _TabScreenState extends State<TabScreen> {
         // audioController.allSongsListFromDevice.isNotEmpty
         //     ? 
             FloatingButtonOnBottom(
+              allMusicController: allMusicController,
                 currentSong: currentSong,
                 audioController: audioController,
                 favoriteController: favoriteController,

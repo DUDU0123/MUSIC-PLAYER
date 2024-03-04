@@ -14,3 +14,4 @@ Color kMusicBottomBarColor = const Color.fromARGB(255, 39, 39, 39);
 Color kTransparent = Colors.transparent;
 Color kMusicIconContainerColor = const Color.fromARGB(255, 36, 36, 36);
 Color kMusicIconMusicColor = const Color.fromARGB(255, 101, 101, 101);
+Color kLyricsTextColor = const Color.fromARGB(255, 169, 169, 169);

@@ -118,7 +118,9 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                           return Padding(
                             padding: EdgeInsets.symmetric(horizontal: 15.w),
                             child: MusicTileWidget(
-                              onTap: () {},
+                              onTap: () {
+                                widget.audioController.playSong(widget.playlistSongsList![index]);
+                              },
                               audioController: widget.audioController,
                               playListID: widget.playlistId,
                               songModel: widget.playlistSongsList![index],

@@ -101,6 +101,9 @@ class FavouriteMusicListPage extends StatelessWidget {
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.h),
                     child: MusicTileWidget(
+                      onTap: () {
+                        audioController.playSong(songModel[index]);
+                      },
                       audioController: audioController,
                       songModel: songModel[index],
                       favoriteController: favouriteController,

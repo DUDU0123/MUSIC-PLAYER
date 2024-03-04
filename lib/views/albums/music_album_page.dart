@@ -18,7 +18,8 @@ class MusicAlbumPage extends StatelessWidget {
     super.key,
     required this.favoriteController,
     required this.songModel,
-    required this.audioController, required this.playlistController,
+    required this.audioController,
+    required this.playlistController,
   });
   final FavoriteController favoriteController;
   final AllMusicsModel songModel;
@@ -26,55 +27,51 @@ class MusicAlbumPage extends StatelessWidget {
   final PlaylistController playlistController;
   AllMusicController allMusicController = Get.put(AllMusicController());
 
-  
-
   @override
   Widget build(BuildContext context) {
     log(allMusicController.artistMap.length.toString());
-    return Scaffold(
-      body:FutureBuilder(
-              future: allMusicController.fetchAllAlbumMusicData(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return Obx(() {
-                  return ListView.builder(
-                    itemCount: allMusicController.albumsMap.length,
-                    padding: EdgeInsets.symmetric(vertical: 15.h),
-                    itemBuilder: (context, index) {
-                      log("Loading items in album page");
-                      String albumName =
-                          allMusicController.albumsMap.keys.elementAt(index);
-                      // Getting albumSongs
-                      final List<AllMusicsModel> albumSongs =
-                          allMusicController.albumsMap[albumName]!;
-                      log('AlbumsSONG : ${albumSongs.length}');
-                      return ContainerTileWidget(
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => AlbumSongListPage(
-                                playlistController: playlistController,
-                                allMusicController: allMusicController,
-                                audioController: audioController,
-                                songModel: songModel,
-                                favoriteController: favoriteController,
-                                albumName: albumName,
-                                albumSongs: albumSongs,
-                              ),
-                            ),
-                          );
-                        },
-                        pageType: PageTypeEnum.albumPage,
-                        songLength: albumSongs.length,
-                        title: albumName,
-                      );
-                    },
-                  );
-                });
-                }
-                 return const DefaultCommonWidget(text: "No albums available");
+    return Scaffold(body: Obx(() {
+      return FutureBuilder(
+        future: allMusicController.fetchAllAlbumMusicData(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return ListView.builder(
+              itemCount: allMusicController.albumsMap.length,
+              padding: EdgeInsets.symmetric(vertical: 15.h),
+              itemBuilder: (context, index) {
+                log("Loading items in album page");
+                String albumName =
+                    allMusicController.albumsMap.keys.elementAt(index);
+                // Getting albumSongs
+                final List<AllMusicsModel> albumSongs =
+                    allMusicController.albumsMap[albumName]!;
+                log('AlbumsSONG : ${albumSongs.length}');
+                return ContainerTileWidget(
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AlbumSongListPage(
+                          playlistController: playlistController,
+                          allMusicController: allMusicController,
+                          audioController: audioController,
+                          songModel: songModel,
+                          favoriteController: favoriteController,
+                          albumName: albumName,
+                          albumSongs: albumSongs,
+                        ),
+                      ),
+                    );
+                  },
+                  pageType: PageTypeEnum.albumPage,
+                  songLength: albumSongs.length,
+                  title: albumName,
+                );
               },
-            )
-    );
+            );
+          }
+          return const DefaultCommonWidget(text: "No albums available");
+        },
+      );
+    }));
   }
 }

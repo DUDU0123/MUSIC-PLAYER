@@ -26,6 +26,16 @@ class MusicHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    int unixTimestamp = 1709518353;
+  
+  // Convert Unix timestamp to DateTime
+  DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTimestamp * 1000);
+  
+  print("Unix Timestamp: $unixTimestamp");
+  print("Formatted Date: ${dateTime.toLocal()}");
+
+  
     log("REBUILDING");
     Duration lastPlayedPosition = Duration.zero;
     //  final kScreenWidth = MediaQuery.of(context).size.width;
@@ -92,6 +102,7 @@ class MusicHomePage extends StatelessWidget {
                         context: context,
                         builder: (context) {
                           return MusicPlayPage(
+                            allMusicController: allMusicController,
                             favoriteController: favoriteController,
                             musicUri: song.musicUri,
                             audioController: audioController,
