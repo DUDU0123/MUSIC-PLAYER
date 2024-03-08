@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
@@ -32,12 +33,10 @@ class MusicHomePage extends StatelessWidget {
   // Convert Unix timestamp to DateTime
   DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTimestamp * 1000);
   
-  print("Unix Timestamp: $unixTimestamp");
-  print("Formatted Date: ${dateTime.toLocal()}");
+  log("Unix Timestamp: $unixTimestamp");
+  log("Formatted Date: ${dateTime.toLocal()}");
 
-  
     log("REBUILDING");
-    Duration lastPlayedPosition = Duration.zero;
     //  final kScreenWidth = MediaQuery.of(context).size.width;
     //  final kScreenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -46,8 +45,8 @@ class MusicHomePage extends StatelessWidget {
           builder: (BuildContext context,
               AsyncSnapshot<List<AllMusicsModel>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
+              return  Center(
+                child: CircularProgressIndicator(color: kRed,),
               );
             } else if (snapshot.hasError) {
               return const DefaultCommonWidget(text: "Error on loading songs");
@@ -61,15 +60,7 @@ class MusicHomePage extends StatelessWidget {
                 itemCount: snapshot.data!.length,
                 padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
                 itemBuilder: (context, index) {
-                  //print(widget.musicBox.length);
                   AllMusicsModel song = snapshot.data![index];
-                  Get.find<AudioController>().setSong(song);
-                  // log("Displaying songs length at $index ${song.musicName}");
-                  //  audioController.setCurrentSong(song);
-                  // Get.find<AllMusicController>().setCurrentSong(snapshot.data![index]);
-                  // log(
-                  //     "Helloo BSCABJJKSN :::::: ${allMusicController.oneSong.musicName}");
-                  //     log("FROM SONGGG:::::: ${song.musicName}");
                   return MusicTileWidget(
                     audioController: audioController,
                     favoriteController: favoriteController,
@@ -86,17 +77,7 @@ class MusicHomePage extends StatelessWidget {
                         song.musicFileSize),
                     onTap: () async {
                       audioController.isPlaying.value = true;
-                      // bool isRecentlyPlayed =
-                      //     audioController.isSongRecentlyPlayed(
-                      //         song, audioController.musicBox.values.toList());
-                      // if (isRecentlyPlayed) {
-                      //   lastPlayedPosition =
-                      //       audioController.audioPlayer.position;
-                      // }
                       audioController.playSong(song);
-                      // log("FROM SONGGG:::::: ${song.musicName} ${song.id}");
-                      //  log("Helloo BSCABJJKSN :::::: ${allMusicController.oneSong.musicName} ${allMusicController.oneSong.id}");
-
                       showModalBottomSheet(
                         isScrollControlled: true,
                         context: context,

@@ -24,10 +24,11 @@ class MusicTileWidget extends StatefulWidget {
     required this.pageType,
     required this.songId,
     required this.songModel,
-   required this.audioController,
+    required this.audioController,
     this.onTap,
     required this.musicUri,
-    required this.favoriteController, this.playListID,
+    required this.favoriteController,
+    this.playListID,
   });
 
   final String songTitle;
@@ -51,20 +52,9 @@ class MusicTileWidget extends StatefulWidget {
 }
 
 class _MusicTileWidgetState extends State<MusicTileWidget> {
-  bool isSongRecentlyPlayed(
-      AllMusicsModel song, List<AllMusicsModel> recentlyPlayedSongs) {
-    // Assuming each song has a unique identifier like an ID
-    String songIdentifier = song.id.toString();
-
-    return recentlyPlayedSongs.any((recentlyPlayedSong) {
-      // Check if the song is present in the recently played list based on the identifier
-      return recentlyPlayedSong.id == songIdentifier;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    log("isPlaying: ${widget.audioController?.isPlaying.value}");
+    log("isPlaying: ${widget.audioController.isPlaying.value}");
     // bool isPlaying = widget.audioController?.isPlaying.value ?? false;
     final kScreenHeight = MediaQuery.of(context).size.height;
     final kScreenWidth = MediaQuery.of(context).size.width;
@@ -107,102 +97,82 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        width: kScreenWidth / 2.2,
-                        // widget.pageType != PageTypeEnum.currentPlayListPage
-                        //     ? kScreenWidth / 1.9
-                        //     : kScreenWidth / 1.6,
-                        child: Obx(() {
-                          return TextWidgetCommon(
-                            overflow: TextOverflow.ellipsis,
-                            text: widget.songTitle,
-                            fontSize: 16.sp,
-                            color: widget.audioController != null
-                                ? widget.audioController!.isPlaying.value &&
-                                        widget.audioController!
-                                                .currentPlayingSong.value?.id ==
-                                            widget.songId
-                                    ? kRed
-                                    : kWhite
-                                : kWhite,
-                          );
-                        })
-                      ),
+                          width: kScreenWidth / 2.2,
+                          child: Obx(() {
+                            return TextWidgetCommon(
+                              overflow: TextOverflow.ellipsis,
+                              text: widget.songTitle,
+                              fontSize: 16.sp,
+                              color: widget.audioController.isPlaying.value &&
+                                          widget
+                                                  .audioController
+                                                  .currentPlayingSong
+                                                  .value
+                                                  ?.id ==
+                                              widget.songId
+                                      ? kRed
+                                      : kWhite
+                            );
+                          })),
                       SizedBox(
-                        width: kScreenWidth / 2,
-                        child:Obx(() {
-                          return TextWidgetCommon(
-                            overflow: TextOverflow.ellipsis,
-                            text:
-                                "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName == "<unknown>" ? "Unknown Album" : widget.albumName}",
-                            fontSize: 10.sp,
-                            color: widget.audioController != null
-                                ? widget.audioController!.isPlaying.value &&
-                                        widget.audioController!
+                          width: kScreenWidth / 2,
+                          child: Obx(() {
+                            return TextWidgetCommon(
+                                overflow: TextOverflow.ellipsis,
+                                text:
+                                    "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName == "<unknown>" ? "Unknown Album" : widget.albumName}",
+                                fontSize: 10.sp,
+                                color: widget.audioController.isPlaying.value &&
+                                        widget.audioController
                                                 .currentPlayingSong.value?.id ==
                                             widget.songId
                                     ? kRed
-                                    : kWhite
-                                : kWhite,
-                          );
-                        })
-                      ),
+                                    : kWhite);
+                          })),
                     ],
                   ),
                   Row(
                     children: [
                       widget.pageType != PageTypeEnum.currentPlayListPage
-                          ? IconButton(
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  barrierColor: kTransparent,
-                                  backgroundColor: kTransparent,
-                                  context: context,
-                                  builder: (context) {
-                                    print(
-                                        "widget.songModel: ${widget.songModel}");
-                                    if (widget.songModel != null) {
-                                      return MenuBottomSheet(
-                                        playListID: widget.playListID,
-                                        favouriteController:
-                                            widget.favoriteController,
-                                        song: widget.songModel,
-                                        musicUri:widget.musicUri,
-                                        songId: widget.songId,
-                                        kScreenHeight: kScreenHeight,
-                                        pageType: widget.pageType,
-                                        songName: widget.songTitle,
-                                        artistName: widget.artistName,
-                                        albumName: widget.albumName,
-                                        songFormat: widget.songFormat,
-                                        songSize: widget.songSize,
-                                        songPathIndevice:
-                                            widget.songPathIndevice,
-                                      );
-                                    }
-
-                                    return const SizedBox();
-                                  },
-                                );
-                              },
-                              icon: Obx(() {
-                                return Icon(
-                                  Icons.more_vert,
+                          ? IconButton(onPressed: () {
+                              showModalBottomSheet(
+                                barrierColor: kTransparent,
+                                backgroundColor: kTransparent,
+                                context: context,
+                                builder: (context) {
+                                  log("widget.songModel: ${widget.songModel}");
+                                  return MenuBottomSheet(
+                                    playListID: widget.playListID,
+                                    favouriteController:
+                                        widget.favoriteController,
+                                    song: widget.songModel,
+                                    musicUri: widget.musicUri,
+                                    songId: widget.songId,
+                                    kScreenHeight: kScreenHeight,
+                                    pageType: widget.pageType,
+                                    songName: widget.songTitle,
+                                    artistName: widget.artistName,
+                                    albumName: widget.albumName,
+                                    songFormat: widget.songFormat,
+                                    songSize: widget.songSize,
+                                    songPathIndevice: widget.songPathIndevice,
+                                  );
+                                },
+                              );
+                            }, icon: Obx(() {
+                              return Icon(Icons.more_vert,
                                   size: 26.sp,
-                                  color: widget.audioController != null
-                                      ? widget.audioController!.isPlaying
-                                                  .value &&
+                                  color:
+                                      widget.audioController.isPlaying.value &&
                                               widget
-                                                      .audioController!
+                                                      .audioController
                                                       .currentPlayingSong
                                                       .value
                                                       ?.id ==
                                                   widget.songId
                                           ? kRed
-                                          : kWhite
-                                      : kWhite,
-                                );
-                              })
-                            )
+                                          : kWhite);
+                            }))
                           : const SizedBox(),
                     ],
                   )
@@ -211,21 +181,19 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
             ),
           ),
           Positioned(
-            right: 45.w,
-            top: 30.h,
-            child:Obx(() {
-                    return Icon(
-                      Icons.multitrack_audio_rounded,
-                      color: widget.audioController!.isPlaying.value &&
-                              widget.audioController!.currentPlayingSong.value
-                                      ?.id ==
-                                  widget.songId
-                          ? kRed
-                          : Colors.transparent,
-                      size: 26.sp,
-                    );
-                  })
-          ),
+              right: 45.w,
+              top: 30.h,
+              child: Obx(() {
+                return Icon(
+                  Icons.multitrack_audio_rounded,
+                  color: widget.audioController.isPlaying.value &&
+                          widget.audioController.currentPlayingSong.value?.id ==
+                              widget.songId
+                      ? kRed
+                      : Colors.transparent,
+                  size: 26.sp,
+                );
+              })),
 
           //     : const SizedBox()
           // : const SizedBox(),

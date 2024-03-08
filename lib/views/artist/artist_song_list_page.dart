@@ -108,7 +108,8 @@ class _ArtistSongListPageState extends State<ArtistSongListPage> {
                           itemBuilder: (context, index) {
                             return MusicTileWidget(
                               onTap: () {
-                                widget.audioController.playSong(widget.artistSongs[index]);
+                                widget.audioController
+                                    .playSong(widget.artistSongs[index]);
                               },
                               audioController: widget.audioController,
                               songModel: widget.artistSongs[index],

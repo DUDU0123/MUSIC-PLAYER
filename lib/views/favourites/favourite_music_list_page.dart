@@ -87,6 +87,7 @@ class FavouriteMusicListPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                  List<AllMusicsModel> songModel = favouriteController.favoriteSongs
                       .map((favmodel) => AllMusicsModel(
+                        
                             id: favmodel.id,
                             musicName: favmodel.musicName,
                             musicAlbumName: favmodel.musicAlbumName,

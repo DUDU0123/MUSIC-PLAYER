@@ -22,7 +22,9 @@ class BottomSettingsWidget extends StatefulWidget {
     required this.pageType,
     required this.songList,
     required this.favoriteController,
-    required this.song, required this.playlistController, required this.audioController,
+    required this.song,
+    required this.playlistController,
+    required this.audioController,
   });
   bool? isSelected;
   final PageTypeEnum pageType;
@@ -85,13 +87,13 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                     )
                   : widget.pageType == PageTypeEnum.favoritePage
                       ? GetBuilder<FavoriteController>(
-                        init: widget.favoriteController,
-                        builder: (controller) {
-                          return IconTextWidget(
+                          init: widget.favoriteController,
+                          builder: (controller) {
+                            return IconTextWidget(
                               isSongSelected: widget.isSelected,
                               onTap: () {
-                                controller
-                                    .removeFromFavorite(widget.songList, context);
+                                controller.removeFromFavorite(
+                                    widget.songList, context);
                                 setState(() {
                                   widget.isSelected =
                                       false; // or update based on your logic
@@ -100,8 +102,7 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                               icon: Icons.logout_outlined,
                               iconName: "Remove",
                             );
-                        }
-                      )
+                          })
                       : GetBuilder<PlaylistController>(
                           init: widget.playlistController,
                           builder: (controller) {

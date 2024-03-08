@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
@@ -27,12 +26,18 @@ class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
 
 class _AddSongInPlaylistFromSelectingSongsState
     extends State<AddSongInPlaylistFromSelectingSongs> {
+
+      @override
+  void initState() {
+     widget.playlistController.addingAllSongsToList();
+    super.initState();
+  }
   bool isSelected = false;
   bool isAllSelected = false;
 
   @override
   Widget build(BuildContext context) {
-    
+   
     final kScreenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: PreferredSize(
@@ -112,14 +117,16 @@ class _AddSongInPlaylistFromSelectingSongsState
                       builder: (controller) {
                         return GestureDetector(
                           onTap: () {
+                            log(name: 'ONTAPPED TO ADD', 'ADDING SONGS');
                             List<AllMusicsModel> selectedSongList =
                                 controller
                                     .fullSongListToAddToPlaylist.value
                                     .where(
                                         (music) => music.musicSelected == true)
                                     .toList();
-                            log("IT'S FROM ADD PAGE: ${selectedSongList.length}");
-                            log("ID PLAYLIST: ${widget.playListID}");
+                            log(name: 'SELECTED LIST', '$selectedSongList');
+                            log(name: 'LIST LENGTH', "${selectedSongList.length}");
+                            log(name: 'PLAYLIST ID:',"${widget.playListID}");
                             controller.addSongsToDBPlaylist(
                                 selectedSongList, widget.playListID);
 

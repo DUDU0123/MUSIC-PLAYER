@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
@@ -17,7 +18,8 @@ class MusicArtistPage extends StatelessWidget {
     super.key,
     required this.favoriteController,
     required this.songModel,
-    required this.audioController, required this.playlistController,
+    required this.audioController,
+    required this.playlistController,
   });
   final FavoriteController favoriteController;
   final AudioController audioController;
@@ -28,11 +30,23 @@ class MusicArtistPage extends StatelessWidget {
   Widget build(BuildContext context) {
     AllMusicController allMusicController = Get.put(AllMusicController());
     return Scaffold(
-      body: FutureBuilder(
-              future: allMusicController.fetchAllArtistMusicData(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return Obx(() {
+        body: FutureBuilder(
+            future: allMusicController.fetchAllArtistMusicData(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(color: kRed,),
+                );
+              } else if (snapshot.hasError) {
+                return const DefaultCommonWidget(
+                    text: "Error on loading songs");
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const DefaultCommonWidget(
+                  text: "No artists available",
+                );
+              }
+              if (snapshot.connectionState == ConnectionState.done) {
+                return Obx(() {
                   return ListView.builder(
                     itemCount: allMusicController.artistMap.length,
                     padding: EdgeInsets.symmetric(vertical: 15.h),
@@ -72,9 +86,8 @@ class MusicArtistPage extends StatelessWidget {
                     },
                   );
                 });
-                }
-                return const DefaultCommonWidget(text: "No artists available");
-              })
-    );
+              }
+              return const DefaultCommonWidget(text: "No artists available");
+            }));
   }
 }

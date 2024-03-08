@@ -1,4 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
+
 part 'favourite_model.g.dart';
 
 @HiveType(typeId: 3)
@@ -21,6 +22,8 @@ class FavoriteModel {
   final int musicFileSize;
   @HiveField(8)
   bool? musicSelected;
+  @HiveField(9)
+  String? musicLyrics;
   FavoriteModel({
     required this.id,
     required this.musicName,
@@ -31,6 +34,7 @@ class FavoriteModel {
     required this.musicUri,
     required this.musicFileSize,
     this.musicSelected,
+    this.musicLyrics,
   });
   @override
   bool operator ==(Object other) =>

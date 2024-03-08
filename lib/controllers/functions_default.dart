@@ -53,9 +53,7 @@ class AppUsingCommonFunctions {
   // function to send more song
   static void sendMoreSong(List<AllMusicsModel> songs) async {
     for (var song in songs) {
-      if (song != null &&
-          song.musicPathInDevice != null &&
-          song.musicPathInDevice.isNotEmpty&&songs.length<10) {
+      if (song.musicPathInDevice.isNotEmpty && songs.length < 10) {
         try {
           List<XFile> listOfSongs = [XFile(song.musicPathInDevice)];
           try {
@@ -72,9 +70,7 @@ class AppUsingCommonFunctions {
 
   // function to send one song
   static void sendOneSong(AllMusicsModel song) async {
-    if (song != null &&
-        song.musicPathInDevice != null &&
-        song.musicPathInDevice.isNotEmpty) {
+    if (song.musicPathInDevice.isNotEmpty) {
       try {
         List<XFile> listOfSongs = [XFile(song.musicPathInDevice)];
         try {

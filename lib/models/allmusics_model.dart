@@ -1,6 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:on_audio_query/on_audio_query.dart';
-
 part 'allmusics_model.g.dart';
 
 @HiveType(typeId: 1)
@@ -23,8 +23,10 @@ class AllMusicsModel extends HiveObject {
   final int musicFileSize;
   @HiveField(8)
   bool? musicSelected;
+  @HiveField(9)
   int? dateAdded;
-  String? lyrics;
+  @HiveField(10)
+  String? musicLyrics;
 
   AllMusicsModel({
     required this.id,
@@ -37,7 +39,7 @@ class AllMusicsModel extends HiveObject {
     required this.musicFileSize,
     this.musicSelected,
     this.dateAdded,
-    this.lyrics,
+    this.musicLyrics,
   });
 
   factory AllMusicsModel.fromSongModel(SongModel songModel) {
@@ -52,14 +54,17 @@ class AllMusicsModel extends HiveObject {
       musicFileSize: songModel.size,
       musicSelected: false,
       dateAdded: songModel.dateAdded,
-      
+      musicLyrics: '',
     );
   }
 
   // final String musicCoverImage;
-  DateTime? get formattedDateAdded {
+  String? get formattedDateAdded {
     if (dateAdded != null) {
-      return DateTime.fromMillisecondsSinceEpoch(dateAdded! * 1000);
+      DateTime dateTime =
+          DateTime.fromMillisecondsSinceEpoch(dateAdded! * 1000);
+      String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
+      return formattedDate;
     }
     return null;
   }

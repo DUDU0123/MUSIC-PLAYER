@@ -26,13 +26,14 @@ class FavoriteModelAdapter extends TypeAdapter<FavoriteModel> {
       musicUri: fields[6] as String,
       musicFileSize: fields[7] as int,
       musicSelected: fields[8] as bool?,
+      musicLyrics: fields[9] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, FavoriteModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -50,7 +51,9 @@ class FavoriteModelAdapter extends TypeAdapter<FavoriteModel> {
       ..writeByte(7)
       ..write(obj.musicFileSize)
       ..writeByte(8)
-      ..write(obj.musicSelected);
+      ..write(obj.musicSelected)
+      ..writeByte(9)
+      ..write(obj.musicLyrics);
   }
 
   @override

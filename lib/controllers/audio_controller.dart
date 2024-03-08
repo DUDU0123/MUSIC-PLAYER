@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -13,6 +12,7 @@ import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/recently_played_model.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:on_audio_query/on_audio_query.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AudioController extends GetxController {
   final AudioPlayer audioPlayer = AudioPlayer();
@@ -21,6 +21,7 @@ class AudioController extends GetxController {
   RxBool isPlaying = false.obs;
   Rx<Duration> duration = const Duration().obs;
   Rx<Duration> position = const Duration().obs;
+  RxBool isRecentlyPlayed = false.obs;
   Rx<AllMusicsModel?> currentPlayingSong = Rx<AllMusicsModel?>(null);
   Rx<AllMusicsModel>? songNow;
   Box<RecentlyPlayedModel> recentlyPlayedBox =
@@ -33,6 +34,8 @@ class AudioController extends GetxController {
   RxBool isLoopOneSong = false.obs;
   RxBool isShuffleSongs = false.obs;
   Rx<PageTypeEnum> pageType = PageTypeEnum.homePage.obs;
+  RecentlyPlayedModel recentlyPlayedModel =
+      RecentlyPlayedModel(recentlyPlayedSongsList: []);
 
   // function for making slider move according to song position duration
   changeToSeconds(int seconds) {
@@ -40,34 +43,14 @@ class AudioController extends GetxController {
     audioPlayer.seek(seekDurationSlider.value);
   }
 
-  setSong(AllMusicsModel song) {
-    if (songNow != null) {
-      songNow!.value = song;
-    }
-  }
-
   // for initializing audio player
   Future<void> intializeAudioPlayer(List<AllMusicsModel> songs) async {
     log("Initializing");
     try {
-
-    //   // Sort the songs based on the currentSortMethod before creating the playlist
-    // List<int> sortedIndices = List.generate(songs.length, (index) => index);
-    // sortedIndices.sort((a, b) {
-    //   switch (currentSortMethod.value) {
-    //     case SortMethod.alphabetically:
-    //       return songs[a].musicName.compareTo(songs[b].musicName);
-    //     case SortMethod.byTimeAdded:
-    //       return songs[a].dateAdded!.compareTo(songs[b].dateAdded!);
-    //     // Add more cases for other sorting methods if needed
-    //     default:
-    //       return 0;
-    //   }
-    // });
       await audioPlayer.setAudioSource(
         ConcatenatingAudioSource(
           children: songs.map((song) {
-            log(song.musicUri);
+            log(name: 'CONCATENATE SONG ID', song.id.toString());
             log(song.musicPathInDevice);
             return AudioSource.uri(
               Uri.parse(song.musicUri),
@@ -87,22 +70,22 @@ class AudioController extends GetxController {
         // Seek to the last played position
         await audioPlayer.seek(audioPlayer.position);
       }
-
       currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
     } catch (e) {
       log("Error on play intialize: $e");
     }
     audioPlayer.playbackEventStream.listen((event) {
-      if (event.processingState == ProcessingState.completed) {
+      if (event.processingState == ProcessingState.completed && event.currentIndex!=null) {
+        log(name: 'EVENT INDEX', event.currentIndex.toString());
         if (currentSongIndex < allSongsListFromDevice.length - 1) {
           currentPlayingSong.value =
-              allSongsListFromDevice[currentSongIndex.value];
+              allSongsListFromDevice[event.currentIndex!];
           playNextSong();
         } else {
           if (audioPlayer.loopMode == LoopMode.all &&
               currentPlayingSong.value != null) {
             currentPlayingSong.value =
-                allSongsListFromDevice[currentSongIndex.value];
+                allSongsListFromDevice[event.currentIndex!];
             //play song
             playSong(currentPlayingSong.value!);
           } else {
@@ -112,7 +95,7 @@ class AudioController extends GetxController {
         }
         // Update UI with the new song details
         currentPlayingSong.value =
-            allSongsListFromDevice[currentSongIndex.value];
+            allSongsListFromDevice[event.currentIndex!];
       }
     });
     audioPlayer.durationStream.listen(
@@ -120,7 +103,6 @@ class AudioController extends GetxController {
         duration.value = d ?? const Duration(); // Set a default value if null
       },
     );
-
     audioPlayer.positionStream.listen((p) {
       position.value = p;
     });
@@ -130,13 +112,14 @@ class AudioController extends GetxController {
   Future<void> requestPermissionAndFetchSongsAndInitializePlayer() async {
     log("CALLING REQUESTFETCHINITIALIZE AGAIN");
     var status = await PermissionRequestClass.permissionStorage();
+    bool ispermanetelydenied= await Permission.storage.isPermanentlyDenied;
     if (status) {
       log("Granted");
       await fetchSongsFromDeviceStorage();
-
       await intializeAudioPlayer(allSongsListFromDevice);
-    } else {
-      debugPrint("Permission Denied");
+    } else if(ispermanetelydenied){
+      log("Permission Denied");
+      await openAppSettings();
       await PermissionRequestClass.permissionStorage();
     }
   }
@@ -152,24 +135,13 @@ class AudioController extends GetxController {
     try {
       log("Fetching");
       final songs = await onAudioQuery.querySongs(
-          sortType: currentSortMethod.value == SortMethod.alphabetically
-              ? SongSortType.DISPLAY_NAME
-              : SongSortType.DATE_ADDED,
-          uriType: UriType.EXTERNAL,
-          ignoreCase: true,
-          orderType: OrderType.ASC_OR_SMALLER);
-
-      // for (var element in songs) {
-      //   if (File(element.)) {
-
-      //   }
-      // }
-
-      // allSongsListFromDevice.clear();
-
-      // allSongsListFromDevice.addAll(
-      //     songs.map((song) => AllMusicsModel.fromSongModel(song)).toList());
-
+        sortType: currentSortMethod.value == SortMethod.alphabetically
+            ? SongSortType.DISPLAY_NAME
+            : SongSortType.DATE_ADDED,
+        uriType: UriType.EXTERNAL,
+        ignoreCase: true,
+        orderType: OrderType.ASC_OR_SMALLER,
+      );
       allSongsListFromDevice.clear();
 
       List<AllMusicsModel> allsongs =
@@ -181,18 +153,6 @@ class AudioController extends GetxController {
           songsList.add(element);
         }
       }
-
-       // Additional sorting logic based on user selection
-    switch (currentSortMethod.value) {
-      case SortMethod.alphabetically:
-        // Already sorted alphabetically, no additional sorting needed
-        break;
-      case SortMethod.byTimeAdded:
-        // Sort by date added (you can customize this based on your requirements)
-        songsList.sort((a, b) => a.formattedDateAdded!.compareTo(b.formattedDateAdded!));
-        break;
-      // Add more cases for other sorting methods if needed
-    }
       allSongsListFromDevice.addAll(songsList);
 
       await addSongsToDB(allSongsListFromDevice);
@@ -203,7 +163,9 @@ class AudioController extends GetxController {
 
   void clearRecentlyPlayedSongs() {
     recentlyPlayedBox.put(
-        'recent', RecentlyPlayedModel(recentlyPlayedSongsList: []));
+      'recent',
+      RecentlyPlayedModel(recentlyPlayedSongsList: []),
+    );
     update();
   }
 
@@ -244,13 +206,20 @@ class AudioController extends GetxController {
   }
 
   Future<void> playSong(AllMusicsModel song) async {
-    int index = allSongsListFromDevice.indexWhere((s) => s.id == song.id);
-    bool isRecentlyPlayed = false;
+    int index = allSongsListFromDevice.indexWhere((s){
+      log(name: "All id", s.id.toString());
+      log(name: 'SONG Id', song.id.toString());
+      log(name: "All NAME", s.musicName.toString());
+      log(name: 'SONG NAME', song.musicName.toString());
+      return s.id == song.id;
+    });
     log('Playing song at index: $index');
     if (allSongsListFromDevice.isEmpty ||
         index < 0 ||
         index >= allSongsListFromDevice.length) {
       log("SOMETHING HAPPENED");
+      log(name: 'SONG NAME DELETED', song.musicName);
+      allSongsListFromDevice.remove(song);
       return;
     }
 
@@ -259,119 +228,41 @@ class AudioController extends GetxController {
         currentSongIndex.value = event.currentIndex!;
         currentPlayingSong.value =
             allSongsListFromDevice[currentSongIndex.value];
+
+        AllMusicsModel nextSong = allSongsListFromDevice[event.currentIndex!];
+        if (!isSongRecentlyPlayed(nextSong, musicBox.values.toList())) {
+          RecentlyPlayedModel recentlyPlayedModel = recentlyPlayedBox.get(
+                'recent',
+                defaultValue: RecentlyPlayedModel(recentlyPlayedSongsList: []),
+              ) ??
+              RecentlyPlayedModel(recentlyPlayedSongsList: []);
+          recentlyPlayedModel.removeRecentlyPlayedSong(nextSong);
+          recentlyPlayedModel.addRecentlyPlayedSong(nextSong);
+          recentlyPlayedBox.put('recent', recentlyPlayedModel);
+          update();
+        }
       }
     });
-    // currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
-    // index instead of currentSongIndex.value in seek
     await audioPlayer.seek(Duration.zero, index: index);
     await audioPlayer.play();
     isPlaying.value = true;
     if (currentPlayingSong.value != null) {
-      isRecentlyPlayed = isSongRecentlyPlayed(
+      isRecentlyPlayed.value = isSongRecentlyPlayed(
           currentPlayingSong.value!, musicBox.values.toList());
     }
     audioPlayer.durationStream.listen(
       (d) {
         duration.value = d ?? const Duration();
-        log(duration.value.toString());
       },
     );
-
     audioPlayer.durationStream.listen((p) {
       position.value = p ?? const Duration();
-      log(position.value.toString());
     });
-    log("Current");
-
     log("After current");
     log("${currentPlayingSong.value!.id} ${currentPlayingSong.value!.musicName} ${currentPlayingSong.value!.musicAlbumName}");
-    if (isRecentlyPlayed != null && currentPlayingSong.value != null) {
-      if (!isRecentlyPlayed && currentSongIndex != null) {
-        // Update the recently played list
-        RecentlyPlayedModel recentlyPlayedModel = recentlyPlayedBox.get(
-                'recent',
-                defaultValue:
-                    RecentlyPlayedModel(recentlyPlayedSongsList: [])) ??
-            RecentlyPlayedModel(recentlyPlayedSongsList: []);
-        recentlyPlayedModel.removeRecentlyPlayedSong(currentPlayingSong.value!);
-        recentlyPlayedModel.addRecentlyPlayedSong(currentPlayingSong.value!);
-        recentlyPlayedBox.put('recent', recentlyPlayedModel);
-        update();
-      }
-    }
     // Update the current playing song
     update();
   }
-
-  // play a song
-  // Future<void> playSong(
-  //   int index, {
-  //   // bool? isRecentlyPlayed = false,
-  //   Duration? lastPlayedPosition,
-  // }) async {
-
-  //   bool isRecentlyPlayed = false;
-  //   log('Playing song at index: $index');
-  //   if (allSongsListFromDevice.isEmpty ||
-  //       index < 0 ||
-  //       index >= allSongsListFromDevice.length) {
-  //     log("SOMETHING HAPPENED");
-  //     return;
-  //   }
-
-  //   audioPlayer.playbackEventStream.listen((event) {
-  //     if (event.currentIndex != null) {
-  //       currentSongIndex.value = event.currentIndex!;
-  //       currentPlayingSong.value =
-  //           allSongsListFromDevice[currentSongIndex.value];
-  //     }
-  //   });
-  //   // currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
-  //   // index instead of currentSongIndex.value in seek
-  //   await audioPlayer.seek(Duration.zero, index: index);
-  //   if (lastPlayedPosition != null) {
-  //     await audioPlayer.seek(lastPlayedPosition, index: index);
-  //   } else {
-  //     await audioPlayer.seek(Duration.zero, index: index);
-  //   }
-  //   await audioPlayer.play();
-  //   isPlaying.value = true;
-  //   if (currentPlayingSong.value != null) {
-  //     isRecentlyPlayed = isSongRecentlyPlayed(
-  //         currentPlayingSong.value!, musicBox.values.toList());
-  //   }
-  //   audioPlayer.durationStream.listen(
-  //     (d) {
-  //       duration.value = d ?? const Duration();
-  //       log(duration.value.toString());
-  //     },
-  //   );
-
-  //   audioPlayer.durationStream.listen((p) {
-  //     position.value = p ?? const Duration();
-  //     log(position.value.toString());
-  //   });
-  //   log("Current");
-
-  //   log("After current");
-  //   log("${currentPlayingSong.value!.id} ${currentPlayingSong.value!.musicName} ${currentPlayingSong.value!.musicAlbumName}");
-  //   if (isRecentlyPlayed != null && currentPlayingSong.value != null) {
-  //     if (!isRecentlyPlayed && currentSongIndex != null) {
-  //       // Update the recently played list
-  //       RecentlyPlayedModel recentlyPlayedModel = recentlyPlayedBox.get(
-  //               'recent',
-  //               defaultValue:
-  //                   RecentlyPlayedModel(recentlyPlayedSongsList: [])) ??
-  //           RecentlyPlayedModel(recentlyPlayedSongsList: []);
-  //       recentlyPlayedModel.removeRecentlyPlayedSong(currentPlayingSong.value!);
-  //       recentlyPlayedModel.addRecentlyPlayedSong(currentPlayingSong.value!);
-  //       recentlyPlayedBox.put('recent', recentlyPlayedModel);
-  //       update();
-  //     }
-  //   }
-  //   // Update the current playing song
-  //   update();
-  // }
 
   songLoopModesControlling() {
     if (isLoopOneSong.value) {
@@ -389,7 +280,6 @@ class AudioController extends GetxController {
       isShuffleSongs.value = true;
       loopMode.value = LoopMode.all;
     }
-
     // Set the loop mode on the audioPlayer
     audioPlayer.setLoopMode(loopMode.value);
     // update();
@@ -406,8 +296,6 @@ class AudioController extends GetxController {
     await audioPlayer.pause();
     isPlaying.value = false;
   }
-
-
 
 // function for play next song
   Future<void> playNextSong() async {
@@ -502,11 +390,13 @@ class AudioController extends GetxController {
       log("Permission Denied to delete a file");
     }
     log("Music box length after deletion: ${musicBox.length}");
+    requestPermissionAndFetchSongsAndInitializePlayer();
     fetchSongsFromDeviceStorage();
   }
 
   @override
   void onClose() {
+    AudioController().dispose();
     audioPlayer.dispose();
     super.onClose();
   }

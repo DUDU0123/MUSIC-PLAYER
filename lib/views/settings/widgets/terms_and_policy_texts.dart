@@ -55,7 +55,7 @@ class TermsAndPolicyTexts extends StatelessWidget {
         const TermsAndPolicyCommonTextWidgetForHeading(
           textAlign: TextAlign.center,
           text:
-              "If you have any questions or concerns about our Terms of Service or Privacy Policy, please contact us at contact@email.com.",
+              "If you have any questions or concerns about our Terms of Service or Privacy Policy, please contact us at sdu200115@gmail.com.",
         ),
         kHeight25,
         TextWidgetCommon(

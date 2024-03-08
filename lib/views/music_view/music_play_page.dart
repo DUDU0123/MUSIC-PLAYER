@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
@@ -31,7 +30,8 @@ class MusicPlayPage extends StatelessWidget {
     required this.songPathIndevice,
     required this.audioController,
     required this.musicUri,
-    required this.favoriteController, required this.allMusicController,
+    required this.favoriteController,
+    required this.allMusicController,
   });
 
   final AllMusicsModel songModel;
@@ -59,8 +59,6 @@ class MusicPlayPage extends StatelessWidget {
       musicUri: allMusic.musicUri,
     );
   }
-  //late AllMusicsModel currentPlayingSong;
-  // Duration currentPosition = audioController.currentPlaybackPosition;
 
   @override
   Widget build(BuildContext context) {
@@ -282,34 +280,51 @@ class MusicPlayPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           // song current playlist show icon
-                          IconButton(
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => MusicLyricsPage(
-                                    allMusicController: allMusicController,
-                                    // currentPlayingsongs:  ,
-                                    songModel: audioController
-                                                .currentPlayingSong.value !=
-                                            null
-                                        ? audioController
-                                            .currentPlayingSong.value!
-                                        : songModel,
-                                    songId: audioController
-                                                .currentPlayingSong.value !=
-                                            null
-                                        ? audioController
-                                            .currentPlayingSong.value!.id
-                                        : songId,
-                                  ),
+                          GetBuilder<AudioController>(
+                            init: audioController,
+                            builder: (controller) {
+                              return IconButton(
+                                onPressed: () {
+                                  log(
+                                      name: 'LYRICS MUSIC PLAY',
+                                      allMusicController.getLyricsForSong(audioController
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? audioController
+                                                .currentPlayingSong.value!.id:0));
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => MusicLyricsPage(
+                                        // lyrics: allMusicController.getLyricsForSong(audioController
+                                        //             .currentPlayingSong.value !=
+                                        //         null
+                                        //     ? audioController
+                                        //         .currentPlayingSong.value!.id:0),
+                                        allMusicController: allMusicController,
+                                        // currentPlayingsongs:  ,
+                                        songModel: controller
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? controller
+                                                .currentPlayingSong.value!
+                                            : songModel,
+                                        songId: controller
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? controller
+                                                .currentPlayingSong.value!.id
+                                            : songId,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: Icon(
+                                  Icons.lyrics_outlined,
+                                  size: 30,
+                                  color: kWhite,
                                 ),
                               );
-                            },
-                            icon: Icon(
-                              Icons.lyrics_outlined,
-                              size: 30,
-                              color: kWhite,
-                            ),
+                            }
                           ),
                           // song favourite add icon
                           GetBuilder<FavoriteController>(
@@ -424,13 +439,17 @@ class MusicPlayPage extends StatelessWidget {
                                         ? audioController.currentPlayingSong
                                             .value!.musicFormat
                                         : songFormat,
-                                    songSize: AppUsingCommonFunctions
-                                        .convertToMBorKB(audioController
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? audioController.currentPlayingSong
-                                                .value!.musicFileSize
-                                            : AppUsingCommonFunctions.parseSongSize(songSize)),
+                                    songSize:
+                                        AppUsingCommonFunctions.convertToMBorKB(
+                                            audioController.currentPlayingSong
+                                                        .value !=
+                                                    null
+                                                ? audioController
+                                                    .currentPlayingSong
+                                                    .value!
+                                                    .musicFileSize
+                                                : AppUsingCommonFunctions
+                                                    .parseSongSize(songSize)),
                                     songPathIndevice: audioController
                                                 .currentPlayingSong.value !=
                                             null

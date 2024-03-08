@@ -44,9 +44,10 @@ class PlaylistSongListPage extends StatefulWidget {
 class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
   @override
   Widget build(BuildContext context) {
-    log("ID OF PLAYLIST: ${widget.playlistId} and PLAYLIST NAME: ${widget.playlistName}");
     var hiveBox = Hive.box<Playlist>('playlist');
-    Playlist? selectedPlaylist = hiveBox.getAt(widget.playlistId);
+    Playlist? selectedPlaylist = hiveBox.get(widget.playlistId);
+    log(name: 'PLAYLIST ID FROM LIST PAGE', '${widget.playlistId}');
+    log(name: 'PLAYLIST NAME', widget.playlistName);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
@@ -61,6 +62,9 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                 builder: (controller) {
                   return IconButton(
                     onPressed: () async {
+                      log(
+                          name: 'NAVIGATING TO ADD PAGE',
+                          '${widget.playlistId}');
                       Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (context) =>
@@ -119,7 +123,8 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                             padding: EdgeInsets.symmetric(horizontal: 15.w),
                             child: MusicTileWidget(
                               onTap: () {
-                                widget.audioController.playSong(widget.playlistSongsList![index]);
+                                widget.audioController
+                                    .playSong(widget.playlistSongsList![index]);
                               },
                               audioController: widget.audioController,
                               playListID: widget.playlistId,
@@ -136,10 +141,8 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                               songFormat:
                                   widget.playlistSongsList![index].musicFormat,
                               songSize: AppUsingCommonFunctions.convertToMBorKB(
-                                  selectedPlaylist != null
-                                      ? selectedPlaylist
-                                          .playlistSongs![index].musicFileSize
-                                      : 0),
+                                  widget
+                                      .playlistSongsList![index].musicFileSize),
                               songPathIndevice: widget
                                   .playlistSongsList![index].musicPathInDevice,
                               pageType: PageTypeEnum.playListPage,
