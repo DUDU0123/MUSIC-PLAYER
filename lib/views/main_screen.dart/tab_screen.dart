@@ -45,6 +45,9 @@ class TabScreen extends StatefulWidget {
 }
 
 class _TabScreenState extends State<TabScreen> {
+  void refreshUI() {
+    setState(() {});
+  }
   // AudioController audioController = Get.put(AudioController());
   // FavoriteController favoriteController = Get.put(FavoriteController());
   // AllMusicController allMusicController = Get.put(AllMusicController());
@@ -54,7 +57,6 @@ class _TabScreenState extends State<TabScreen> {
   // TextEditingController controller = TextEditingController();
   // PageController pageController = PageController();
   // PageTypeEnum pageTypeEnum = PageTypeEnum.homePage;
-
   // bool isSongsLoaded = false;
 
   AllMusicsModel songModel = AllMusicsModel(

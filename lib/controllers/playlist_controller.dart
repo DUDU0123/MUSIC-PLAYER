@@ -64,7 +64,6 @@ class PlaylistController extends GetxController {
         break;
       }
     }
-
     if (!isPlaylistAlreadyAdded &&
         playlistName.isNotEmpty &&
         playlistName != '') {

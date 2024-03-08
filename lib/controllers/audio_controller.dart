@@ -75,7 +75,8 @@ class AudioController extends GetxController {
       log("Error on play intialize: $e");
     }
     audioPlayer.playbackEventStream.listen((event) {
-      if (event.processingState == ProcessingState.completed && event.currentIndex!=null) {
+      if (event.processingState == ProcessingState.completed &&
+          event.currentIndex != null) {
         log(name: 'EVENT INDEX', event.currentIndex.toString());
         if (currentSongIndex < allSongsListFromDevice.length - 1) {
           currentPlayingSong.value =
@@ -94,8 +95,7 @@ class AudioController extends GetxController {
           }
         }
         // Update UI with the new song details
-        currentPlayingSong.value =
-            allSongsListFromDevice[event.currentIndex!];
+        currentPlayingSong.value = allSongsListFromDevice[event.currentIndex!];
       }
     });
     audioPlayer.durationStream.listen(
@@ -112,12 +112,12 @@ class AudioController extends GetxController {
   Future<void> requestPermissionAndFetchSongsAndInitializePlayer() async {
     log("CALLING REQUESTFETCHINITIALIZE AGAIN");
     var status = await PermissionRequestClass.permissionStorage();
-    bool ispermanetelydenied= await Permission.storage.isPermanentlyDenied;
+    bool ispermanetelydenied = await Permission.storage.isPermanentlyDenied;
     if (status) {
       log("Granted");
       await fetchSongsFromDeviceStorage();
       await intializeAudioPlayer(allSongsListFromDevice);
-    } else if(ispermanetelydenied){
+    } else if (ispermanetelydenied) {
       log("Permission Denied");
       await openAppSettings();
       await PermissionRequestClass.permissionStorage();
@@ -135,9 +135,7 @@ class AudioController extends GetxController {
     try {
       log("Fetching");
       final songs = await onAudioQuery.querySongs(
-        sortType: currentSortMethod.value == SortMethod.alphabetically
-            ? SongSortType.DISPLAY_NAME
-            : SongSortType.DATE_ADDED,
+        sortType: null,
         uriType: UriType.EXTERNAL,
         ignoreCase: true,
         orderType: OrderType.ASC_OR_SMALLER,
@@ -152,6 +150,18 @@ class AudioController extends GetxController {
         if (File(element.musicPathInDevice).existsSync()) {
           songsList.add(element);
         }
+      }
+
+      // Sort the songs based on the selected sort method
+      if (currentSortMethod.value == SortMethod.byTimeAdded) {
+        // Sort by time added in descending order (latest added first)
+        songsList.sort((a, b) => b.formattedDateAdded != null
+            ? b.formattedDateAdded!.compareTo(
+                a.formattedDateAdded != null ? a.formattedDateAdded! : '')
+            : 0);
+      } else if (currentSortMethod.value == SortMethod.alphabetically) {
+        // Sort alphabetically by music name
+        songsList.sort((a, b) => a.musicName.compareTo(b.musicName));
       }
       allSongsListFromDevice.addAll(songsList);
 
@@ -206,7 +216,7 @@ class AudioController extends GetxController {
   }
 
   Future<void> playSong(AllMusicsModel song) async {
-    int index = allSongsListFromDevice.indexWhere((s){
+    int index = allSongsListFromDevice.indexWhere((s) {
       log(name: "All id", s.id.toString());
       log(name: 'SONG Id', song.id.toString());
       log(name: "All NAME", s.musicName.toString());

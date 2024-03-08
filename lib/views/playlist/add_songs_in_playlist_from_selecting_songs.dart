@@ -9,16 +9,18 @@ import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/center_title_appbar_common_widget.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
+import 'package:music_player/views/playlist/playlist_song_list_page.dart';
 
 class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
   const AddSongInPlaylistFromSelectingSongs({
     super.key,
     required this.playListID,
-    required this.audioController, required this.playlistController,
+    required this.audioController, required this.playlistController, this.instance,
   });
   final int playListID;
   final AudioController audioController;
   final PlaylistController playlistController;
+  final PlaylistSongListPageState? instance;
   @override
   State<AddSongInPlaylistFromSelectingSongs> createState() =>
       _AddSongInPlaylistFromSelectingSongsState();
@@ -26,6 +28,7 @@ class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
 
 class _AddSongInPlaylistFromSelectingSongsState
     extends State<AddSongInPlaylistFromSelectingSongs> {
+      
 
       @override
   void initState() {
@@ -129,7 +132,7 @@ class _AddSongInPlaylistFromSelectingSongsState
                             log(name: 'PLAYLIST ID:',"${widget.playListID}");
                             controller.addSongsToDBPlaylist(
                                 selectedSongList, widget.playListID);
-
+                                widget.instance?.refresh();
                             Get.back();
                           },
                           child: Container(

@@ -30,7 +30,6 @@ class MusicPlaylistPage extends StatelessWidget {
   final PlaylistController playlistController;
   final AllMusicsModel songModel;
 
-  
   @override
   Widget build(BuildContext context) {
     TextEditingController newPlaylistController = TextEditingController();

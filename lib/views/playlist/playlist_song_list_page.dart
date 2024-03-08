@@ -38,10 +38,14 @@ class PlaylistSongListPage extends StatefulWidget {
   final PlaylistController playlistController;
 
   @override
-  State<PlaylistSongListPage> createState() => _PlaylistSongListPageState();
+  State<PlaylistSongListPage> createState() => PlaylistSongListPageState();
 }
 
-class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
+class PlaylistSongListPageState extends State<PlaylistSongListPage> {
+  void refresh() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     var hiveBox = Hive.box<Playlist>('playlist');
@@ -69,6 +73,7 @@ class _PlaylistSongListPageState extends State<PlaylistSongListPage> {
                         MaterialPageRoute(
                           builder: (context) =>
                               AddSongInPlaylistFromSelectingSongs(
+                            instance: this,
                             playlistController: widget.playlistController,
                             audioController: widget.audioController,
                             playListID: widget.playlistId,

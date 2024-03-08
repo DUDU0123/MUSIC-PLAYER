@@ -19,7 +19,7 @@ class TermsAndPolicyTexts extends StatelessWidget {
         TextWidgetCommon(
           textAlign: TextAlign.center,
           text:
-              "Welcome to Music Box! These terms of service ('Terms') govern your use of the Music Box application and services",
+              "Welcome to Music Box!\n\nThese terms of service ('Terms') govern your use of the Music Box application and services",
           fontSize: 18.sp,
           color: kWhite,
           fontWeight: FontWeight.w500,

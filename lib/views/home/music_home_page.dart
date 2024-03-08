@@ -28,14 +28,6 @@ class MusicHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    int unixTimestamp = 1709518353;
-  
-  // Convert Unix timestamp to DateTime
-  DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(unixTimestamp * 1000);
-  
-  log("Unix Timestamp: $unixTimestamp");
-  log("Formatted Date: ${dateTime.toLocal()}");
-
     log("REBUILDING");
     //  final kScreenWidth = MediaQuery.of(context).size.width;
     //  final kScreenHeight = MediaQuery.of(context).size.height;
