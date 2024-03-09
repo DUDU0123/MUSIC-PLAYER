@@ -7,6 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/constants/details.dart';
 import 'package:music_player/controllers/permission_request_class.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/recently_played_model.dart';
@@ -164,8 +165,9 @@ class AudioController extends GetxController {
         songsList.sort((a, b) => a.musicName.compareTo(b.musicName));
       }
       allSongsListFromDevice.addAll(songsList);
+      AllFiles.files.value = songsList;
 
-      await addSongsToDB(allSongsListFromDevice);
+      await addSongsToDB(AllFiles.files.value);
     } catch (e) {
       log(e.toString());
     }
@@ -340,7 +342,7 @@ class AudioController extends GetxController {
   Future<List<AllMusicsModel>> getAllSongs() async {
     log("CALLING GET ALL SONGS");
     await fetchSongsFromDeviceStorage();
-    return allSongsListFromDevice;
+    return AllFiles.files.value;
   }
 
   // function for delete a song permanently
@@ -355,6 +357,7 @@ class AudioController extends GetxController {
               .firstWhereOrNull((song) => song.id == songId);
           if (songToDelete != null) {
             allSongsListFromDevice.remove(songToDelete);
+            AllFiles.files.value.remove(songToDelete);
 
             update();
 

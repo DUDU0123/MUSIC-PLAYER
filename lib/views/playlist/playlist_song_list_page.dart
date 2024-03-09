@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/constants/details.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
@@ -117,49 +118,54 @@ class PlaylistSongListPageState extends State<PlaylistSongListPage> {
       ),
       body: widget.playlistSongsList != null
           ? widget.playlistSongsList!.isNotEmpty
-              ? GetBuilder<PlaylistController>(
-                  init: widget.playlistController,
-                  builder: (controller) {
-                    return ListView.builder(
-                      itemCount: widget.playlistSongsList!.length,
-                      itemBuilder: (context, index) {
-                        if (index < widget.playlistSongsList!.length) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 15.w),
-                            child: MusicTileWidget(
-                              onTap: () {
-                                widget.audioController
-                                    .playSong(widget.playlistSongsList![index]);
-                              },
-                              audioController: widget.audioController,
-                              playListID: widget.playlistId,
-                              songModel: widget.playlistSongsList![index],
-                              favoriteController: widget.favoriteController,
-                              musicUri:
-                                  widget.playlistSongsList![index].musicUri,
-                              albumName: widget
-                                  .playlistSongsList![index].musicAlbumName,
-                              artistName: widget
-                                  .playlistSongsList![index].musicArtistName,
-                              songTitle:
-                                  widget.playlistSongsList![index].musicName,
-                              songFormat:
-                                  widget.playlistSongsList![index].musicFormat,
-                              songSize: AppUsingCommonFunctions.convertToMBorKB(
-                                  widget
-                                      .playlistSongsList![index].musicFileSize),
-                              songPathIndevice: widget
-                                  .playlistSongsList![index].musicPathInDevice,
-                              pageType: PageTypeEnum.playListPage,
-                              songId: widget.playlistSongsList![index].id,
-                            ),
-                          );
-                        } else {
-                          return const SizedBox();
-                        }
-                      },
-                    );
-                  })
+              ? ValueListenableBuilder(
+                valueListenable: AllFiles.files,
+                builder: (BuildContext context, List<AllMusicsModel> songs, Widget?_) {
+                  return GetBuilder<PlaylistController>(
+                      init: widget.playlistController,
+                      builder: (controller) {
+                        return ListView.builder(
+                          itemCount: widget.playlistSongsList!.length,
+                          itemBuilder: (context, index) {
+                            if (index < widget.playlistSongsList!.length) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 15.w),
+                                child: MusicTileWidget(
+                                  onTap: () {
+                                    widget.audioController
+                                        .playSong(widget.playlistSongsList![index]);
+                                  },
+                                  audioController: widget.audioController,
+                                  playListID: widget.playlistId,
+                                  songModel: widget.playlistSongsList![index],
+                                  favoriteController: widget.favoriteController,
+                                  musicUri:
+                                      widget.playlistSongsList![index].musicUri,
+                                  albumName: widget
+                                      .playlistSongsList![index].musicAlbumName,
+                                  artistName: widget
+                                      .playlistSongsList![index].musicArtistName,
+                                  songTitle:
+                                      widget.playlistSongsList![index].musicName,
+                                  songFormat:
+                                      widget.playlistSongsList![index].musicFormat,
+                                  songSize: AppUsingCommonFunctions.convertToMBorKB(
+                                      widget
+                                          .playlistSongsList![index].musicFileSize),
+                                  songPathIndevice: widget
+                                      .playlistSongsList![index].musicPathInDevice,
+                                  pageType: PageTypeEnum.playListPage,
+                                  songId: widget.playlistSongsList![index].id,
+                                ),
+                              );
+                            } else {
+                              return const SizedBox();
+                            }
+                          },
+                        );
+                      });
+                }
+              )
               : const DefaultCommonWidget(
                   text: "No songs available",
                 )

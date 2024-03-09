@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/constants/details.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
@@ -13,7 +14,7 @@ import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/music_view/music_play_page.dart';
 
-class MusicHomePage extends StatelessWidget {
+class MusicHomePage extends StatefulWidget {
   const MusicHomePage({
     super.key,
     required this.audioController,
@@ -26,36 +27,40 @@ class MusicHomePage extends StatelessWidget {
   final AllMusicController allMusicController;
 
   @override
+  State<MusicHomePage> createState() => _MusicHomePageState();
+}
+
+class _MusicHomePageState extends State<MusicHomePage> {
+  @override
   Widget build(BuildContext context) {
 
     log("REBUILDING");
     //  final kScreenWidth = MediaQuery.of(context).size.width;
     //  final kScreenHeight = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: FutureBuilder<List<AllMusicsModel>>(
-          future: audioController.getAllSongs(),
-          builder: (BuildContext context,
-              AsyncSnapshot<List<AllMusicsModel>> snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return  Center(
-                child: CircularProgressIndicator(color: kRed,),
-              );
-            } else if (snapshot.hasError) {
-              return const DefaultCommonWidget(text: "Error on loading songs");
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return const DefaultCommonWidget(
-                text: "No songs available",
-              );
-            }
-            return Obx(() {
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
+      body: ValueListenableBuilder<List<AllMusicsModel>>(
+        valueListenable: AllFiles.files,
+          //future: audioController.getAllSongs(),
+          builder: (BuildContext context, List<AllMusicsModel> songs, Widget?_) {
+            // if (snapshot.connectionState == ConnectionState.waiting) {
+            //   return  Center(
+            //     child: CircularProgressIndicator(color: kRed,),
+            //   );
+            // } else if (snapshot.hasError) {
+            //   return const DefaultCommonWidget(text: "Error on loading songs");
+            // } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            //   return const DefaultCommonWidget(
+            //     text: "No songs available",
+            //   );
+            // }
+            return  ListView.builder(
+                itemCount: songs.length,
                 padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
                 itemBuilder: (context, index) {
-                  AllMusicsModel song = snapshot.data![index];
+                  AllMusicsModel song = songs[index];
                   return MusicTileWidget(
-                    audioController: audioController,
-                    favoriteController: favoriteController,
+                    audioController: widget.audioController,
+                    favoriteController: widget.favoriteController,
                     musicUri: song.musicUri,
                     songId: song.id,
                     songModel: song,
@@ -68,17 +73,17 @@ class MusicHomePage extends StatelessWidget {
                     songSize: AppUsingCommonFunctions.convertToMBorKB(
                         song.musicFileSize),
                     onTap: () async {
-                      audioController.isPlaying.value = true;
-                      audioController.playSong(song);
+                      widget.audioController.isPlaying.value = true;
+                      widget.audioController.playSong(song);
                       showModalBottomSheet(
                         isScrollControlled: true,
                         context: context,
                         builder: (context) {
                           return MusicPlayPage(
-                            allMusicController: allMusicController,
-                            favoriteController: favoriteController,
+                            allMusicController: widget.allMusicController,
+                            favoriteController: widget.favoriteController,
                             musicUri: song.musicUri,
-                            audioController: audioController,
+                            audioController: widget.audioController,
                             albumName: song.musicAlbumName,
                             artistName: song.musicArtistName,
                             songFormat: song.musicFormat,
@@ -95,7 +100,7 @@ class MusicHomePage extends StatelessWidget {
                   );
                 },
               );
-            });
+            
           }),
     );
   }

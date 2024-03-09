@@ -13,11 +13,12 @@ class MusicLyricsPage extends StatefulWidget {
     super.key,
     required this.songId,
     required this.songModel,
-    required this.allMusicController,
+    required this.allMusicController, required this.lyrics,
   });
   final int songId;
   final AllMusicsModel songModel;
   final AllMusicController allMusicController;
+  final String lyrics;
 
   @override
   State<MusicLyricsPage> createState() => _MusicLyricsPageState();

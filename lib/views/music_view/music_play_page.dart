@@ -295,11 +295,11 @@ class MusicPlayPage extends StatelessWidget {
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
                                       builder: (context) => MusicLyricsPage(
-                                        // lyrics: allMusicController.getLyricsForSong(audioController
-                                        //             .currentPlayingSong.value !=
-                                        //         null
-                                        //     ? audioController
-                                        //         .currentPlayingSong.value!.id:0),
+                                        lyrics: allMusicController.getLyricsForSong(audioController
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? audioController
+                                                .currentPlayingSong.value!.id:0),
                                         allMusicController: allMusicController,
                                         // currentPlayingsongs:  ,
                                         songModel: controller

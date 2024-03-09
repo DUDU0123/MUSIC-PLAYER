@@ -1,13 +1,21 @@
 import 'dart:developer';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/constants/details.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/album_artist_functions_common.dart';
 
 class AllMusicController extends GetxController {
   AudioController audioController = Get.put(AudioController());
+  @override
+  onInit() {
+    getArtistSongs();
+    getAlbumSongs();
+    super.onInit();
+  }
 
   Future<List<AllMusicsModel>> fetchAllAlbumMusicData() async {
     await getAlbumSongs();
@@ -23,18 +31,22 @@ class AllMusicController extends GetxController {
 
   // we need to check if the allsongs list not containing the song , then only add music to artist and artist songs
   final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
-  final RxMap<String, List<AllMusicsModel>> artistMap =
-      <String, List<AllMusicsModel>>{}.obs;
-  final RxMap<String, List<AllMusicsModel>> albumsMap =
-      <String, List<AllMusicsModel>>{}.obs;
+  // final RxMap<String, List<AllMusicsModel>> artistMap =
+  //     <String, List<AllMusicsModel>>{}.obs;
+  // final RxMap<String, List<AllMusicsModel>> albumsMap =
+  //     <String, List<AllMusicsModel>>{}.obs;
+  final ValueNotifier<Map<String, List<AllMusicsModel>>> artistMap =
+      ValueNotifier({});
+  final ValueNotifier<Map<String, List<AllMusicsModel>>> albumsMap =
+      ValueNotifier({});
 
   // getting artist with songs
   getArtistSongs() async {
     final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
     for (var music in allMusics) {
       final artistName = capitalizeFirstLetter(music.musicArtistName);
-      if (!artistMap.containsKey(artistName)) {
-        artistMap[artistName] = [];
+      if (!artistMap.value.containsKey(artistName)) {
+        artistMap.value[artistName] = [];
       }
 
       //   if (audioController.allSongsListFromDevice.contains(music)) {
@@ -45,12 +57,54 @@ class AllMusicController extends GetxController {
       // }
 
       // Check if the song is in allsongslistfromdevice before adding it
-      if (!artistMap[artistName]!.contains(music) &&
-          audioController.allSongsListFromDevice.contains(music)) {
-        artistMap[artistName]!.add(music);
+      if (!artistMap.value[artistName]!.contains(music) &&
+          AllFiles.files.value.contains(music)) {
+        artistMap.value[artistName]!.add(music);
       }
     }
     update();
+  }
+ 
+  String getArtistName(List<AllMusicsModel> songs){
+    String artistName = '';
+    for (var song in songs) {
+      artistName = capitalizeFirstLetter(song.musicArtistName);
+      print(artistName);
+    }
+    return artistName;
+  }
+
+
+  List<String> getUniqueArtists(List<AllMusicsModel> songs) {
+  Set<String> uniqueArtists = <String>{};
+  for (var song in songs) {
+    final artistName = capitalizeFirstLetter(song.musicArtistName);
+    uniqueArtists.add(artistName);
+  }
+  return uniqueArtists.toList();
+}
+
+// working
+  List<AllMusicsModel> getSongsOfArtist(List<AllMusicsModel> songs, String targetArtist) {
+    List<AllMusicsModel> artistSongs = [];
+    for (var song in songs) {
+      final artistName = capitalizeFirstLetter(song.musicArtistName);
+      if (artistName == capitalizeFirstLetter(targetArtist)) {
+        artistSongs.add(song);
+      }
+    }
+    return artistSongs;
+  }
+
+  List<AllMusicsModel> getSongsOfAlbum(List<AllMusicsModel> songs, String targetAlbum) {
+    List<AllMusicsModel> albumSongs = [];
+    for (var song in songs) {
+      final albumName = capitalizeFirstLetter(song.musicAlbumName);
+      if (albumName == capitalizeFirstLetter(targetAlbum)) {
+        albumSongs.add(song);
+      }
+    }
+    return albumSongs;
   }
 
   // getting album with songs
@@ -58,13 +112,13 @@ class AllMusicController extends GetxController {
     final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
     for (var music in allMusics) {
       final albumName = capitalizeFirstLetter(music.musicAlbumName);
-      if (!albumsMap.containsKey(albumName)) {
-        albumsMap[albumName] = [];
+      if (!albumsMap.value.containsKey(albumName)) {
+        albumsMap.value[albumName] = [];
       }
 
-      if (!albumsMap[albumName]!.contains(music) &&
-          audioController.allSongsListFromDevice.contains(music)) {
-        albumsMap[albumName]!.add(music);
+      if (!albumsMap.value[albumName]!.contains(music) &&
+          AllFiles.files.value.contains(music)) {
+        albumsMap.value[albumName]!.add(music);
       }
     }
     update();
