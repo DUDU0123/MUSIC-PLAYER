@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:music_player/constants/details.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
@@ -39,7 +40,7 @@ class FavoriteController extends GetxController {
         favoriteBox.values.cast<FavoriteModel>().toSet().toList();
     // Filter out songs not present in allSongsListFromDevice
     final filteredFavorites = uniqueFavorites.where((favoriteSong) {
-      return audioController.allSongsListFromDevice
+      return AllFiles.files.value
           .any((song) => song.id == favoriteSong.id);
     }).toList();
     // Assign the filtered favorites to favoriteSongs
@@ -50,23 +51,6 @@ class FavoriteController extends GetxController {
     favoriteSongs.assignAll(uniqueFilteredFavorites);
     return favoriteSongs;
   }
-// loading favorite songs after checking any songs are in favorite list which is deleted, then filtering it
-  // void loadFavoriteSongs() async {
-  //   // Get the unique favorite songs
-  //   final uniqueFavorites =
-  //       favoriteBox.values.cast<FavoriteModel>().toSet().toList();
-  //   // Filter out songs not present in allSongsListFromDevice
-  //   final filteredFavorites = uniqueFavorites.where((favoriteSong) {
-  //     return audioController.allSongsListFromDevice
-  //         .any((song) => song.id == favoriteSong.id);
-  //   }).toList();
-  //   // Assign the filtered favorites to favoriteSongs
-  //   favoriteSongs.assignAll(filteredFavorites);
-  //   // Ensure that there are no duplicates in favoriteSongs
-  //   final uniqueFilteredFavorites = favoriteSongs.toSet().toList();
-  //   favoriteSongs.clear();
-  //   favoriteSongs.assignAll(uniqueFilteredFavorites);
-  // }
 
   void onTapFavorite(FavoriteModel song, BuildContext context) {
     if (isFavorite(song.id)) {

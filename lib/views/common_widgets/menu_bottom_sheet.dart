@@ -81,8 +81,8 @@ class MenuBottomSheet extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.symmetric(vertical: 20),
-      height: pageType == PageTypeEnum.playListPage
-          ? kScreenHeight / 2.2
+      height: pageType == PageTypeEnum.favoritePage  || pageType==PageTypeEnum.musicViewPage
+          ? kScreenHeight / 3
           : kScreenHeight / 2.5,
       child: Column(
         children: [
@@ -144,7 +144,7 @@ class MenuBottomSheet extends StatelessWidget {
                     );
                   })
               : const SizedBox(),
-          GetBuilder<AudioController>(
+       pageType != PageTypeEnum.playListPage && pageType != PageTypeEnum.favoritePage && pageType!=PageTypeEnum.musicViewPage?   GetBuilder<AudioController>(
               init: audioController,
               builder: (controller) {
                 return OnTapTextWidget(
@@ -165,7 +165,7 @@ class MenuBottomSheet extends StatelessWidget {
                     );
                   },
                 );
-              }),
+              }):const SizedBox(),
           Divider(
             thickness: 1,
             color: kGrey,

@@ -49,6 +49,7 @@ class PlaylistSongListPageState extends State<PlaylistSongListPage> {
 
   @override
   Widget build(BuildContext context) {
+    widget.playlistController.loadPlaylist(widget.playlistId);
     var hiveBox = Hive.box<Playlist>('playlist');
     Playlist? selectedPlaylist = hiveBox.get(widget.playlistId);
     log(name: 'PLAYLIST ID FROM LIST PAGE', '${widget.playlistId}');

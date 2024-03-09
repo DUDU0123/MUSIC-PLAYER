@@ -17,12 +17,12 @@ class ButtonCommonWidget extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         surfaceTintColor: kTransparent,
         backgroundColor:
-            kMenuBtmSheetColor,
+            kTileColor,
         shape: RoundedRectangleBorder(
           side: BorderSide(
             color: kLightGrey,
           ),
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(10.sp),
         ),
       ),
       onPressed: onPressed,

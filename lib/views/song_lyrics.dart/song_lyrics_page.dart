@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
@@ -27,11 +28,11 @@ class MusicLyricsPage extends StatefulWidget {
 class _MusicLyricsPageState extends State<MusicLyricsPage> {
   //final List<AllMusicsModel> currentPlayingsongs;
   late TextEditingController lyricsTextController;
-  late Future<String> lyricsFuture;
 
   @override
   void initState() {
     super.initState();
+    Hive.box<AllMusicsModel>('musics');
     lyricsTextController = TextEditingController(text: widget.allMusicController.getLyricsForSong(widget.songModel.id));
     log(name: 'SONG ID', "${widget.songModel.id}");
     log('Retrieved lyrics during initialization: ${lyricsTextController.text}');

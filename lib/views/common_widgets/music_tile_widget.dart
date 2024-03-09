@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/constants/height_width.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
@@ -74,7 +75,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                 borderRadius: BorderRadius.circular(13.sp),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment:  widget.pageType != PageTypeEnum.recentlyPlayedPage? MainAxisAlignment.spaceBetween:MainAxisAlignment.start,
                 children: [
                   QueryArtworkWidget(
                     id: widget.songId,
@@ -93,11 +94,12 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                           color: kGrey,
                         )),
                   ),
+                  widget.pageType != PageTypeEnum.recentlyPlayedPage?const SizedBox():kWidth10,
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                          width: kScreenWidth / 2.2,
+                          width: widget.pageType != PageTypeEnum.recentlyPlayedPage? kScreenWidth / 2.2:kScreenWidth/2.1,
                           child: Obx(() {
                             return TextWidgetCommon(
                               overflow: TextOverflow.ellipsis,
@@ -115,7 +117,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                             );
                           })),
                       SizedBox(
-                          width: kScreenWidth / 2,
+                          width:widget.pageType != PageTypeEnum.recentlyPlayedPage? kScreenWidth / 2:kScreenWidth/1.8,
                           child: Obx(() {
                             return TextWidgetCommon(
                                 overflow: TextOverflow.ellipsis,
@@ -133,7 +135,7 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                   ),
                   Row(
                     children: [
-                      widget.pageType != PageTypeEnum.currentPlayListPage
+                      widget.pageType != PageTypeEnum.recentlyPlayedPage
                           ? IconButton(onPressed: () {
                               showModalBottomSheet(
                                 barrierColor: kTransparent,

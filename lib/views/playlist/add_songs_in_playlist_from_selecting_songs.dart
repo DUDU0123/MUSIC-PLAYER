@@ -41,7 +41,7 @@ class _AddSongInPlaylistFromSelectingSongsState
   @override
   Widget build(BuildContext context) {
    
-    final kScreenWidth = MediaQuery.of(context).size.width;
+    //final kScreenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),

@@ -12,7 +12,7 @@ class DeleteDialogBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: kMenuBtmSheetColor,
+      backgroundColor: kTileColor,
       surfaceTintColor: kTransparent,
       title: TextWidgetCommon(
         text: "Delete",

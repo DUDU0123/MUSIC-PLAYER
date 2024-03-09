@@ -28,6 +28,7 @@ class SongEditPage extends StatefulWidget {
   final AllMusicsModel song;
   final AudioController audioController;
   final PlaylistController playlistController;
+  
 
   @override
   State<SongEditPage> createState() => _SongEditPageState();
@@ -35,7 +36,6 @@ class SongEditPage extends StatefulWidget {
 
 class _SongEditPageState extends State<SongEditPage> {
   // function to remove song
-
   bool? isSelected = false;
   bool isAllSelected = false;
   int songID = 0;
@@ -125,7 +125,6 @@ class _SongEditPageState extends State<SongEditPage> {
                   playlistController: widget.playlistController,
                   song: widget.song,
                   favoriteController: widget.favoriteController,
-                  // removeSongFromFavourites: removeSongFromFavourites,
                   songList: widget.songList
                       .where((song) => song.musicSelected == true)
                       .toList(),

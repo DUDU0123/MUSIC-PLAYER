@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/constants/details.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/playlist_model.dart';
@@ -99,12 +100,12 @@ class PlaylistController extends GetxController {
   void removeSongsFromPlaylist(List<AllMusicsModel> songsToRemove) {
     if (currentPlaylistSongList.isNotEmpty) {
       for (var songToRemove in songsToRemove) {
-        currentPlaylistSongList.forEach((playlist) {
+        for (var playlist in currentPlaylistSongList) {
           if (playlist.playlistSongs!.contains(songToRemove)) {
             playlist.playlistSongs!.remove(songToRemove);
             playlistBox.put(playlist.id!, playlist);
           }
-        });
+        }
       }
       update();
       updatePlaylistSongLengths();
@@ -175,9 +176,24 @@ class PlaylistController extends GetxController {
       }
     } else {
       // Handle the case where playListId is out of bounds
-      log(name: 'Invalid playlist ID:',"$playListId");
+      log(name: 'Invalid playlist ID:', "$playListId");
       return [];
     }
+  }
+
+  loadPlaylist(int playListId) async {
+    List<AllMusicsModel> filteredSongs =[];
+    var hiveBox = await Hive.openBox<Playlist>('playlist');
+    if (playListId >= 0 && playListId < listOfPlaylist.length) {
+      Playlist? playlist = hiveBox.getAt(playListId);
+      if (playlist != null && playlist.playlistSongs != null) {
+        filteredSongs = playlist.playlistSongs!
+            .where((song) =>
+                AllFiles.files.value.any((file) => file.id == song.id))
+            .toList();
+      }
+    }
+    return filteredSongs;
   }
 
   // method to get paylist song length

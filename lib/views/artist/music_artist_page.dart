@@ -1,9 +1,6 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
-import 'package:music_player/constants/colors.dart';
-import 'package:music_player/constants/details.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
@@ -11,7 +8,6 @@ import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/artist/artist_song_list_page.dart';
 import 'package:music_player/views/common_widgets/container_tile_widget.dart';
-import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 
 // class MusicArtistPage extends StatelessWidget {
@@ -99,28 +95,31 @@ class MusicArtistPage extends StatefulWidget {
     required this.favoriteController,
     required this.songModel,
     required this.audioController,
-    required this.playlistController,
+    required this.playlistController, required this.allMusicController,
   });
   final FavoriteController favoriteController;
   final AudioController audioController;
   final AllMusicsModel songModel;
   final PlaylistController playlistController;
+  final AllMusicController allMusicController;
 
   @override
   State<MusicArtistPage> createState() => MusicArtistPageState();
 }
 
 class MusicArtistPageState extends State<MusicArtistPage> {
-  void refreshUI() {
-    setState(() {});
+
+  @override
+  void initState() {
+    widget.allMusicController.fetchAllArtistMusicData();
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    AllMusicController allMusicController = Get.put(AllMusicController());
     return Scaffold(
       body: ValueListenableBuilder(
-          valueListenable: allMusicController.artistMap,
+          valueListenable: widget.allMusicController.artistMap,
           builder: (BuildContext context,
               Map<String, List<AllMusicsModel>> artist, Widget? _) {
             return ListView.builder(
@@ -139,7 +138,7 @@ class MusicArtistPageState extends State<MusicArtistPage> {
                         builder: (context) => ArtistSongListPage(
                           instance: this,
                           playlistController: widget.playlistController,
-                          allMusicController: allMusicController,
+                          allMusicController: widget.allMusicController,
                           audioController: widget.audioController,
                           songModel: widget.audioController.currentPlayingSong
                                       .value !=
@@ -154,7 +153,7 @@ class MusicArtistPageState extends State<MusicArtistPage> {
                     );
                   },
                   pageType: PageTypeEnum.artistPage,
-                  songLength: allMusicController.getSongsOfArtist(artistSongs, artistName).length,
+                  songLength: widget.allMusicController.getSongsOfArtist(artistSongs, artistName).length,
                   title:
                       artistName == '<unknown>' ? "Unknown Artist" : artistName,
                 );

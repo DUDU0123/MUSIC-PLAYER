@@ -33,6 +33,7 @@ class AudioController extends GetxController {
       <RecentlyPlayedModel>[].obs;
   Rx<LoopMode> loopMode = LoopMode.all.obs;
   RxBool isLoopOneSong = false.obs;
+  RxBool isSongDeleted = false.obs;
   RxBool isShuffleSongs = false.obs;
   Rx<PageTypeEnum> pageType = PageTypeEnum.homePage.obs;
   RecentlyPlayedModel recentlyPlayedModel =
@@ -404,12 +405,11 @@ class AudioController extends GetxController {
     }
     log("Music box length after deletion: ${musicBox.length}");
     requestPermissionAndFetchSongsAndInitializePlayer();
-    fetchSongsFromDeviceStorage();
+    // fetchSongsFromDeviceStorage();
   }
 
   @override
   void onClose() {
-    AudioController().dispose();
     audioPlayer.dispose();
     super.onClose();
   }

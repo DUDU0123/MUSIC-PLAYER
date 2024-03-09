@@ -12,6 +12,7 @@ import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:music_player/views/playlist/music_playlist_page.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class FavouriteMusicListPage extends StatelessWidget {
@@ -19,7 +20,7 @@ class FavouriteMusicListPage extends StatelessWidget {
     super.key,
     required this.songModel,
     required this.audioController,
-    required this.favouriteController, required this.playlistController,
+    required this.favouriteController, required this.playlistController, required this.instance,
     // required this.favouriteController,
   });
   final FavoriteController favouriteController;
@@ -27,6 +28,7 @@ class FavouriteMusicListPage extends StatelessWidget {
   final AllMusicsModel songModel;
   final AudioController audioController;
   final PlaylistController playlistController;
+  final MusicPlaylistPageState instance;
 
   @override
   Widget build(BuildContext context) {

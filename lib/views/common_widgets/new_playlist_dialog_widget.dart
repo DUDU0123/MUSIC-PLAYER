@@ -17,7 +17,7 @@ class NewPlayListDialogBoxWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       surfaceTintColor: kTransparent,
-      backgroundColor: kMenuBtmSheetColor,
+      backgroundColor: kTileColor,
       title: Center(
         child: TextWidgetCommon(
           

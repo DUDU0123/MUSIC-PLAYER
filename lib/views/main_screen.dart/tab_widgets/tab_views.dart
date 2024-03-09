@@ -24,12 +24,14 @@ class TabViewList {
         audioController: audioController,
       ),
       MusicArtistPage(
+        allMusicController: allMusicController,
         playlistController: playlistController,
         audioController: audioController,
         songModel: currentSong,
         favoriteController: favoriteController,
       ),
       MusicAlbumPage(
+        allMusicController: allMusicController,
         playlistController: playlistController,
         audioController: audioController,
         songModel: currentSong,

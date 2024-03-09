@@ -11,6 +11,7 @@ import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/container_tile_widget.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/new_playlist_dialog_widget.dart';
+import 'package:music_player/views/common_widgets/playlist_delete_error_dialog_box.dart';
 import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/favourites/favourite_music_list_page.dart';
@@ -18,7 +19,7 @@ import 'package:music_player/views/playlist/playlist_song_list_page.dart';
 import 'package:music_player/views/playlist/widgets/playlist_single_tile_widget.dart';
 import 'package:music_player/views/recently_played/recently_played_page.dart';
 
-class MusicPlaylistPage extends StatelessWidget {
+class MusicPlaylistPage extends StatefulWidget {
   const MusicPlaylistPage({
     super.key,
     required this.favoriteController,
@@ -31,6 +32,16 @@ class MusicPlaylistPage extends StatelessWidget {
   final AllMusicsModel songModel;
 
   @override
+  State<MusicPlaylistPage> createState() => MusicPlaylistPageState();
+}
+
+class MusicPlaylistPageState extends State<MusicPlaylistPage> {
+  void refreshUI(){
+    setState(() {
+      
+    });
+  }
+  @override
   Widget build(BuildContext context) {
     TextEditingController newPlaylistController = TextEditingController();
     TextEditingController editPlaylistController = TextEditingController();
@@ -38,7 +49,7 @@ class MusicPlaylistPage extends StatelessWidget {
       body: Obx(() {
         return ListView.builder(
           padding: EdgeInsets.symmetric(vertical: 15.h),
-          itemCount: playlistController.listOfPlaylist.length + 3,
+          itemCount: widget.playlistController.listOfPlaylist.length + 3,
           itemBuilder: (context, index) {
             if (index == 0) {
               return PlayListSingleTileWidget(
@@ -70,10 +81,11 @@ class MusicPlaylistPage extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => FavouriteMusicListPage(
-                        playlistController: playlistController,
-                        favouriteController: favoriteController,
-                        audioController: audioController,
-                        songModel: songModel,
+                        instance: this,
+                        playlistController: widget.playlistController,
+                        favouriteController: widget.favoriteController,
+                        audioController: widget.audioController,
+                        songModel: widget.songModel,
                       ),
                     ),
                   );
@@ -91,8 +103,8 @@ class MusicPlaylistPage extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => RecentlyPlayedPage(
-                          songModel: songModel,
-                          favoriteController: favoriteController,
+                          songModel: widget.songModel,
+                          favoriteController: widget.favoriteController,
                         ),
                       ),
                     );
@@ -108,15 +120,17 @@ class MusicPlaylistPage extends StatelessWidget {
                 deletePlaylistMethod: () {
                   showDialog(
                     context: context,
-                    builder: (context) => DeleteDialogBox(
+                    builder: (context) =>
+                    
+                    index == widget.playlistController.listOfPlaylist.length + 2? DeleteDialogBox(
                       contentText: "Do you want to delete the playlist?",
                       deleteAction: () {
-                        playlistController.playlistDelete(index: index - 3);
+                        widget.playlistController.playlistDelete(index: index - 3);
                         Navigator.pop(context);
                         snackBarCommonWidget(context,
                             contentText: "Deleted Successfully");
                       },
-                    ),
+                    ):const PlaylistDeleteErrorDialogBox(),
                   );
                 },
                 editPlaylistNameMethod: () {
@@ -141,9 +155,9 @@ class MusicPlaylistPage extends StatelessWidget {
                 },
                 onTap: () async {
                   var playlistID =
-                      playlistController.getPlaylistID(index: index - 3);
-                  var playlistSongs = await playlistController.getPlayListSongs(
-                      playlistController.getPlaylistID(index: index - 3));
+                      widget.playlistController.getPlaylistID(index: index - 3);
+                  var playlistSongs = await widget.playlistController.getPlayListSongs(
+                      widget.playlistController.getPlaylistID(index: index - 3));
                   log(name: 'PLAYLIST ID MUSIC PLAYLIST', '$playlistID');
                   for (var song in playlistSongs!) {
                     log(name: 'PLAYLIST SONGS MUSIC PLAYLIST', song.musicName);
@@ -151,21 +165,21 @@ class MusicPlaylistPage extends StatelessWidget {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => PlaylistSongListPage(
-                        playlistController: playlistController,
-                        audioController: audioController,
+                        playlistController: widget.playlistController,
+                        audioController: widget.audioController,
                         playlistSongsList: playlistSongs,
-                        songModel: songModel,
-                        favoriteController: favoriteController,
+                        songModel: widget.songModel,
+                        favoriteController: widget.favoriteController,
                         playlistId:
-                            playlistController.getPlaylistID(index: index - 3),
-                        playlistName: playlistController.getPlaylistName(
+                            widget.playlistController.getPlaylistID(index: index - 3),
+                        playlistName: widget.playlistController.getPlaylistName(
                             index: index - 3),
                       ),
                     ),
                   );
                 },
                 title: PlaylistController.to.getPlaylistName(index: index - 3),
-                songLength: playlistController.playlistSongLengths[index-3],
+                songLength: widget.playlistController.playlistSongLengths[index-3],
                 pageType: PageTypeEnum.playListPage,
               );
             });

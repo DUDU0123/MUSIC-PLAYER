@@ -10,35 +10,23 @@ import 'package:music_player/views/common_widgets/album_artist_functions_common.
 
 class AllMusicController extends GetxController {
   AudioController audioController = Get.put(AudioController());
-  @override
-  onInit() {
-    getArtistSongs();
-    getAlbumSongs();
-    super.onInit();
-  }
+  // we need to check if the allsongs list not containing the song , then only add music to artist and artist songs
+  final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
+  final ValueNotifier<Map<String, List<AllMusicsModel>>> artistMap =
+      ValueNotifier({});
+  final ValueNotifier<Map<String, List<AllMusicsModel>>> albumsMap =
+      ValueNotifier({});
 
   Future<List<AllMusicsModel>> fetchAllAlbumMusicData() async {
     await getAlbumSongs();
-    update();
     return audioController.getAllSongs();
   }
 
   Future<List<AllMusicsModel>> fetchAllArtistMusicData() async {
     await getArtistSongs();
-    update();
     return audioController.getAllSongs();
   }
 
-  // we need to check if the allsongs list not containing the song , then only add music to artist and artist songs
-  final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
-  // final RxMap<String, List<AllMusicsModel>> artistMap =
-  //     <String, List<AllMusicsModel>>{}.obs;
-  // final RxMap<String, List<AllMusicsModel>> albumsMap =
-  //     <String, List<AllMusicsModel>>{}.obs;
-  final ValueNotifier<Map<String, List<AllMusicsModel>>> artistMap =
-      ValueNotifier({});
-  final ValueNotifier<Map<String, List<AllMusicsModel>>> albumsMap =
-      ValueNotifier({});
 
   // getting artist with songs
   getArtistSongs() async {
@@ -49,27 +37,33 @@ class AllMusicController extends GetxController {
         artistMap.value[artistName] = [];
       }
 
-      //   if (audioController.allSongsListFromDevice.contains(music)) {
-      //   // Check if the song is not already in the artist map
-      //   if (!artistMap[artistName]!.contains(music)) {
-      //     artistMap[artistName]!.add(music);
-      //   }
-      // }
-
       // Check if the song is in allsongslistfromdevice before adding it
       if (!artistMap.value[artistName]!.contains(music) &&
           AllFiles.files.value.contains(music)) {
         artistMap.value[artistName]!.add(music);
       }
     }
-    update();
+  }
+  // getting album with songs
+  getAlbumSongs() {
+    final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
+    for (var music in allMusics) {
+      final albumName = capitalizeFirstLetter(music.musicAlbumName);
+      if (!albumsMap.value.containsKey(albumName)) {
+        albumsMap.value[albumName] = [];
+      }
+
+      if (!albumsMap.value[albumName]!.contains(music) &&
+          AllFiles.files.value.contains(music)) {
+        albumsMap.value[albumName]!.add(music);
+      }
+    }
   }
  
   String getArtistName(List<AllMusicsModel> songs){
     String artistName = '';
     for (var song in songs) {
       artistName = capitalizeFirstLetter(song.musicArtistName);
-      print(artistName);
     }
     return artistName;
   }
@@ -107,22 +101,7 @@ class AllMusicController extends GetxController {
     return albumSongs;
   }
 
-  // getting album with songs
-  getAlbumSongs() {
-    final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
-    for (var music in allMusics) {
-      final albumName = capitalizeFirstLetter(music.musicAlbumName);
-      if (!albumsMap.value.containsKey(albumName)) {
-        albumsMap.value[albumName] = [];
-      }
-
-      if (!albumsMap.value[albumName]!.contains(music) &&
-          AllFiles.files.value.contains(music)) {
-        albumsMap.value[albumName]!.add(music);
-      }
-    }
-    update();
-  }
+  
 
   Future<void> saveLyrics(int songId, String lyrics) async {
     // Load the Hive box

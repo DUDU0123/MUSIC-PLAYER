@@ -120,7 +120,7 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                               iconName: "Remove",
                             );
                           }),
-              GetBuilder<AudioController>(
+            widget.pageType!=PageTypeEnum.playListPage && widget.pageType!=PageTypeEnum.favoritePage?  GetBuilder<AudioController>(
                   init: AudioController(),
                   builder: (controller) {
                     return IconTextWidget(
@@ -135,6 +135,7 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                                     contentText:
                                         "Do you want to delete the song?",
                                     deleteAction: () async {
+
                                       List<int> selectedSongIds = [];
                                       for (var song in widget.songList) {
                                         if (song.musicSelected == true) {
@@ -146,19 +147,28 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                                       log("Remaining songs in Hive box: ${controller.musicBox.length}");
                                       controller.deleteSongsPermentaly(
                                           selectedSongIds, context);
-
-                                      Get.back();
+                                          controller.isSongDeleted.value = true;
+                                      // Get.back();
                                       log("Remaining songs in Hive box: ${controller.musicBox.length}");
                                     },
                                   );
                                 },
                               )
                             : const SizedBox();
+                            
                       },
                       icon: Icons.delete_outline_outlined,
                       iconName: "Delete",
                     );
-                  }),
+                  }):IconTextWidget(
+                      isSongSelected: widget.isSelected,
+                      onTap: () {
+                        // function to send song
+                        AppUsingCommonFunctions.sendMoreSong(widget.songList);
+                      },
+                      icon: Icons.share_outlined,
+                      iconName: "Send",
+                    ),
             ],
           ),
         ],
