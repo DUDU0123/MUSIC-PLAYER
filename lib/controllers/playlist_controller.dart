@@ -50,7 +50,7 @@ class PlaylistController extends GetxController {
       log("ERROR ON ADDING SONGS: $e");
     }
     update();
-    updatePlaylistSongLengths();
+  //  updatePlaylistSongLengths();
   }
 
   void playlistCreation(
@@ -80,7 +80,7 @@ class PlaylistController extends GetxController {
       log(newPlaylist.playlistSongs.toString());
     }
     update();
-    updatePlaylistSongLengths();
+  //  updatePlaylistSongLengths();
   }
 
 //  playlist delete function
@@ -94,7 +94,7 @@ class PlaylistController extends GetxController {
       log("After deletion: ${listOfPlaylist.toList()}");
     }
     update();
-    updatePlaylistSongLengths();
+  //  updatePlaylistSongLengths();
   }
 
   void removeSongsFromPlaylist(List<AllMusicsModel> songsToRemove) {
@@ -108,7 +108,7 @@ class PlaylistController extends GetxController {
         }
       }
       update();
-      updatePlaylistSongLengths();
+   //   updatePlaylistSongLengths();
     }
     Get.back();
   }
@@ -134,7 +134,7 @@ class PlaylistController extends GetxController {
       log(updatedPlaylistWithName.name);
       log(updatedPlaylistWithName.id.toString());
     }
-    updatePlaylistSongLengths();
+  //  updatePlaylistSongLengths();
   }
 
   String getPlaylistName({required int index}) {
@@ -168,7 +168,15 @@ class PlaylistController extends GetxController {
       if (playlist != null && playlist.playlistSongs != null) {
         log(name: 'GETTING SONGS PLAYLIST NAME', playlist.name);
         log(name: 'GETTING SONGS PLAYLIST NAME', " ${playlist.playlistSongs}");
+
+        for (var playlistSong in playlist.playlistSongs!) {
+          if (!AllFiles.files.value.contains(playlistSong)) {
+            playlist.playlistSongs!.remove(playlistSong);
+          }
+        }
+       // updatePlaylistSongLengths();
         return playlist.playlistSongs;
+        
       } else {
         // Return an empty list if the playlist or playlistSongs is null
         log(name: 'GETTING SONGS PLAYLIST EMPTY', 'empty');
@@ -181,8 +189,19 @@ class PlaylistController extends GetxController {
     }
   }
 
+  // method to get paylist song length
+  // void updatePlaylistSongLengths() {
+  //   playlistSongLengths.clear();
+  //   for (int i = 0; i < listOfPlaylist.length; i++) {
+  //     var playlistSongs = listOfPlaylist[i].playlistSongs;
+  //     int songLength = playlistSongs != null ? playlistSongs.length : 0;
+  //     playlistSongLengths.add(songLength);
+  //   }
+  //   update();
+  // }
+
   loadPlaylist(int playListId) async {
-    List<AllMusicsModel> filteredSongs =[];
+    List<AllMusicsModel> filteredSongs = [];
     var hiveBox = await Hive.openBox<Playlist>('playlist');
     if (playListId >= 0 && playListId < listOfPlaylist.length) {
       Playlist? playlist = hiveBox.getAt(playListId);
@@ -196,15 +215,7 @@ class PlaylistController extends GetxController {
     return filteredSongs;
   }
 
-  // method to get paylist song length
-  void updatePlaylistSongLengths() {
-    playlistSongLengths.clear();
-    for (int i = 0; i < listOfPlaylist.length; i++) {
-      var playlistSongs = listOfPlaylist[i].playlistSongs;
-      int songLength = playlistSongs != null ? playlistSongs.length : 0;
-      playlistSongLengths.add(songLength);
-    }
-  }
+  
 
   onTapRemoveFromPlaylist(
       {required int songId, required int playlistId}) async {
@@ -223,7 +234,7 @@ class PlaylistController extends GetxController {
         Get.snackbar(
           "Song Removed",
           "Song removed from playlist",
-          backgroundColor: kBlack,
+          backgroundColor: kTileColor,
           colorText: kWhite,
           duration: const Duration(seconds: 1),
           snackPosition: SnackPosition.BOTTOM,
@@ -235,7 +246,7 @@ class PlaylistController extends GetxController {
       log("Playlist not found or doesn't have songs.");
     }
     update();
-    updatePlaylistSongLengths();
+  //  updatePlaylistSongLengths();
   }
 
   // Get all playlist
@@ -263,7 +274,7 @@ class PlaylistController extends GetxController {
     listOfPlaylist.assignAll(hiveBox.values.toList());
     // Initialize playlistSongLengths with default lengths
     playlistSongLengths.assignAll(List<int>.filled(listOfPlaylist.length, 0));
-    updatePlaylistSongLengths();
+   // updatePlaylistSongLengths();
   }
 
   // Retrieve all playlists from Hive

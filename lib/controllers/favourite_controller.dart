@@ -24,7 +24,6 @@ class FavoriteController extends GetxController {
   removeFromFavorite(List<AllMusicsModel> selectedSongs, BuildContext context) {
     for (var song in selectedSongs) {
       if (isFavorite(song.id)) {
-        log("Removing from FAVORITE");
         // Song is a favorite, remove it
         favoriteSongs.removeWhere((favoriteSong) => favoriteSong.id == song.id);
         favoriteBox.delete(song.id);
@@ -38,7 +37,7 @@ class FavoriteController extends GetxController {
     // Get the unique favorite songs
     final uniqueFavorites =
         favoriteBox.values.cast<FavoriteModel>().toSet().toList();
-    // Filter out songs not present in allSongsListFromDevice
+    // Filter out songs not present in AllFiles.files.value
     final filteredFavorites = uniqueFavorites.where((favoriteSong) {
       return AllFiles.files.value
           .any((song) => song.id == favoriteSong.id);
@@ -55,13 +54,11 @@ class FavoriteController extends GetxController {
   void onTapFavorite(FavoriteModel song, BuildContext context) {
     if (isFavorite(song.id)) {
       // Song is already a favorite, remove it
-      log(song.musicName);
       favoriteSongs.remove(song);
       favoriteBox.delete(song.id);
       snackBarCommonWidget(context, contentText: "Removed from favorites");
     } else {
       // Song is not a favorite, add it
-      log(song.musicName);
       favoriteSongs.add(song);
       favoriteBox.put(song.id, song);
       snackBarCommonWidget(context, contentText: "Added to favorites");

@@ -27,7 +27,6 @@ class AllMusicController extends GetxController {
     return audioController.getAllSongs();
   }
 
-
   // getting artist with songs
   getArtistSongs() async {
     final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
@@ -37,13 +36,14 @@ class AllMusicController extends GetxController {
         artistMap.value[artistName] = [];
       }
 
-      // Check if the song is in allsongslistfromdevice before adding it
+      // Check if the song is in AllFiles.files.value before adding it
       if (!artistMap.value[artistName]!.contains(music) &&
           AllFiles.files.value.contains(music)) {
         artistMap.value[artistName]!.add(music);
       }
     }
   }
+
   // getting album with songs
   getAlbumSongs() {
     final RxList<AllMusicsModel> allMusics = musicBox.values.toList().obs;
@@ -59,27 +59,11 @@ class AllMusicController extends GetxController {
       }
     }
   }
- 
-  String getArtistName(List<AllMusicsModel> songs){
-    String artistName = '';
-    for (var song in songs) {
-      artistName = capitalizeFirstLetter(song.musicArtistName);
-    }
-    return artistName;
-  }
 
 
-  List<String> getUniqueArtists(List<AllMusicsModel> songs) {
-  Set<String> uniqueArtists = <String>{};
-  for (var song in songs) {
-    final artistName = capitalizeFirstLetter(song.musicArtistName);
-    uniqueArtists.add(artistName);
-  }
-  return uniqueArtists.toList();
-}
-
-// working
-  List<AllMusicsModel> getSongsOfArtist(List<AllMusicsModel> songs, String targetArtist) {
+  // working
+  List<AllMusicsModel> getSongsOfArtist(
+      List<AllMusicsModel> songs, String targetArtist) {
     List<AllMusicsModel> artistSongs = [];
     for (var song in songs) {
       final artistName = capitalizeFirstLetter(song.musicArtistName);
@@ -87,21 +71,39 @@ class AllMusicController extends GetxController {
         artistSongs.add(song);
       }
     }
+    // Remove the artist from artistMap if there are no songs
+    if (artistSongs.isEmpty) {
+      final targetArtistKey = capitalizeFirstLetter(targetArtist);
+      if (artistMap.value.containsKey(targetArtistKey)) {
+        artistMap.value.remove(targetArtistKey);
+      }
+    }
     return artistSongs;
   }
 
-  List<AllMusicsModel> getSongsOfAlbum(List<AllMusicsModel> songs, String targetAlbum) {
+  List<AllMusicsModel> getSongsOfAlbum(
+      List<AllMusicsModel> songs, String targetAlbum) {
     List<AllMusicsModel> albumSongs = [];
+
     for (var song in songs) {
       final albumName = capitalizeFirstLetter(song.musicAlbumName);
       if (albumName == capitalizeFirstLetter(targetAlbum)) {
         albumSongs.add(song);
       }
     }
+
+    // Remove the album from albumsMap if there are no songs
+    if (albumSongs.isEmpty) {
+      final targetAlbumKey = capitalizeFirstLetter(targetAlbum);
+      if (albumsMap.value.containsKey(targetAlbumKey)) {
+        albumsMap.value.remove(targetAlbumKey);
+      }
+    }
+
     return albumSongs;
   }
 
-  
+
 
   Future<void> saveLyrics(int songId, String lyrics) async {
     // Load the Hive box
@@ -130,7 +132,9 @@ class AllMusicController extends GetxController {
       "Lyrics Saved",
       "Lyrics saved successfully",
       colorText: kWhite,
-      backgroundColor: kBlack,
+      backgroundColor: kTileColor,
+      duration: const Duration(seconds: 1),
+      snackPosition: SnackPosition.BOTTOM,
     );
   }
 

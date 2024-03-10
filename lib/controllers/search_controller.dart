@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:music_player/constants/details.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 
@@ -11,7 +12,7 @@ class SearchFilterController extends GetxController {
 
 
   void filterSongs(String query) {
-    filteredSongs.value = audioController.allSongsListFromDevice.value
+    filteredSongs.value = AllFiles.files.value
         .where((song) =>
             _cleanString(song.musicName).toLowerCase().contains(_cleanString(query.toLowerCase())) ||
             _cleanString(song.musicAlbumName).toLowerCase().contains(_cleanString(query.toLowerCase())) ||

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
@@ -20,7 +21,7 @@ class FavouriteMusicListPage extends StatelessWidget {
     super.key,
     required this.songModel,
     required this.audioController,
-    required this.favouriteController, required this.playlistController, required this.instance,
+    required this.favouriteController, required this.playlistController, required this.instance, required this.allMusicController,
     // required this.favouriteController,
   });
   final FavoriteController favouriteController;
@@ -29,6 +30,7 @@ class FavouriteMusicListPage extends StatelessWidget {
   final AudioController audioController;
   final PlaylistController playlistController;
   final MusicPlaylistPageState instance;
+  final AllMusicController allMusicController;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +50,7 @@ class FavouriteMusicListPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
+                      allMusicController: allMusicController,
                       playlistController: playlistController,
                       audioController: audioController,
                       song: songModel,

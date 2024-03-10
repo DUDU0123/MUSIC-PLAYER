@@ -1,9 +1,6 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
@@ -14,28 +11,24 @@ class MusicLyricsPage extends StatefulWidget {
     super.key,
     required this.songId,
     required this.songModel,
-    required this.allMusicController, required this.lyrics,
+    required this.allMusicController,
   });
   final int songId;
   final AllMusicsModel songModel;
   final AllMusicController allMusicController;
-  final String lyrics;
 
   @override
   State<MusicLyricsPage> createState() => _MusicLyricsPageState();
 }
 
 class _MusicLyricsPageState extends State<MusicLyricsPage> {
-  //final List<AllMusicsModel> currentPlayingsongs;
   late TextEditingController lyricsTextController;
 
   @override
   void initState() {
     super.initState();
-    Hive.box<AllMusicsModel>('musics');
-    lyricsTextController = TextEditingController(text: widget.allMusicController.getLyricsForSong(widget.songModel.id));
-    log(name: 'SONG ID', "${widget.songModel.id}");
-    log('Retrieved lyrics during initialization: ${lyricsTextController.text}');
+    lyricsTextController = TextEditingController(
+        text: widget.allMusicController.getLyricsForSong(widget.songModel.id));
   }
 
   @override
@@ -66,9 +59,6 @@ class _MusicLyricsPageState extends State<MusicLyricsPage> {
                   final String lyrics = lyricsTextController.text;
                   // Save lyrics to the database
                   await controller.saveLyrics(widget.songModel.id, lyrics);
-                  log(
-                      name: 'SONG LYRICS GET',
-                      controller.getLyricsForSong(widget.songModel.id));
                 },
                 child: Container(
                   margin: EdgeInsets.only(right: 10.sp, bottom: 10.sp),

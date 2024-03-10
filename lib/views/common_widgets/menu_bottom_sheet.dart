@@ -70,7 +70,8 @@ class MenuBottomSheet extends StatelessWidget {
           topLeft: Radius.circular(20),
           topRight: Radius.circular(20),
         ),
-        color: kMenuBtmSheetColor,
+        color: kTileColor,
+        border: Border.all(color: kMenuBtmSheetColor),
         boxShadow: [
           BoxShadow(
             blurRadius: 0.5,
@@ -81,7 +82,9 @@ class MenuBottomSheet extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.symmetric(vertical: 20),
-      height: pageType == PageTypeEnum.favoritePage  || pageType==PageTypeEnum.musicViewPage
+      height: pageType == PageTypeEnum.favoritePage ||
+              pageType == PageTypeEnum.musicViewPage ||
+              pageType == PageTypeEnum.searchPage
           ? kScreenHeight / 3
           : kScreenHeight / 2.5,
       child: Column(
@@ -118,9 +121,8 @@ class MenuBottomSheet extends StatelessWidget {
                   : "Add to Favorites",
               onTap: () {
                 Navigator.pop(context);
-                log("not to favourites");
+
                 if (favsong != null) {
-                  log("adding to favourites");
                   controller.onTapFavorite(favsong!, context);
                 }
               },
@@ -144,31 +146,37 @@ class MenuBottomSheet extends StatelessWidget {
                     );
                   })
               : const SizedBox(),
-       pageType != PageTypeEnum.playListPage && pageType != PageTypeEnum.favoritePage && pageType!=PageTypeEnum.musicViewPage?   GetBuilder<AudioController>(
-              init: audioController,
-              builder: (controller) {
-                return OnTapTextWidget(
-                  text: "Delete Song",
-                  onTap: () {
-                    Navigator.pop(context);
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return DeleteDialogBox(
-                          contentText: "Do you want to delete the song?",
-                          deleteAction: () async {
-                            controller.deleteSongsPermentaly([songId], context);
-                            Get.back();
+          pageType != PageTypeEnum.playListPage &&
+                  pageType != PageTypeEnum.favoritePage &&
+                  pageType != PageTypeEnum.musicViewPage &&
+                  pageType != PageTypeEnum.searchPage
+              ? GetBuilder<AudioController>(
+                  init: audioController,
+                  builder: (controller) {
+                    return OnTapTextWidget(
+                      text: "Delete Song",
+                      onTap: () {
+                        Navigator.pop(context);
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return DeleteDialogBox(
+                              contentText: "Do you want to delete the song?",
+                              deleteAction: () async {
+                                controller
+                                    .deleteSongsPermentaly([songId], context);
+                                Get.back();
+                              },
+                            );
                           },
                         );
                       },
                     );
-                  },
-                );
-              }):const SizedBox(),
+                  })
+              : const SizedBox(),
           Divider(
             thickness: 1,
-            color: kGrey,
+            color: kMenuBtmSheetColor,
           ),
           OnTapTextWidget(
             text: "Cancel",

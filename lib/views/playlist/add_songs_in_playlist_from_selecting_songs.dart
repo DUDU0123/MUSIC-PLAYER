@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/constants/details.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
@@ -59,7 +60,7 @@ class _AddSongInPlaylistFromSelectingSongsState
           ],
         ),
       ),
-      body: widget.audioController.allSongsListFromDevice.isNotEmpty
+      body: AllFiles.files.value.isNotEmpty
           ? Stack(
               children: [
                 GetBuilder<PlaylistController>(

@@ -49,16 +49,6 @@ class _TabScreenState extends State<TabScreen> {
   void refreshUI() {
     setState(() {});
   }
-  // AudioController audioController = Get.put(AudioController());
-  // FavoriteController favoriteController = Get.put(FavoriteController());
-  // AllMusicController allMusicController = Get.put(AllMusicController());
-  // TabHandleController tabHandleController = Get.put(TabHandleController());
-  // PlaylistController playlistController = Get.put(PlaylistController());
-  // SortMethod sortMethod = SortMethod.alphabetically;
-  // TextEditingController controller = TextEditingController();
-  // PageController pageController = PageController();
-  // PageTypeEnum pageTypeEnum = PageTypeEnum.homePage;
-  // bool isSongsLoaded = false;
 
   AllMusicsModel songModel = AllMusicsModel(
     id: 0,
@@ -70,19 +60,6 @@ class _TabScreenState extends State<TabScreen> {
     musicUri: "musicUri",
     musicFileSize: 0,
   );
-  // @override
-  // void initState() {
-  //   Future.delayed(
-  //     const Duration(seconds: 3),
-  //     () {
-  //       setState(() {
-  //         isSongsLoaded = true;
-  //       });
-  //     },
-  //   );
-  //   widget.audioController.requestPermissionAndFetchSongsAndInitializePlayer();
-  //   super.initState();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -92,23 +69,7 @@ class _TabScreenState extends State<TabScreen> {
         ? widget.audioController.currentPlayingSong.value!
         : songModel;
     // final kScreenWidth = MediaQuery.of(context).size.width;
-    final kScreenHeight = MediaQuery.of(context).size.height;
-    // if (!isSongsLoaded) {
-    //   return Center(
-    //     child: Container(
-    //       height: 100.h,
-    //       width: 100.w,
-    //       decoration: BoxDecoration(
-    //         image: const DecorationImage(
-    //             image: AssetImage(
-    //               "assets/music_player_logo.png",
-    //             ),
-    //             fit: BoxFit.cover),
-    //         borderRadius: BorderRadius.circular(20.sp),
-    //       ),
-    //     ),
-    //   );
-    // }
+    //final kScreenHeight = MediaQuery.of(context).size.height;
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
@@ -142,41 +103,17 @@ class _TabScreenState extends State<TabScreen> {
                   size: 28.sp,
                 ),
                 onSelected: (value) {
-                  log("$value");
                   switch (value) {
                     case TopMenuItemEnum.manageSong:
                       Get.to(() => SongEditPage(
+                        allMusicController: widget.allMusicController,
                             playlistController: widget.playlistController,
                             audioController: widget.audioController,
                             favoriteController: widget.favoriteController,
                             pageType: PageTypeEnum.homePage,
-                            songList:
-                                AllFiles.files.value,
+                            songList: AllFiles.files.value,
                             song: currentSong,
                           ));
-                      break;
-                    case TopMenuItemEnum.sortSong:
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return SortDialogBox(
-                            audioController: widget.audioController,
-                            kScreenHeight: kScreenHeight,
-                            alphetOrderMethod: (selectedSortMethod) {
-                              setState(() {
-                                widget.audioController.currentSortMethod.value =
-                                    selectedSortMethod!;
-                              });
-                            },
-                            timeAddedOrderMethod: (selectedSortMethod) {
-                              setState(() {
-                                widget.audioController.currentSortMethod.value =
-                                    selectedSortMethod!;
-                              });
-                            },
-                          );
-                        },
-                      );
                       break;
                     case TopMenuItemEnum.settings:
                       Get.to(() => const SettingsPage());
@@ -202,66 +139,69 @@ class _TabScreenState extends State<TabScreen> {
               preferredSize: const Size.fromHeight(30),
               child: Stack(
                 children: [
-                  Container(
-                    color: Colors.transparent,
-                    width: MediaQuery.of(context).size.width,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        BuildTabWidget(
-                          tabType: TabType.songs,
-                          text: "Songs",
-                          currentTabType:
-                              widget.tabHandleController.currentTabType.value,
-                          pageController: widget.pageController,
-                        ),
-                        BuildTabWidget(
-                          tabType: TabType.artist,
-                          text: "Artists",
-                          currentTabType:
-                              widget.tabHandleController.currentTabType.value,
-                          pageController: widget.pageController,
-                        ),
-                        BuildTabWidget(
-                          tabType: TabType.album,
-                          text: "Albums",
-                          currentTabType:
-                              widget.tabHandleController.currentTabType.value,
-                          pageController: widget.pageController,
-                        ),
-                        BuildTabWidget(
-                          tabType: TabType.playlist,
-                          text: "Playlist",
-                          currentTabType:
-                              widget.tabHandleController.currentTabType.value,
-                          pageController: widget.pageController,
-                        ),
-                      ],
-                    ),
-                  ),
+                  Obx(() {
+                    return Container(
+                      color: Colors.transparent,
+                      width: MediaQuery.of(context).size.width,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          BuildTabWidget(
+                            tabType: TabType.songs,
+                            text: "Songs",
+                            currentTabType:
+                                widget.tabHandleController.currentTabType.value,
+                            pageController: widget.pageController,
+                          ),
+                          BuildTabWidget(
+                            tabType: TabType.artist,
+                            text: "Artists",
+                            currentTabType:
+                                widget.tabHandleController.currentTabType.value,
+                            pageController: widget.pageController,
+                          ),
+                          BuildTabWidget(
+                            tabType: TabType.album,
+                            text: "Albums",
+                            currentTabType:
+                                widget.tabHandleController.currentTabType.value,
+                            pageController: widget.pageController,
+                          ),
+                          BuildTabWidget(
+                            tabType: TabType.playlist,
+                            text: "Playlist",
+                            currentTabType:
+                                widget.tabHandleController.currentTabType.value,
+                            pageController: widget.pageController,
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
           ),
-          body: PageView(
-            controller: widget.pageController,
-            onPageChanged: (index) {
-              setState(() {
-                widget.tabHandleController.currentTabType.value =
-                    TabType.values[index];
-              });
-            },
-            children: TabViewList.tabViews(
-              playlistController: widget.playlistController,
-              allMusicController: widget.allMusicController,
-              favoriteController: widget.favoriteController,
-              audioController: widget.audioController,
-              // here no currentsong, need to take
-              currentSong: currentSong,
-            ),
-          ),
+          body: GetBuilder<TabHandleController>(
+              init: widget.tabHandleController,
+              builder: (controller) {
+                return PageView(
+                  controller: widget.pageController,
+                  onPageChanged: (index) {
+                    controller.currentTabType.value = TabType.values[index];
+                  },
+                  children: TabViewList.tabViews(
+                    playlistController: widget.playlistController,
+                    allMusicController: widget.allMusicController,
+                    favoriteController: widget.favoriteController,
+                    audioController: widget.audioController,
+                    // here no currentsong, need to take
+                    currentSong: currentSong,
+                  ),
+                );
+              }),
           floatingActionButton:
-              // audioController.allSongsListFromDevice.isNotEmpty
+              // AllFiles.files.value.isNotEmpty
               //     ?
               FloatingButtonOnBottom(
             allMusicController: widget.allMusicController,

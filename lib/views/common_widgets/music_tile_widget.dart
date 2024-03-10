@@ -55,8 +55,6 @@ class MusicTileWidget extends StatefulWidget {
 class _MusicTileWidgetState extends State<MusicTileWidget> {
   @override
   Widget build(BuildContext context) {
-    log("isPlaying: ${widget.audioController.isPlaying.value}");
-    // bool isPlaying = widget.audioController?.isPlaying.value ?? false;
     final kScreenHeight = MediaQuery.of(context).size.height;
     final kScreenWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
@@ -75,7 +73,10 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                 borderRadius: BorderRadius.circular(13.sp),
               ),
               child: Row(
-                mainAxisAlignment:  widget.pageType != PageTypeEnum.recentlyPlayedPage? MainAxisAlignment.spaceBetween:MainAxisAlignment.start,
+                mainAxisAlignment:
+                    widget.pageType != PageTypeEnum.recentlyPlayedPage
+                        ? MainAxisAlignment.spaceBetween
+                        : MainAxisAlignment.start,
                 children: [
                   QueryArtworkWidget(
                     id: widget.songId,
@@ -94,30 +95,34 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                           color: kGrey,
                         )),
                   ),
-                  widget.pageType != PageTypeEnum.recentlyPlayedPage?const SizedBox():kWidth10,
+                  widget.pageType != PageTypeEnum.recentlyPlayedPage
+                      ? const SizedBox()
+                      : kWidth10,
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                          width: widget.pageType != PageTypeEnum.recentlyPlayedPage? kScreenWidth / 2.2:kScreenWidth/2.1,
+                          width:
+                              widget.pageType != PageTypeEnum.recentlyPlayedPage
+                                  ? kScreenWidth / 2.2
+                                  : kScreenWidth / 2.1,
                           child: Obx(() {
                             return TextWidgetCommon(
-                              overflow: TextOverflow.ellipsis,
-                              text: widget.songTitle,
-                              fontSize: 16.sp,
-                              color: widget.audioController.isPlaying.value &&
-                                          widget
-                                                  .audioController
-                                                  .currentPlayingSong
-                                                  .value
-                                                  ?.id ==
-                                              widget.songId
-                                      ? kRed
-                                      : kWhite
-                            );
+                                overflow: TextOverflow.ellipsis,
+                                text: widget.songTitle,
+                                fontSize: 16.sp,
+                                color: widget.audioController.isPlaying.value &&
+                                        widget.audioController
+                                                .currentPlayingSong.value?.id ==
+                                            widget.songId
+                                    ? kRed
+                                    : kWhite);
                           })),
                       SizedBox(
-                          width:widget.pageType != PageTypeEnum.recentlyPlayedPage? kScreenWidth / 2:kScreenWidth/1.8,
+                          width:
+                              widget.pageType != PageTypeEnum.recentlyPlayedPage
+                                  ? kScreenWidth / 2
+                                  : kScreenWidth / 1.8,
                           child: Obx(() {
                             return TextWidgetCommon(
                                 overflow: TextOverflow.ellipsis,
@@ -142,7 +147,6 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                 backgroundColor: kTransparent,
                                 context: context,
                                 builder: (context) {
-                                  log("widget.songModel: ${widget.songModel}");
                                   return MenuBottomSheet(
                                     playListID: widget.playListID,
                                     favouriteController:

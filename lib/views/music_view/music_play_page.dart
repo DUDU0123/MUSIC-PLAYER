@@ -251,7 +251,6 @@ class MusicPlayPage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(10),
                                   color: kRed),
                               child: Obx(() {
-                                log(audioController.isPlaying.value.toString());
                                 return Icon(
                                   audioController.isPlaying.value
                                       ? Icons.pause
@@ -281,51 +280,51 @@ class MusicPlayPage extends StatelessWidget {
                         children: [
                           // song current playlist show icon
                           GetBuilder<AudioController>(
-                            init: audioController,
-                            builder: (controller) {
-                              return IconButton(
-                                onPressed: () {
-                                  log(
-                                      name: 'LYRICS MUSIC PLAY',
-                                      allMusicController.getLyricsForSong(audioController
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? audioController
-                                                .currentPlayingSong.value!.id:0));
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => MusicLyricsPage(
-                                        lyrics: allMusicController.getLyricsForSong(audioController
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? audioController
-                                                .currentPlayingSong.value!.id:0),
-                                        allMusicController: allMusicController,
-                                        // currentPlayingsongs:  ,
-                                        songModel: controller
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? controller
-                                                .currentPlayingSong.value!
-                                            : songModel,
-                                        songId: controller
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? controller
-                                                .currentPlayingSong.value!.id
-                                            : songId,
+                              init: audioController,
+                              builder: (controller) {
+                                return IconButton(
+                                  onPressed: () {
+                                    log(
+                                        name: 'LYRICS MUSIC PLAY',
+                                        allMusicController.getLyricsForSong(
+                                            audioController.currentPlayingSong
+                                                        .value !=
+                                                    null
+                                                ? audioController
+                                                    .currentPlayingSong
+                                                    .value!
+                                                    .id
+                                                : 0));
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (context) => MusicLyricsPage(
+                                          allMusicController:
+                                              allMusicController,
+                                          // currentPlayingsongs:  ,
+                                          songModel: controller
+                                                      .currentPlayingSong
+                                                      .value !=
+                                                  null
+                                              ? controller
+                                                  .currentPlayingSong.value!
+                                              : songModel,
+                                          songId: controller.currentPlayingSong
+                                                      .value !=
+                                                  null
+                                              ? controller
+                                                  .currentPlayingSong.value!.id
+                                              : songId,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.lyrics_outlined,
-                                  size: 30,
-                                  color: kWhite,
-                                ),
-                              );
-                            }
-                          ),
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.lyrics_outlined,
+                                    size: 30,
+                                    color: kWhite,
+                                  ),
+                                );
+                              }),
                           // song favourite add icon
                           GetBuilder<FavoriteController>(
                               global: true,

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/details.dart';
+import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
@@ -28,7 +29,7 @@ class PlaylistSongListPage extends StatefulWidget {
     required this.songModel,
     this.playlistSongsList,
     required this.audioController,
-    required this.playlistController,
+    required this.playlistController, required this.allMusicController,
   });
   final String playlistName;
   final int playlistId;
@@ -37,6 +38,7 @@ class PlaylistSongListPage extends StatefulWidget {
   final List<AllMusicsModel>? playlistSongsList;
   final AudioController audioController;
   final PlaylistController playlistController;
+  final AllMusicController allMusicController;
 
   @override
   State<PlaylistSongListPage> createState() => PlaylistSongListPageState();
@@ -59,7 +61,7 @@ class PlaylistSongListPageState extends State<PlaylistSongListPage> {
         preferredSize: const Size.fromHeight(60),
         child: SideTitleAppBarCommon(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, widget.playlistSongsList!=null?widget.playlistSongsList!.length:0);
           },
           appBarText: widget.playlistName,
           actions: [
@@ -97,6 +99,7 @@ class PlaylistSongListPageState extends State<PlaylistSongListPage> {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => SongEditPage(
+                        allMusicController: widget.allMusicController,
                         playlistController: widget.playlistController,
                         audioController: widget.audioController,
                         song: widget.songModel,

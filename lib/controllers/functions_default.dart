@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:get/get.dart';
+import 'package:music_player/constants/colors.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:share_plus/share_plus.dart';
@@ -59,10 +60,24 @@ class AppUsingCommonFunctions {
           try {
             await Share.shareXFiles(listOfSongs);
           } catch (e) {
-            log(e.toString());
+            Get.snackbar(
+              "Error Occured",
+              "$e",
+              colorText: kWhite,
+              backgroundColor: kTileColor,
+              duration: const Duration(seconds: 1),
+              snackPosition: SnackPosition.BOTTOM,
+            );
           }
         } catch (e) {
-          Get.snackbar("Error Occured", "An error occured on sending the song");
+          Get.snackbar(
+            "Error Occured",
+            "An error occured on sending the song",
+            colorText: kWhite,
+            backgroundColor: kTileColor,
+            duration: const Duration(seconds: 1),
+            snackPosition: SnackPosition.BOTTOM,
+          );
         }
       }
     }
@@ -76,10 +91,24 @@ class AppUsingCommonFunctions {
         try {
           await Share.shareXFiles(listOfSongs);
         } catch (e) {
-          log(e.toString());
+          Get.snackbar(
+            "Error Occured",
+            "$e",
+            colorText: kWhite,
+            backgroundColor: kTileColor,
+            duration: const Duration(seconds: 1),
+            snackPosition: SnackPosition.BOTTOM,
+          );
         }
       } catch (e) {
-        Get.snackbar("Error Occured", "An error occured on sending the song");
+        Get.snackbar(
+          "Error Occured",
+          "An error occured on sending the song",
+          colorText: kWhite,
+          backgroundColor: kTileColor,
+          duration: const Duration(seconds: 1),
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     }
   }

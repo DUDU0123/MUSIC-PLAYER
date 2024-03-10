@@ -47,13 +47,10 @@ class AudioController extends GetxController {
 
   // for initializing audio player
   Future<void> intializeAudioPlayer(List<AllMusicsModel> songs) async {
-    log("Initializing");
     try {
       await audioPlayer.setAudioSource(
         ConcatenatingAudioSource(
           children: songs.map((song) {
-            log(name: 'CONCATENATE SONG ID', song.id.toString());
-            log(song.musicPathInDevice);
             return AudioSource.uri(
               Uri.parse(song.musicUri),
               tag: MediaItem(
@@ -72,23 +69,21 @@ class AudioController extends GetxController {
         // Seek to the last played position
         await audioPlayer.seek(audioPlayer.position);
       }
-      currentPlayingSong.value = allSongsListFromDevice[currentSongIndex.value];
+      currentPlayingSong.value = AllFiles.files.value[currentSongIndex.value];
     } catch (e) {
-      log("Error on play intialize: $e");
+     debugPrint(e.toString());
     }
     audioPlayer.playbackEventStream.listen((event) {
       if (event.processingState == ProcessingState.completed &&
           event.currentIndex != null) {
-        log(name: 'EVENT INDEX', event.currentIndex.toString());
-        if (currentSongIndex < allSongsListFromDevice.length - 1) {
-          currentPlayingSong.value =
-              allSongsListFromDevice[event.currentIndex!];
+        if (currentSongIndex < AllFiles.files.value.length - 1) {
+          currentPlayingSong.value = AllFiles.files.value[event.currentIndex!];
           playNextSong();
         } else {
           if (audioPlayer.loopMode == LoopMode.all &&
               currentPlayingSong.value != null) {
             currentPlayingSong.value =
-                allSongsListFromDevice[event.currentIndex!];
+                AllFiles.files.value[event.currentIndex!];
             //play song
             playSong(currentPlayingSong.value!);
           } else {
@@ -97,7 +92,7 @@ class AudioController extends GetxController {
           }
         }
         // Update UI with the new song details
-        currentPlayingSong.value = allSongsListFromDevice[event.currentIndex!];
+        currentPlayingSong.value = AllFiles.files.value[event.currentIndex!];
       }
     });
     audioPlayer.durationStream.listen(
@@ -112,15 +107,12 @@ class AudioController extends GetxController {
 
   //request permission , if granted fetch songs and initialize audio player
   Future<void> requestPermissionAndFetchSongsAndInitializePlayer() async {
-    log("CALLING REQUESTFETCHINITIALIZE AGAIN");
     var status = await PermissionRequestClass.permissionStorage();
     bool ispermanetelydenied = await Permission.storage.isPermanentlyDenied;
     if (status) {
-      log("Granted");
       await fetchSongsFromDeviceStorage();
-      await intializeAudioPlayer(allSongsListFromDevice);
+      await intializeAudioPlayer(AllFiles.files.value);
     } else if (ispermanetelydenied) {
-      log("Permission Denied");
       await openAppSettings();
       await PermissionRequestClass.permissionStorage();
     }
@@ -134,15 +126,14 @@ class AudioController extends GetxController {
   // fetching songs from device storage
   Future<void> fetchSongsFromDeviceStorage() async {
     final OnAudioQuery onAudioQuery = OnAudioQuery();
-    try {
-      log("Fetching");
       final songs = await onAudioQuery.querySongs(
         sortType: null,
         uriType: UriType.EXTERNAL,
         ignoreCase: true,
         orderType: OrderType.ASC_OR_SMALLER,
       );
-      allSongsListFromDevice.clear();
+      //allSongsListFromDevice.clear();
+      AllFiles.files.value.clear();
 
       List<AllMusicsModel> allsongs =
           songs.map((song) => AllMusicsModel.fromSongModel(song)).toList();
@@ -165,13 +156,11 @@ class AudioController extends GetxController {
         // Sort alphabetically by music name
         songsList.sort((a, b) => a.musicName.compareTo(b.musicName));
       }
-      allSongsListFromDevice.addAll(songsList);
+      // allSongsListFromDevice.addAll(songsList);
       AllFiles.files.value = songsList;
 
       await addSongsToDB(AllFiles.files.value);
-    } catch (e) {
-      log(e.toString());
-    }
+
   }
 
   void clearRecentlyPlayedSongs() {
@@ -186,8 +175,9 @@ class AudioController extends GetxController {
   Future<void> addSongsToDB(List<AllMusicsModel> songs) async {
     final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
     await musicBox.clear();
+    final List<AllMusicsModel> songsCopy = List.from(songs);
 
-    for (var song in songs) {
+    for (var song in songsCopy) {
       await musicBox.put(song.id, song);
     }
   }
@@ -219,30 +209,30 @@ class AudioController extends GetxController {
   }
 
   Future<void> playSong(AllMusicsModel song) async {
-    int index = allSongsListFromDevice.indexWhere((s) {
-      log(name: "All id", s.id.toString());
-      log(name: 'SONG Id', song.id.toString());
-      log(name: "All NAME", s.musicName.toString());
-      log(name: 'SONG NAME', song.musicName.toString());
+    int index = AllFiles.files.value.indexWhere((s) {
       return s.id == song.id;
     });
-    log('Playing song at index: $index');
-    if (allSongsListFromDevice.isEmpty ||
+    if (AllFiles.files.value.isEmpty ||
         index < 0 ||
-        index >= allSongsListFromDevice.length) {
-      log("SOMETHING HAPPENED");
-      log(name: 'SONG NAME DELETED', song.musicName);
-      allSongsListFromDevice.remove(song);
+        index >= AllFiles.files.value.length) {
+      Get.snackbar(
+        "SOMETHING HAPPENED",
+        "Song not exist",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: kTileColor,
+        colorText: kWhite,
+        duration: const Duration(seconds: 1),
+      );
+      AllFiles.files.value.remove(song);
       return;
     }
 
     audioPlayer.playbackEventStream.listen((event) {
       if (event.currentIndex != null) {
         currentSongIndex.value = event.currentIndex!;
-        currentPlayingSong.value =
-            allSongsListFromDevice[currentSongIndex.value];
+        currentPlayingSong.value = AllFiles.files.value[currentSongIndex.value];
 
-        AllMusicsModel nextSong = allSongsListFromDevice[event.currentIndex!];
+        AllMusicsModel nextSong = AllFiles.files.value[event.currentIndex!];
         if (!isSongRecentlyPlayed(nextSong, musicBox.values.toList())) {
           RecentlyPlayedModel recentlyPlayedModel = recentlyPlayedBox.get(
                 'recent',
@@ -271,8 +261,6 @@ class AudioController extends GetxController {
     audioPlayer.durationStream.listen((p) {
       position.value = p ?? const Duration();
     });
-    log("After current");
-    log("${currentPlayingSong.value!.id} ${currentPlayingSong.value!.musicName} ${currentPlayingSong.value!.musicAlbumName}");
     // Update the current playing song
     update();
   }
@@ -312,16 +300,19 @@ class AudioController extends GetxController {
 
 // function for play next song
   Future<void> playNextSong() async {
-    if (currentSongIndex < allSongsListFromDevice.length - 1) {
+    if (currentSongIndex < AllFiles.files.value.length - 1) {
       currentSongIndex++;
       isPlaying.value = true;
-      await playSong(allSongsListFromDevice[currentSongIndex.value]);
+      await playSong(AllFiles.files.value[currentSongIndex.value]);
     } else {
-      Get.snackbar("Play Back", "No songs to play next",
-          snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: kTileColor,
-          colorText: kWhite,
-          duration: const Duration(seconds: 1));
+      Get.snackbar(
+        "Play Back",
+        "No songs to play next",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: kTileColor,
+        colorText: kWhite,
+        duration: const Duration(seconds: 1),
+      );
     }
   }
 
@@ -330,7 +321,7 @@ class AudioController extends GetxController {
     if (currentSongIndex > 0) {
       currentSongIndex--;
       isPlaying.value = true;
-      await playSong(allSongsListFromDevice[currentSongIndex.value]);
+      await playSong(AllFiles.files.value[currentSongIndex.value]);
     } else {
       Get.snackbar("Play Next", "No songs to play previous",
           snackPosition: SnackPosition.BOTTOM,
@@ -341,7 +332,6 @@ class AudioController extends GetxController {
   }
 
   Future<List<AllMusicsModel>> getAllSongs() async {
-    log("CALLING GET ALL SONGS");
     await fetchSongsFromDeviceStorage();
     return AllFiles.files.value;
   }
@@ -354,10 +344,10 @@ class AudioController extends GetxController {
       await stopSong();
       try {
         for (var songId in songIds) {
-          AllMusicsModel? songToDelete = allSongsListFromDevice
+          AllMusicsModel? songToDelete = AllFiles.files.value
               .firstWhereOrNull((song) => song.id == songId);
           if (songToDelete != null) {
-            allSongsListFromDevice.remove(songToDelete);
+            // allSongsListFromDevice.remove(songToDelete);
             AllFiles.files.value.remove(songToDelete);
 
             update();
@@ -388,11 +378,12 @@ class AudioController extends GetxController {
         Get.snackbar(
           "Deleted",
           "Deleted successfully!",
-          duration: const Duration(seconds: 1),
           colorText: kWhite,
+          backgroundColor: kTileColor,
+          duration: const Duration(seconds: 1),
+          snackPosition: SnackPosition.BOTTOM,
         );
       } catch (e) {
-        log(e.toString());
         Get.snackbar(
           "Error !!!!!",
           "$e",
@@ -401,9 +392,15 @@ class AudioController extends GetxController {
         );
       }
     } else {
-      log("Permission Denied to delete a file");
+      Get.snackbar(
+        "Can't delete",
+        "Permission Denied to delete a file",
+        colorText: kWhite,
+        backgroundColor: kTileColor,
+        duration: const Duration(seconds: 1),
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
-    log("Music box length after deletion: ${musicBox.length}");
     requestPermissionAndFetchSongsAndInitializePlayer();
     // fetchSongsFromDeviceStorage();
   }

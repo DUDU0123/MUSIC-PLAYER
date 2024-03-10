@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/constants/details.dart';
+import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
@@ -20,7 +22,7 @@ class SongEditPage extends StatefulWidget {
     required this.favoriteController,
     required this.song,
     required this.audioController,
-    required this.playlistController,
+    required this.playlistController, required this.allMusicController,
   });
   final PageTypeEnum pageType;
   final List<AllMusicsModel> songList;
@@ -28,6 +30,8 @@ class SongEditPage extends StatefulWidget {
   final AllMusicsModel song;
   final AudioController audioController;
   final PlaylistController playlistController;
+  final AllMusicController allMusicController;
+
   
 
   @override
@@ -42,6 +46,7 @@ class _SongEditPageState extends State<SongEditPage> {
   String songName = '';
   @override
   Widget build(BuildContext context) {
+    
     // final kScreenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: PreferredSize(
@@ -68,7 +73,7 @@ class _SongEditPageState extends State<SongEditPage> {
           ],
         ),
       ),
-      body: widget.audioController.allSongsListFromDevice.isNotEmpty
+      body: AllFiles.files.value.isNotEmpty
           ? GetBuilder<AudioController>(
               init: widget.audioController,
               builder: (controller) {
@@ -119,7 +124,7 @@ class _SongEditPageState extends State<SongEditPage> {
               })
           : const DefaultCommonWidget(text: "No songs available"),
       bottomNavigationBar:
-          widget.audioController.allSongsListFromDevice.isNotEmpty
+          AllFiles.files.value.isNotEmpty
               ? BottomSettingsWidget(
                   audioController: widget.audioController,
                   playlistController: widget.playlistController,

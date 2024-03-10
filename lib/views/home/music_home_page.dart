@@ -31,7 +31,7 @@ class _MusicHomePageState extends State<MusicHomePage> {
   @override
   Widget build(BuildContext context) {
 
-    log("REBUILDING");
+
     return Scaffold(
       body: ValueListenableBuilder<List<AllMusicsModel>>(
         valueListenable: AllFiles.files,

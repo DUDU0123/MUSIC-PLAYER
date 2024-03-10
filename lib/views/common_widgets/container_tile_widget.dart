@@ -11,14 +11,14 @@ class ContainerTileWidget extends StatelessWidget {
   const ContainerTileWidget({
     super.key,
     required this.title,
-    required this.songLength,
+     this.songLength,
     required this.pageType,
     this.onTap,
     this.deletePlaylistMethod,
     this.editPlaylistNameMethod,
   });
   final String title;
-  final int songLength;
+  final int? songLength;
   final PageTypeEnum pageType;
   final void Function()? onTap;
   final void Function()? editPlaylistNameMethod;
@@ -56,7 +56,15 @@ class ContainerTileWidget extends StatelessWidget {
                           size: 24.sp,
                         ),
                       )
-                    : const SizedBox(),
+                    : Container(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 9.h, horizontal: 9.w),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: kLightGrey,
+                        ),
+                        child: Image.asset('assets/artist.png', scale: 20.sp, color: kGrey,),
+                      ),
                 kWidth10,
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,16 +74,9 @@ class ContainerTileWidget extends StatelessWidget {
                       child: TextWidgetCommon(
                         overflow: TextOverflow.ellipsis,
                         text: title,
-                        fontSize: 16.sp,
+                        fontSize: 18.sp,
                         color: kWhite,
                       ),
-                    ),
-                    TextWidgetCommon(
-                      text: songLength > 1
-                          ? '$songLength songs'
-                          : '$songLength song',
-                      fontSize: 10.sp,
-                      color: kGrey,
                     ),
                   ],
                 ),

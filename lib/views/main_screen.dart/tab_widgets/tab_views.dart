@@ -38,6 +38,7 @@ class TabViewList {
         favoriteController: favoriteController,
       ),
       MusicPlaylistPage(
+        allMusicController: allMusicController,
         playlistController: playlistController,
         audioController: audioController,
         songModel: currentSong,

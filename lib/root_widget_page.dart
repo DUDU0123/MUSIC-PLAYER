@@ -19,7 +19,6 @@ class RootWidgetPage extends StatelessWidget {
             ),
             debugShowCheckedModeBanner: false,
             home: const MusicBoxSplashScreen()
-            //const MainScreen(),
             );
       },
     );
