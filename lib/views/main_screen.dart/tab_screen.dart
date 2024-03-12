@@ -44,6 +44,7 @@ class TabScreen extends StatefulWidget {
 }
 
 class _TabScreenState extends State<TabScreen> {
+
   void refreshUI() {
     setState(() {});
   }
@@ -103,17 +104,6 @@ class _TabScreenState extends State<TabScreen> {
                 ),
                 onSelected: (value) {
                   switch (value) {
-                    case TopMenuItemEnum.manageSong:
-                      Get.to(() => SongEditPage(
-                        allMusicController: widget.allMusicController,
-                            playlistController: widget.playlistController,
-                            audioController: widget.audioController,
-                            favoriteController: widget.favoriteController,
-                            pageType: PageTypeEnum.homePage,
-                            songList: AllFiles.files.value,
-                            song: currentSong,
-                          ));
-                      break;
                     case TopMenuItemEnum.settings:
                       Get.to(() => const SettingsPage());
                       break;
@@ -200,15 +190,15 @@ class _TabScreenState extends State<TabScreen> {
                 );
               }),
           floatingActionButton:
-              AllFiles.files.value.isNotEmpty
-                  ?
+              // AllFiles.files.value.isNotEmpty
+              //     ?
               FloatingButtonOnBottom(
             allMusicController: widget.allMusicController,
             currentSong: currentSong,
             audioController: widget.audioController,
             favoriteController: widget.favoriteController,
           )
-          : const SizedBox(),
+          // : const SizedBox(),
           ),
     );
   }

@@ -22,15 +22,15 @@ class BuildTabMenu {
 
     if (showAllOptions && AllFiles.files.value.isNotEmpty) {
       return [
-        PopupMenuItem(
-          value: TopMenuItemEnum.manageSong,
-          child: TextWidgetCommon(
-            text: "Manage Songs",
-            fontSize: 14.sp,
-            color: kWhite,
-            fontWeight: FontWeight.normal,
-          ),
-        ),
+        // PopupMenuItem(
+        //   value: TopMenuItemEnum.manageSong,
+        //   child: TextWidgetCommon(
+        //     text: "Manage Songs",
+        //     fontSize: 14.sp,
+        //     color: kWhite,
+        //     fontWeight: FontWeight.normal,
+        //   ),
+        // ),
         PopupMenuItem(
           value: TopMenuItemEnum.settings,
           child: TextWidgetCommon(

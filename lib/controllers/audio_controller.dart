@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -388,7 +387,7 @@ class AudioController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     }
-   await requestPermissionAndFetchSongsAndInitializePlayer();
+    requestPermissionAndFetchSongsAndInitializePlayer();
     
     // fetchSongsFromDeviceStorage();
   }

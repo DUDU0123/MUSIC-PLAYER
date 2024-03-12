@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:music_player/constants/allsongslist.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
@@ -33,7 +34,7 @@ class FloatingButtonOnBottom extends StatelessWidget {
         size: 30.sp,
       ),
       onPressed: () {
-        showModalBottomSheet(
+       AllFiles.files.value.isNotEmpty? showModalBottomSheet(
           isScrollControlled: true,
           context: context,
           builder: (context) {
@@ -53,7 +54,7 @@ class FloatingButtonOnBottom extends StatelessWidget {
               favoriteController: favoriteController,
             );
           },
-        );
+        ):null;
       },
     );
   }

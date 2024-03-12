@@ -161,7 +161,8 @@ class _BottomSettingsWidgetState extends State<BottomSettingsWidget> {
                                                           context)
                                                   : null
                                               : false;
-                                          controller.isSongDeleted.value = true;
+                                          // widget.audioController
+                                          //     .requestPermissionAndFetchSongsAndInitializePlayer();
                                           Get.back();
                                         },
                                       );
