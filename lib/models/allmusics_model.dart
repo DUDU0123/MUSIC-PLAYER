@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 part 'allmusics_model.g.dart';
 
@@ -24,8 +23,6 @@ class AllMusicsModel extends HiveObject {
   @HiveField(8)
   bool? musicSelected;
   @HiveField(9)
-  int? dateAdded;
-  @HiveField(10)
   String? musicLyrics;
 
   AllMusicsModel({
@@ -38,7 +35,6 @@ class AllMusicsModel extends HiveObject {
     required this.musicUri,
     required this.musicFileSize,
     this.musicSelected,
-    this.dateAdded,
     this.musicLyrics,
   });
 
@@ -53,21 +49,11 @@ class AllMusicsModel extends HiveObject {
       musicUri: songModel.uri!,
       musicFileSize: songModel.size,
       musicSelected: false,
-      dateAdded: songModel.dateAdded,
       musicLyrics: '',
     );
   }
 
-  // final String musicCoverImage;
-  String? get formattedDateAdded {
-    if (dateAdded != null) {
-      DateTime dateTime =
-          DateTime.fromMillisecondsSinceEpoch(dateAdded! * 1000);
-      String formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
-      return formattedDate;
-    }
-    return null;
-  }
+
 
   @override
   bool operator ==(Object other) {
@@ -75,7 +61,7 @@ class AllMusicsModel extends HiveObject {
 
     return other is AllMusicsModel &&
         other.id ==
-            id; // Adjust the condition based on your unique identifier(s)
+            id; // Adjust the condition based on unique identifier(s)
   }
 
   @override

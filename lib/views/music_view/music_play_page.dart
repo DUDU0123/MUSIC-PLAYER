@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -284,17 +283,6 @@ class MusicPlayPage extends StatelessWidget {
                               builder: (controller) {
                                 return IconButton(
                                   onPressed: () {
-                                    log(
-                                        name: 'LYRICS MUSIC PLAY',
-                                        allMusicController.getLyricsForSong(
-                                            audioController.currentPlayingSong
-                                                        .value !=
-                                                    null
-                                                ? audioController
-                                                    .currentPlayingSong
-                                                    .value!
-                                                    .id
-                                                : 0));
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => MusicLyricsPage(

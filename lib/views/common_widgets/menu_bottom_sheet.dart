@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
@@ -8,6 +7,7 @@ import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
+import 'package:music_player/views/add_to_playlist/add_to_playlist_page.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/ontap_text_widget.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
@@ -84,9 +84,10 @@ class MenuBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 20),
       height: pageType == PageTypeEnum.favoritePage ||
               pageType == PageTypeEnum.musicViewPage ||
+              pageType==PageTypeEnum.playListPage||
               pageType == PageTypeEnum.searchPage
-          ? kScreenHeight / 3
-          : kScreenHeight / 2.5,
+          ? kScreenHeight / 2.53
+          : kScreenHeight / 2.185,
       child: Column(
         children: [
           OnTapTextWidget(
@@ -114,6 +115,27 @@ class MenuBottomSheet extends StatelessWidget {
               );
             },
           ),
+          pageType != PageTypeEnum.playListPage
+              ? GetBuilder<PlaylistController>(
+                  init: PlaylistController(),
+                  builder: (controller) {
+                    return OnTapTextWidget(
+                      text: PlaylistController.to.isInPlaylist(songId)
+                          ? "Remove from Playlist"
+                          : "Add to Playlist",
+                      onTap: () {
+                        PlaylistController.to.isInPlaylist(songId)
+                            ? PlaylistController.to.onTapRemovefromPlaylistAddToPlaylistPage(
+                                songId: songId,
+                                playlistId: PlaylistController.to.getPlaylistIDFromAddToPlaylist.value,
+                              )
+                            : Get.to(() => AddToPlaylistPage(
+                                  song: song,
+                                ));
+                      },
+                    );
+                  })
+              : const SizedBox(),
           GetBuilder<FavoriteController>(builder: (controller) {
             return OnTapTextWidget(
               text: controller.isFavorite(favsong!.id)

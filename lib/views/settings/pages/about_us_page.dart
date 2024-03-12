@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
-import 'package:music_player/views/settings/widgets/terms_and_policy_texts.dart';
+import 'package:music_player/views/settings/pages/about_us_page_texts.dart';
 
-class TermsAndPrivacyPolicyPage extends StatelessWidget {
-  const TermsAndPrivacyPolicyPage({
-    super.key,
-  });
+class AboutUsPage extends StatelessWidget {
+  const AboutUsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +18,7 @@ class TermsAndPrivacyPolicyPage extends StatelessWidget {
         }, icon: Icon(Icons.arrow_back, color: kRed, size: 28.sp,)),
         automaticallyImplyLeading: false,
         title: TextWidgetCommon(
-          text: "Terms And Privacy Policy",
+          text: "About Us",
           fontSize: 18.sp,
           color: kWhite,
           fontWeight: FontWeight.bold,
@@ -35,7 +33,7 @@ class TermsAndPrivacyPolicyPage extends StatelessWidget {
         width: kScreenWidth,
         height: kScreenHeight,
         child:const SingleChildScrollView(
-          child: TermsAndPolicyTexts(),
+          child: AboutUsPageTexts(),
         ),
       ),
     );

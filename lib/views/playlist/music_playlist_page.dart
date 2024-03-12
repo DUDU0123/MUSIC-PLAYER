@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -107,6 +105,7 @@ class MusicPlaylistPageState extends State<MusicPlaylistPage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => RecentlyPlayedPage(
+                          allMusicController: widget.allMusicController,
                           songModel: widget.songModel,
                           favoriteController: widget.favoriteController,
                         ),
@@ -140,6 +139,11 @@ class MusicPlaylistPageState extends State<MusicPlaylistPage> {
                   );
                 },
                 editPlaylistNameMethod: () {
+                  int playlistIndex = index - 3;
+                  String currentPlaylistName = PlaylistController.to
+                      .getPlaylistName(index: playlistIndex);
+
+                  editPlaylistController.text = currentPlaylistName;
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -160,15 +164,9 @@ class MusicPlaylistPageState extends State<MusicPlaylistPage> {
                   );
                 },
                 onTap: () async {
-                  var playlistID =
-                      widget.playlistController.getPlaylistID(index: index - 3);
                   var playlistSongs = await widget.playlistController
                       .getPlayListSongs(widget.playlistController
                           .getPlaylistID(index: index - 3));
-                  log(name: 'PLAYLIST ID MUSIC PLAYLIST', '$playlistID');
-                  for (var song in playlistSongs!) {
-                    log(name: 'PLAYLIST SONGS MUSIC PLAYLIST', song.musicName);
-                  }
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => PlaylistSongListPage(
@@ -188,8 +186,6 @@ class MusicPlaylistPageState extends State<MusicPlaylistPage> {
                   );
                 },
                 title: PlaylistController.to.getPlaylistName(index: index - 3),
-                // songLength:
-                //     widget.playlistController.playlistSongLengths[index - 3],
                 pageType: PageTypeEnum.playListPage,
               );
             });

@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
-import 'package:music_player/views/settings/terms_and_privacy_policy_page.dart';
+import 'package:music_player/views/settings/pages/about_us_page.dart';
+import 'package:music_player/views/settings/pages/privacy_policy_page.dart';
+import 'package:music_player/views/settings/pages/terms_and_conditions_page.dart';
 
 
 class SettingsPage extends StatelessWidget {
@@ -50,14 +52,34 @@ class SettingsPage extends StatelessWidget {
             ),
             ListTile(
               onTap: () {
-                Get.to(()=> const TermsAndPrivacyPolicyPage());
+                Get.to(()=> const TermsAndConditionsPage());
               },
               title: TextWidgetCommon(
-                text: "Terms and privacy",
+                text: "Terms and Conditions",
                 fontSize: 17.sp,
                 color: kWhite,
               ),
-            )
+            ),
+            ListTile(
+              onTap: () {
+                Get.to(()=> const PrivacyPolicyPage());
+              },
+              title: TextWidgetCommon(
+                text: "Privacy Policy",
+                fontSize: 17.sp,
+                color: kWhite,
+              ),
+            ),
+            ListTile(
+              onTap: () {
+                Get.to(()=> const AboutUsPage());
+              },
+              title: TextWidgetCommon(
+                text: "About Us",
+                fontSize: 17.sp,
+                color: kWhite,
+              ),
+            ),
           ],
         ),
       ),

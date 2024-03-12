@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
-import 'package:music_player/constants/details.dart';
+import 'package:music_player/constants/allsongslist.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
@@ -10,6 +10,7 @@ import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
+import 'package:music_player/views/common_widgets/music_play_page_open.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
@@ -88,7 +89,15 @@ class _ArtistSongListPageState extends State<ArtistSongListPage> {
                   itemBuilder: (context, index) {
                     return MusicTileWidget(
                       onTap: () {
+                        widget.audioController.isPlaying.value = true;
                         widget.audioController.playSong(artistSongs[index]);
+                        musicPlayPageOpenPage(
+                          context: context,
+                          song: artistSongs[index],
+                          allMusicController: widget.allMusicController,
+                          favoriteController: widget.favoriteController,
+                          audioController: widget.audioController,
+                        );
                       },
                       audioController: widget.audioController,
                       songModel: artistSongs[index],

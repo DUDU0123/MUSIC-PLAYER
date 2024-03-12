@@ -9,6 +9,7 @@ import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
+import 'package:music_player/views/common_widgets/music_play_page_open.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
@@ -21,7 +22,10 @@ class FavouriteMusicListPage extends StatelessWidget {
     super.key,
     required this.songModel,
     required this.audioController,
-    required this.favouriteController, required this.playlistController, required this.instance, required this.allMusicController,
+    required this.favouriteController,
+    required this.playlistController,
+    required this.instance,
+    required this.allMusicController,
     // required this.favouriteController,
   });
   final FavoriteController favouriteController;
@@ -90,25 +94,34 @@ class FavouriteMusicListPage extends StatelessWidget {
             : ListView.builder(
                 itemCount: favouriteController.favoriteSongs.length,
                 itemBuilder: (context, index) {
-                 List<AllMusicsModel> songModel = favouriteController.favoriteSongs
-                      .map((favmodel) => AllMusicsModel(
-                        
-                            id: favmodel.id,
-                            musicName: favmodel.musicName,
-                            musicAlbumName: favmodel.musicAlbumName,
-                            musicArtistName: favmodel.musicArtistName,
-                            musicPathInDevice: favmodel.musicPathInDevice,
-                            musicFormat: favmodel.musicFormat,
-                            musicUri: favmodel.musicUri,
-                            musicFileSize: favmodel.musicFileSize,
-                          )).toList();
+                  List<AllMusicsModel> songModel =
+                      favouriteController.favoriteSongs
+                          .map((favmodel) => AllMusicsModel(
+                                id: favmodel.id,
+                                musicName: favmodel.musicName,
+                                musicAlbumName: favmodel.musicAlbumName,
+                                musicArtistName: favmodel.musicArtistName,
+                                musicPathInDevice: favmodel.musicPathInDevice,
+                                musicFormat: favmodel.musicFormat,
+                                musicUri: favmodel.musicUri,
+                                musicFileSize: favmodel.musicFileSize,
+                              ))
+                          .toList();
 
                   favouriteController.favoriteSongs.toList().toSet();
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.h),
                     child: MusicTileWidget(
                       onTap: () {
+                        audioController.isPlaying.value = true;
                         audioController.playSong(songModel[index]);
+                        musicPlayPageOpenPage(
+                          context: context,
+                          song: songModel[index],
+                          allMusicController: allMusicController,
+                          favoriteController: favouriteController,
+                          audioController: audioController,
+                        );
                       },
                       audioController: audioController,
                       songModel: songModel[index],

@@ -1,9 +1,8 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
-import 'package:music_player/constants/details.dart';
+import 'package:music_player/constants/allsongslist.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
@@ -16,7 +15,9 @@ class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
   const AddSongInPlaylistFromSelectingSongs({
     super.key,
     required this.playListID,
-    required this.audioController, required this.playlistController, this.instance,
+    required this.audioController,
+    required this.playlistController,
+    this.instance,
   });
   final int playListID;
   final AudioController audioController;
@@ -29,19 +30,17 @@ class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
 
 class _AddSongInPlaylistFromSelectingSongsState
     extends State<AddSongInPlaylistFromSelectingSongs> {
-      
-
-      @override
+  @override
   void initState() {
-     widget.playlistController.addingAllSongsToList();
+    widget.playlistController.addingAllSongsToList();
     super.initState();
   }
+
   bool isSelected = false;
   bool isAllSelected = false;
 
   @override
   Widget build(BuildContext context) {
-   
     //final kScreenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: PreferredSize(
@@ -114,26 +113,20 @@ class _AddSongInPlaylistFromSelectingSongsState
                       );
                     }),
                 Container(
-
                   alignment: Alignment.bottomCenter,
                   child: GetBuilder<PlaylistController>(
                       init: widget.playlistController,
                       builder: (controller) {
                         return GestureDetector(
                           onTap: () {
-                            log(name: 'ONTAPPED TO ADD', 'ADDING SONGS');
-                            List<AllMusicsModel> selectedSongList =
-                                controller
-                                    .fullSongListToAddToPlaylist.value
-                                    .where(
-                                        (music) => music.musicSelected == true)
-                                    .toList();
-                            log(name: 'SELECTED LIST', '$selectedSongList');
-                            log(name: 'LIST LENGTH', "${selectedSongList.length}");
-                            log(name: 'PLAYLIST ID:',"${widget.playListID}");
-                            controller.addSongsToDBPlaylist(
+                            List<AllMusicsModel> selectedSongList = controller
+                                .fullSongListToAddToPlaylist.value
+                                .where((music) => music.musicSelected == true)
+                                .toList();
+
+                            PlaylistController.to.addSongsToDBPlaylist(
                                 selectedSongList, widget.playListID);
-                                widget.instance?.refresh();
+                            widget.instance?.refresh();
                             Get.back();
                           },
                           child: Container(
@@ -173,7 +166,8 @@ class _AddSongInPlaylistFromSelectingSongsState
   }
 
   selectAllSongs() {
-    for (var element in widget.playlistController.fullSongListToAddToPlaylist.value) {
+    for (var element
+        in widget.playlistController.fullSongListToAddToPlaylist.value) {
       setState(() {
         element.musicSelected = true;
         isSelected = true;
@@ -183,7 +177,8 @@ class _AddSongInPlaylistFromSelectingSongsState
   }
 
   deselectAllSongs() {
-    for (var element in widget.playlistController.fullSongListToAddToPlaylist.value) {
+    for (var element
+        in widget.playlistController.fullSongListToAddToPlaylist.value) {
       setState(() {
         element.musicSelected = false;
         isSelected = false;

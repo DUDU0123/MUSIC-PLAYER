@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/models/allmusics_model.dart';

@@ -8,9 +8,11 @@ import 'package:music_player/models/playlist_model.dart';
 import 'package:music_player/models/recently_played_model.dart';
 import 'package:music_player/root_widget_page.dart';
 import 'package:path_provider/path_provider.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Audio playback',

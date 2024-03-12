@@ -1,9 +1,8 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:music_player/constants/colors.dart';
-import 'package:music_player/constants/details.dart';
+import 'package:music_player/constants/allsongslist.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/album_artist_functions_common.dart';
@@ -110,8 +109,6 @@ class AllMusicController extends GetxController {
     final box = await Hive.openBox<AllMusicsModel>('musics');
     final AllMusicsModel? songModel = box.get(songId);
     songModel?.musicLyrics = lyrics;
-    log(name: "SAVING LYRICS ", "${songModel?.musicLyrics}");
-    log(name: 'SAVING SONG ID', "$songId");
     await box.put(
       songId,
       songModel ??
@@ -126,7 +123,6 @@ class AllMusicController extends GetxController {
             musicFileSize: 0,
           ),
     );
-    log(name: "SAVED LYRICS ", "${songModel?.musicLyrics}");
     update();
     Get.snackbar(
       "Lyrics Saved",
@@ -139,11 +135,8 @@ class AllMusicController extends GetxController {
   }
 
   String getLyricsForSong(int songId) {
-    log(name: 'GETTING SONG ID', "$songId");
     final box = Hive.box<AllMusicsModel>('musics');
     final AllMusicsModel? songModel = box.get(songId);
-    log(name: "GET SAVING LYRICS", "${songModel?.musicLyrics}");
-    log(name: "GET SAVING SONG NAME", "${songModel?.musicName}");
     return songModel?.musicLyrics ?? '';
   }
 }

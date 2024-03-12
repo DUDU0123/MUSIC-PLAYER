@@ -7,7 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/constants/colors.dart';
-import 'package:music_player/constants/details.dart';
+import 'package:music_player/constants/allsongslist.dart';
 import 'package:music_player/controllers/permission_request_class.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/recently_played_model.dart';
@@ -71,7 +71,7 @@ class AudioController extends GetxController {
       }
       currentPlayingSong.value = AllFiles.files.value[currentSongIndex.value];
     } catch (e) {
-     debugPrint(e.toString());
+      debugPrint(e.toString());
     }
     audioPlayer.playbackEventStream.listen((event) {
       if (event.processingState == ProcessingState.completed &&
@@ -126,41 +126,29 @@ class AudioController extends GetxController {
   // fetching songs from device storage
   Future<void> fetchSongsFromDeviceStorage() async {
     final OnAudioQuery onAudioQuery = OnAudioQuery();
-      final songs = await onAudioQuery.querySongs(
-        sortType: null,
-        uriType: UriType.EXTERNAL,
-        ignoreCase: true,
-        orderType: OrderType.ASC_OR_SMALLER,
-      );
-      //allSongsListFromDevice.clear();
-      AllFiles.files.value.clear();
+    final songs = await onAudioQuery.querySongs(
+      sortType: null,
+      uriType: UriType.EXTERNAL,
+      ignoreCase: true,
+      orderType: OrderType.ASC_OR_SMALLER,
+    );
+    //allSongsListFromDevice.clear();
+    AllFiles.files.value.clear();
 
-      List<AllMusicsModel> allsongs =
-          songs.map((song) => AllMusicsModel.fromSongModel(song)).toList();
-      List<AllMusicsModel> songsList = <AllMusicsModel>[];
+    List<AllMusicsModel> allsongs =
+        songs.map((song) => AllMusicsModel.fromSongModel(song)).toList();
+    List<AllMusicsModel> songsList = <AllMusicsModel>[];
 
-      for (var element in allsongs) {
-        if (File(element.musicPathInDevice).existsSync()) {
-          songsList.add(element);
-        }
+    for (var element in allsongs) {
+      if (File(element.musicPathInDevice).existsSync()) {
+        songsList.add(element);
       }
+    }
 
-      // Sort the songs based on the selected sort method
-      if (currentSortMethod.value == SortMethod.byTimeAdded) {
-        // Sort by time added in descending order (latest added first)
-        songsList.sort((a, b) => b.formattedDateAdded != null
-            ? b.formattedDateAdded!.compareTo(
-                a.formattedDateAdded != null ? a.formattedDateAdded! : '')
-            : 0);
-      } else if (currentSortMethod.value == SortMethod.alphabetically) {
-        // Sort alphabetically by music name
-        songsList.sort((a, b) => a.musicName.compareTo(b.musicName));
-      }
-      // allSongsListFromDevice.addAll(songsList);
-      AllFiles.files.value = songsList;
+    // allSongsListFromDevice.addAll(songsList);
+    AllFiles.files.value = songsList;
 
-      await addSongsToDB(AllFiles.files.value);
-
+    await addSongsToDB(AllFiles.files.value);
   }
 
   void clearRecentlyPlayedSongs() {
@@ -183,7 +171,6 @@ class AudioController extends GetxController {
   }
 
   Future initializeRecentlyPlayedSongs() async {
-    log("Debug: Initializing Recently Played Songs");
     recentlyPlayedBox = Hive.box<RecentlyPlayedModel>('recent');
     recentlyPlayedSongList.value = recentlyPlayedBox.values.toList();
     if (recentlyPlayedBox.isEmpty) {
@@ -401,7 +388,8 @@ class AudioController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     }
-    requestPermissionAndFetchSongsAndInitializePlayer();
+   await requestPermissionAndFetchSongsAndInitializePlayer();
+    
     // fetchSongsFromDeviceStorage();
   }
 

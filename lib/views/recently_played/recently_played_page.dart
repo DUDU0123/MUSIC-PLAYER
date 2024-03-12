@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
+import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/recently_played_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
+import 'package:music_player/views/common_widgets/music_play_page_open.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
@@ -18,8 +20,10 @@ class RecentlyPlayedPage extends StatefulWidget {
     super.key,
     required this.favoriteController,
     required this.songModel,
+    required this.allMusicController,
   });
   final FavoriteController favoriteController;
+  final AllMusicController allMusicController;
   final AllMusicsModel songModel;
   @override
   State<RecentlyPlayedPage> createState() => _RecentlyPlayedPageState();
@@ -80,6 +84,17 @@ class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 15.w),
                           child: MusicTileWidget(
+                            onTap: () {
+                              audioController.isPlaying.value = true;
+                              audioController.playSong(music);
+                              musicPlayPageOpenPage(
+                                context: context,
+                                song: music,
+                                allMusicController: widget.allMusicController,
+                                favoriteController: widget.favoriteController,
+                                audioController: audioController,
+                              );
+                            },
                             audioController: audioController,
                             songModel: music,
                             favoriteController: widget.favoriteController,
@@ -88,7 +103,8 @@ class _RecentlyPlayedPageState extends State<RecentlyPlayedPage> {
                             artistName: music.musicArtistName,
                             songTitle: music.musicName,
                             songFormat: music.musicFormat,
-                            songSize: AppUsingCommonFunctions.convertToMBorKB(music.musicFileSize),
+                            songSize: AppUsingCommonFunctions.convertToMBorKB(
+                                music.musicFileSize),
                             songPathIndevice: music.musicPathInDevice,
                             pageType: PageTypeEnum.recentlyPlayedPage,
                             songId: music.id,

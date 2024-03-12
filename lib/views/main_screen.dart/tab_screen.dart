@@ -1,9 +1,8 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
-import 'package:music_player/constants/details.dart';
+import 'package:music_player/constants/allsongslist.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
@@ -14,7 +13,6 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/main_screen.dart/tab_widgets/build_tab_menu.dart';
 import 'package:music_player/views/main_screen.dart/tab_widgets/build_tab_widget.dart';
 import 'package:music_player/views/main_screen.dart/tab_widgets/floating_button_on_bottom.dart';
-import 'package:music_player/views/main_screen.dart/tab_widgets/sort_dialog_box.dart';
 import 'package:music_player/views/main_screen.dart/tab_widgets/tab_views.dart';
 import 'package:music_player/views/search/search_page.dart';
 import 'package:music_player/views/settings/settings_page.dart';
@@ -78,6 +76,7 @@ class _TabScreenState extends State<TabScreen> {
                 onTap: () {
                   Get.to(
                     () => SearchPage(
+                      allMusicController: widget.allMusicController,
                       audioController: widget.audioController,
                       favoriteController: widget.favoriteController,
                     ),
@@ -169,7 +168,7 @@ class _TabScreenState extends State<TabScreen> {
                           ),
                           BuildTabWidget(
                             tabType: TabType.playlist,
-                            text: "Playlist",
+                            text: "Library",
                             currentTabType:
                                 widget.tabHandleController.currentTabType.value,
                             pageController: widget.pageController,
@@ -201,15 +200,15 @@ class _TabScreenState extends State<TabScreen> {
                 );
               }),
           floatingActionButton:
-              // AllFiles.files.value.isNotEmpty
-              //     ?
+              AllFiles.files.value.isNotEmpty
+                  ?
               FloatingButtonOnBottom(
             allMusicController: widget.allMusicController,
             currentSong: currentSong,
             audioController: widget.audioController,
             favoriteController: widget.favoriteController,
           )
-          // : const SizedBox(),
+          : const SizedBox(),
           ),
     );
   }
