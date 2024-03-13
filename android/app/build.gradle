@@ -22,6 +22,7 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
+
 android {
     namespace "com.example.music_player"
     compileSdkVersion flutter.compileSdkVersion
@@ -49,13 +50,23 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled true
     }
+
+    signingConfigs {
+       release {
+           keyAlias 'upload'
+           keyPassword '12345678'
+           storeFile 'D:\\BROTOTYPE\\SEVENTH_WEEK\\music_player\\android\\app\\key\\upload-keystore.jks' ? file('D:\\BROTOTYPE\\SEVENTH_WEEK\\music_player\\android\\app\\key\\upload-keystore.jks') : null
+           storePassword '12345678'
+       }
+   }
 
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -64,4 +75,6 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation 'com.google.android.material:material:1.4.0'
+}

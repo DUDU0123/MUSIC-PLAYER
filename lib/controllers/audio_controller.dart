@@ -70,7 +70,7 @@ class AudioController extends GetxController {
       }
       currentPlayingSong.value = AllFiles.files.value[currentSongIndex.value];
     } catch (e) {
-      debugPrint(e.toString());
+      
     }
     audioPlayer.playbackEventStream.listen((event) {
       if (event.processingState == ProcessingState.completed &&

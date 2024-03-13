@@ -7,6 +7,7 @@ import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
+import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/menu_bottom_sheet.dart';
@@ -379,79 +380,84 @@ class MusicPlayPage extends StatelessWidget {
                           }),
 
                           // song settings icon
-                          IconButton(
-                            onPressed: () {
-                              showModalBottomSheet(
-                                backgroundColor: kMenuBtmSheetColor,
-                                context: context,
-                                builder: (context) {
-                                  return MenuBottomSheet(
-                                    favouriteController: favoriteController,
-                                    song: audioController
-                                                .currentPlayingSong.value !=
-                                            null
-                                        ? audioController
-                                            .currentPlayingSong.value!
-                                        : songModel,
-                                    songId: songId,
-                                    musicUri: audioController
-                                                .currentPlayingSong.value !=
-                                            null
-                                        ? audioController
-                                            .currentPlayingSong.value!.musicUri
-                                        : musicUri,
-                                    kScreenHeight: kScreenHeight,
-                                    pageType: PageTypeEnum.musicViewPage,
-                                    songName: audioController
-                                                .currentPlayingSong.value !=
-                                            null
-                                        ? audioController
-                                            .currentPlayingSong.value!.musicName
-                                        : songTitle,
-                                    artistName: audioController
-                                                .currentPlayingSong.value !=
-                                            null
-                                        ? audioController.currentPlayingSong
-                                            .value!.musicArtistName
-                                        : artistName,
-                                    albumName: audioController
-                                                .currentPlayingSong.value !=
-                                            null
-                                        ? audioController.currentPlayingSong
-                                            .value!.musicAlbumName
-                                        : albumName,
-                                    songFormat: audioController
-                                                .currentPlayingSong.value !=
-                                            null
-                                        ? audioController.currentPlayingSong
-                                            .value!.musicFormat
-                                        : songFormat,
-                                    songSize:
-                                        AppUsingCommonFunctions.convertToMBorKB(
-                                            audioController.currentPlayingSong
-                                                        .value !=
-                                                    null
-                                                ? audioController
-                                                    .currentPlayingSong
-                                                    .value!
-                                                    .musicFileSize
-                                                : AppUsingCommonFunctions
-                                                    .parseSongSize(songSize)),
-                                    songPathIndevice: audioController
-                                                .currentPlayingSong.value !=
-                                            null
-                                        ? audioController.currentPlayingSong
-                                            .value!.musicPathInDevice
-                                        : songPathIndevice,
+                          GetBuilder<PlaylistController>(
+                            init: PlaylistController(),
+                            builder: (controller) {
+                              return IconButton(
+                                onPressed: () {
+                                  showModalBottomSheet(
+                                    backgroundColor: kMenuBtmSheetColor,
+                                    context: context,
+                                    builder: (context) {
+                                      return MenuBottomSheet(
+                                        favouriteController: favoriteController,
+                                        song: audioController
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? audioController
+                                                .currentPlayingSong.value!
+                                            : songModel,
+                                        songId: songId,
+                                        musicUri: audioController
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? audioController
+                                                .currentPlayingSong.value!.musicUri
+                                            : musicUri,
+                                        kScreenHeight: kScreenHeight,
+                                        pageType: PageTypeEnum.musicViewPage,
+                                        songName: audioController
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? audioController
+                                                .currentPlayingSong.value!.musicName
+                                            : songTitle,
+                                        artistName: audioController
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? audioController.currentPlayingSong
+                                                .value!.musicArtistName
+                                            : artistName,
+                                        albumName: audioController
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? audioController.currentPlayingSong
+                                                .value!.musicAlbumName
+                                            : albumName,
+                                        songFormat: audioController
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? audioController.currentPlayingSong
+                                                .value!.musicFormat
+                                            : songFormat,
+                                        songSize:
+                                            AppUsingCommonFunctions.convertToMBorKB(
+                                                audioController.currentPlayingSong
+                                                            .value !=
+                                                        null
+                                                    ? audioController
+                                                        .currentPlayingSong
+                                                        .value!
+                                                        .musicFileSize
+                                                    : AppUsingCommonFunctions
+                                                        .parseSongSize(songSize)),
+                                        songPathIndevice: audioController
+                                                    .currentPlayingSong.value !=
+                                                null
+                                            ? audioController.currentPlayingSong
+                                                .value!.musicPathInDevice
+                                            : songPathIndevice,
+                                      );
+                                    },
                                   );
                                 },
+                                icon: Icon(
+                                  Icons.more_horiz,
+                                  size: 30,
+                                  color: kWhite,
+                                ),
                               );
-                            },
-                            icon: Icon(
-                              Icons.more_horiz,
-                              size: 30,
-                              color: kWhite,
-                            ),
+                            }
                           ),
                         ],
                       )
