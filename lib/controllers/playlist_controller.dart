@@ -107,7 +107,7 @@ class PlaylistController extends GetxController {
   void createPlaylist({
     required Playlist playlistModel
   }){
-
+    
   }
 
 //  playlist delete function
