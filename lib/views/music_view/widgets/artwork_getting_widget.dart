@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:music_player/constants/colors.dart';
+import 'package:music_player/core/constants/colors.dart';
 import 'package:on_audio_query/on_audio_query.dart';
 
 class ArtWorkWidgetMusicPlayingPage extends StatelessWidget {

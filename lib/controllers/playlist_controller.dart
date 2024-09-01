@@ -1,11 +1,12 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:music_player/constants/colors.dart';
-import 'package:music_player/constants/allsongslist.dart';
+import 'package:music_player/core/constants/colors.dart';
+import 'package:music_player/core/utils/allsongslist.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/playlist_model.dart';
+import 'package:on_audio_query/on_audio_query.dart';
 
 class PlaylistController extends GetxController {
   RxList<Playlist> listOfPlaylist = <Playlist>[].obs;
@@ -101,6 +102,12 @@ class PlaylistController extends GetxController {
       hiveBox.add(newPlaylist);
     }
     update();
+  }
+
+  void createPlaylist({
+    required Playlist playlistModel
+  }){
+
   }
 
 //  playlist delete function

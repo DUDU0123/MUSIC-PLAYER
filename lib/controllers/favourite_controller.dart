@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:music_player/constants/allsongslist.dart';
+import 'package:music_player/core/utils/allsongslist.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';

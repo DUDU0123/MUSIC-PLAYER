@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import 'package:music_player/constants/allsongslist.dart';
+import 'package:music_player/core/utils/allsongslist.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 

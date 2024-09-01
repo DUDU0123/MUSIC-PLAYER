@@ -8,7 +8,7 @@ import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/albums/album_song_list_page.dart';
 import 'package:music_player/views/common_widgets/container_tile_widget.dart';
-import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:music_player/core/enums/page_and_menu_type_enum.dart';
 
 class MusicAlbumPage extends StatefulWidget {
   const MusicAlbumPage({

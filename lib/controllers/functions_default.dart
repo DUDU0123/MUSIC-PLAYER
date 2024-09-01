@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import 'package:music_player/constants/colors.dart';
+import 'package:music_player/core/constants/colors.dart';
 import 'package:music_player/models/allmusics_model.dart';
-import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:music_player/core/enums/page_and_menu_type_enum.dart';
 import 'package:share_plus/share_plus.dart';
 
 class AppUsingCommonFunctions {

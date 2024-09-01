@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:music_player/constants/colors.dart';
+import 'package:music_player/core/constants/colors.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
@@ -10,7 +10,7 @@ import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/add_to_playlist/add_to_playlist_page.dart';
 import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/ontap_text_widget.dart';
-import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:music_player/core/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/view_details_page.dart/view_details_page.dart';
 
 class MenuBottomSheet extends StatelessWidget {

@@ -6,7 +6,7 @@ import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/controllers/tab_handle_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
-import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:music_player/core/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/main_screen.dart/tab_screen.dart';
 
 import '../../controllers/all_music_controller.dart';

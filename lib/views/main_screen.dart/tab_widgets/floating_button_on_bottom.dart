@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:music_player/constants/allsongslist.dart';
-import 'package:music_player/constants/colors.dart';
+import 'package:music_player/core/utils/allsongslist.dart';
+import 'package:music_player/core/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:music_player/constants/colors.dart';
+import 'package:music_player/core/constants/colors.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
@@ -12,7 +12,7 @@ import 'package:music_player/views/common_widgets/delete_dialog_box.dart';
 import 'package:music_player/views/common_widgets/new_playlist_dialog_widget.dart';
 import 'package:music_player/views/common_widgets/playlist_delete_error_dialog_box.dart';
 import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
-import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
+import 'package:music_player/core/enums/page_and_menu_type_enum.dart';
 import 'package:music_player/views/favourites/favourite_music_list_page.dart';
 import 'package:music_player/views/playlist/playlist_song_list_page.dart';
 import 'package:music_player/views/playlist/widgets/playlist_single_tile_widget.dart';
