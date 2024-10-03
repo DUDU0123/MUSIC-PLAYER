@@ -45,7 +45,7 @@ class SettingsPage extends StatelessWidget {
                 color: kWhite,
               ),
               subtitle: TextWidgetCommon(
-                text: "1.0.0",
+                text: "1.0.1",
                 fontSize: 12.sp,
                 color: kGrey,
               ),
