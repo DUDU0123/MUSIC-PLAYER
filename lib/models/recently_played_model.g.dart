@@ -17,16 +17,22 @@ class RecentlyPlayedModelAdapter extends TypeAdapter<RecentlyPlayedModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return RecentlyPlayedModel(
-      recentlyPlayedSongsList: (fields[0] as List).cast<AllMusicsModel>(),
+      id: fields[0] as int?,
+      recentlyPlayedSongsList: (fields[1] as List).cast<AllMusicsModel>(),
+      dateTimeAdded: fields[2] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, RecentlyPlayedModel obj) {
     writer
-      ..writeByte(1)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.recentlyPlayedSongsList);
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.recentlyPlayedSongsList)
+      ..writeByte(2)
+      ..write(obj.dateTimeAdded);
   }
 
   @override

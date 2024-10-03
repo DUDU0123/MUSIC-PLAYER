@@ -4,7 +4,6 @@ import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
 import 'package:music_player/controllers/audio_controller.dart';
-import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/menu_bottom_sheet.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
@@ -23,10 +22,8 @@ class MusicTileWidget extends StatefulWidget {
     required this.pageType,
     required this.songId,
     required this.songModel,
-    required this.audioController,
     this.onTap,
     required this.musicUri,
-    required this.favoriteController,
     this.playListID,
   });
 
@@ -41,10 +38,7 @@ class MusicTileWidget extends StatefulWidget {
   final int songId;
   final String musicUri;
   final AllMusicsModel songModel;
-  final AudioController audioController;
   final void Function()? onTap;
-  final FavoriteController favoriteController;
-  // Duration lastPlayedPosition = Duration.zero;
 
   @override
   State<MusicTileWidget> createState() => _MusicTileWidgetState();
@@ -109,8 +103,8 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                 overflow: TextOverflow.ellipsis,
                                 text: widget.songTitle,
                                 fontSize: 16.sp,
-                                color: widget.audioController.isPlaying.value &&
-                                        widget.audioController
+                                color: AudioController.to.isPlaying.value &&
+                                        AudioController.to
                                                 .currentPlayingSong.value?.id ==
                                             widget.songId
                                     ? kRed
@@ -127,8 +121,8 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                 text:
                                     "${widget.artistName == "<unknown>" ? "Unknown Artisit" : widget.artistName}-${widget.albumName == "<unknown>" ? "Unknown Album" : widget.albumName}",
                                 fontSize: 10.sp,
-                                color: widget.audioController.isPlaying.value &&
-                                        widget.audioController
+                                color: AudioController.to.isPlaying.value &&
+                                        AudioController.to
                                                 .currentPlayingSong.value?.id ==
                                             widget.songId
                                     ? kRed
@@ -147,19 +141,9 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                                 builder: (context) {
                                   return MenuBottomSheet(
                                     playListID: widget.playListID,
-                                    favouriteController:
-                                        widget.favoriteController,
                                     song: widget.songModel,
-                                    musicUri: widget.musicUri,
-                                    songId: widget.songId,
                                     kScreenHeight: kScreenHeight,
                                     pageType: widget.pageType,
-                                    songName: widget.songTitle,
-                                    artistName: widget.artistName,
-                                    albumName: widget.albumName,
-                                    songFormat: widget.songFormat,
-                                    songSize: widget.songSize,
-                                    songPathIndevice: widget.songPathIndevice,
                                   );
                                 },
                               );
@@ -167,9 +151,8 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
                               return Icon(Icons.more_vert,
                                   size: 26.sp,
                                   color:
-                                      widget.audioController.isPlaying.value &&
-                                              widget
-                                                      .audioController
+                                      AudioController.to.isPlaying.value &&
+                                              AudioController.to
                                                       .currentPlayingSong
                                                       .value
                                                       ?.id ==
@@ -190,8 +173,8 @@ class _MusicTileWidgetState extends State<MusicTileWidget> {
               child: Obx(() {
                 return Icon(
                   Icons.multitrack_audio_rounded,
-                  color: widget.audioController.isPlaying.value &&
-                          widget.audioController.currentPlayingSong.value?.id ==
+                  color: AudioController.to.isPlaying.value &&
+                          AudioController.to.currentPlayingSong.value?.id ==
                               widget.songId
                       ? kRed
                       : Colors.transparent,

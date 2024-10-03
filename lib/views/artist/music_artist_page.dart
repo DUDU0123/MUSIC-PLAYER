@@ -13,16 +13,11 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 class MusicArtistPage extends StatefulWidget {
   const MusicArtistPage({
     super.key,
-    required this.favoriteController,
     required this.songModel,
-    required this.audioController,
-    required this.playlistController, required this.allMusicController,
   });
-  final FavoriteController favoriteController;
-  final AudioController audioController;
+
   final AllMusicsModel songModel;
-  final PlaylistController playlistController;
-  final AllMusicController allMusicController;
+
 
   @override
   State<MusicArtistPage> createState() => MusicArtistPageState();
@@ -32,7 +27,7 @@ class MusicArtistPageState extends State<MusicArtistPage> {
 
   @override
   void initState() {
-    widget.allMusicController.fetchAllArtistMusicData();
+    AllMusicController.to.fetchAllArtistMusicData();
     //widget.audioController.requestPermissionAndFetchSongsAndInitializePlayer();
     setState(() {});
     super.initState();
@@ -42,7 +37,7 @@ class MusicArtistPageState extends State<MusicArtistPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: ValueListenableBuilder(
-          valueListenable: widget.allMusicController.artistMap,
+          valueListenable:AllMusicController.to.artistMap,
           builder: (BuildContext context,
               Map<String, List<AllMusicsModel>> artist, Widget? _) {
             return ListView.builder(
@@ -53,18 +48,14 @@ class MusicArtistPageState extends State<MusicArtistPage> {
                 // Getting artistSongs
                 final List<AllMusicsModel> artistSongs = artist[artistName]!;
                 return GetBuilder<AllMusicController>(
-                  init: widget.allMusicController,
+                  init:AllMusicController.to,
                   builder: (controller) {
                     return ContainerTileWidget(
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => ArtistSongListPage(
-                              playlistController: widget.playlistController,
-                              allMusicController: widget.allMusicController,
-                              audioController: widget.audioController,
                               songModel:  widget.songModel,
-                              favoriteController: widget.favoriteController,
                               artistName: artistName,
                               artistSongs: artistSongs,
                             ),

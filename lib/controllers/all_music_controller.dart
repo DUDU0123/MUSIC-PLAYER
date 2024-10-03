@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -8,8 +10,7 @@ import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/album_artist_functions_common.dart';
 
 class AllMusicController extends GetxController {
-  AudioController audioController = Get.put(AudioController());
-  // we need to check if the allsongs list not containing the song , then only add music to artist and artist songs
+  static AllMusicController get to => Get.find();
   final Box<AllMusicsModel> musicBox = Hive.box<AllMusicsModel>('musics');
   final ValueNotifier<Map<String, List<AllMusicsModel>>> artistMap =
       ValueNotifier({});
@@ -18,12 +19,12 @@ class AllMusicController extends GetxController {
 
   Future<List<AllMusicsModel>> fetchAllAlbumMusicData() async {
     await getAlbumSongs();
-    return audioController.getAllSongs();
+    return AudioController.to.getAllSongs();
   }
 
   Future<List<AllMusicsModel>> fetchAllArtistMusicData() async {
     await getArtistSongs();
-    return audioController.getAllSongs();
+    return AudioController.to.getAllSongs();
   }
 
   // getting artist with songs
@@ -104,25 +105,11 @@ class AllMusicController extends GetxController {
 
 
 
-  Future<void> saveLyrics(int songId, String lyrics) async {
-    // Load the Hive box
-    final box = await Hive.openBox<AllMusicsModel>('musics');
-    final AllMusicsModel? songModel = box.get(songId);
-    songModel?.musicLyrics = lyrics;
-    await box.put(
-      songId,
-      songModel ??
-          AllMusicsModel(
-            id: 0,
-            musicName: "musicName",
-            musicAlbumName: "musicAlbumName",
-            musicArtistName: "musicArtistName",
-            musicPathInDevice: "musicPathInDevice",
-            musicFormat: "musicFormat",
-            musicUri: "musicUri",
-            musicFileSize: 0,
-          ),
-    );
+  Future<void> saveLyrics({required AllMusicsModel song}) async {
+    log("Song id: ${song.id}");
+    log("Song name: ${song.musicName}");
+    log("Song lyrics: ${song.musicLyrics}");
+    await musicBox.put(song.id, song);
     update();
     Get.snackbar(
       "Lyrics Saved",
@@ -135,8 +122,7 @@ class AllMusicController extends GetxController {
   }
 
   String getLyricsForSong(int songId) {
-    final box = Hive.box<AllMusicsModel>('musics');
-    final AllMusicsModel? songModel = box.get(songId);
+    final AllMusicsModel? songModel = musicBox.get(songId);
     return songModel?.musicLyrics ?? '';
   }
 }

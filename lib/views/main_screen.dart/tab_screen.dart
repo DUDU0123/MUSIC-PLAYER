@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
-import 'package:music_player/constants/allsongslist.dart';
-import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
-import 'package:music_player/controllers/favourite_controller.dart';
-import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/controllers/tab_handle_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
@@ -16,25 +12,14 @@ import 'package:music_player/views/main_screen.dart/tab_widgets/floating_button_
 import 'package:music_player/views/main_screen.dart/tab_widgets/tab_views.dart';
 import 'package:music_player/views/search/search_page.dart';
 import 'package:music_player/views/settings/settings_page.dart';
-import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class TabScreen extends StatefulWidget {
   const TabScreen({
     super.key,
-    required this.audioController,
-    required this.favoriteController,
-    required this.allMusicController,
-    required this.playlistController,
-    required this.tabHandleController,
     required this.sortMethod,
     required this.pageController,
     required this.pageTypeEnum,
   });
-  final AudioController audioController;
-  final FavoriteController favoriteController;
-  final AllMusicController allMusicController;
-  final PlaylistController playlistController;
-  final TabHandleController tabHandleController;
   final SortMethod sortMethod;
   final PageController pageController;
   final PageTypeEnum pageTypeEnum;
@@ -44,7 +29,6 @@ class TabScreen extends StatefulWidget {
 }
 
 class _TabScreenState extends State<TabScreen> {
-
   void refreshUI() {
     setState(() {});
   }
@@ -63,12 +47,10 @@ class _TabScreenState extends State<TabScreen> {
   @override
   Widget build(BuildContext context) {
     bool currentSongNotNull =
-        widget.audioController.currentPlayingSong.value != null;
+        AudioController.to.currentPlayingSong.value != null;
     AllMusicsModel currentSong = currentSongNotNull
-        ? widget.audioController.currentPlayingSong.value!
+        ? AudioController.to.currentPlayingSong.value!
         : songModel;
-    // final kScreenWidth = MediaQuery.of(context).size.width;
-    //final kScreenHeight = MediaQuery.of(context).size.height;
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
@@ -76,11 +58,7 @@ class _TabScreenState extends State<TabScreen> {
               GestureDetector(
                 onTap: () {
                   Get.to(
-                    () => SearchPage(
-                      allMusicController: widget.allMusicController,
-                      audioController: widget.audioController,
-                      favoriteController: widget.favoriteController,
-                    ),
+                    () => const SearchPage(),
                   );
                 },
                 child: SizedBox(
@@ -113,12 +91,9 @@ class _TabScreenState extends State<TabScreen> {
                 itemBuilder: (context) {
                   // three dot menu options list
                   return BuildTabMenu.listPopUpMenuItem(
-                    audioController: widget.audioController,
-                    favoriteController: widget.favoriteController,
                     currentSong: currentSong,
                     pageTypeEnum: widget.pageTypeEnum,
-                    currentTabType:
-                        widget.tabHandleController.currentTabType.value,
+                    currentTabType: TabHandleController.to.currentTabType.value,
                   );
                 },
               ),
@@ -139,28 +114,28 @@ class _TabScreenState extends State<TabScreen> {
                             tabType: TabType.songs,
                             text: "Songs",
                             currentTabType:
-                                widget.tabHandleController.currentTabType.value,
+                                TabHandleController.to.currentTabType.value,
                             pageController: widget.pageController,
                           ),
                           BuildTabWidget(
                             tabType: TabType.artist,
                             text: "Artists",
                             currentTabType:
-                                widget.tabHandleController.currentTabType.value,
+                                TabHandleController.to.currentTabType.value,
                             pageController: widget.pageController,
                           ),
                           BuildTabWidget(
                             tabType: TabType.album,
                             text: "Albums",
                             currentTabType:
-                                widget.tabHandleController.currentTabType.value,
+                                TabHandleController.to.currentTabType.value,
                             pageController: widget.pageController,
                           ),
                           BuildTabWidget(
                             tabType: TabType.playlist,
                             text: "Library",
                             currentTabType:
-                                widget.tabHandleController.currentTabType.value,
+                                TabHandleController.to.currentTabType.value,
                             pageController: widget.pageController,
                           ),
                         ],
@@ -172,7 +147,7 @@ class _TabScreenState extends State<TabScreen> {
             ),
           ),
           body: GetBuilder<TabHandleController>(
-              init: widget.tabHandleController,
+              init: TabHandleController.to,
               builder: (controller) {
                 return PageView(
                   controller: widget.pageController,
@@ -180,23 +155,13 @@ class _TabScreenState extends State<TabScreen> {
                     controller.currentTabType.value = TabType.values[index];
                   },
                   children: TabViewList.tabViews(
-                    playlistController: widget.playlistController,
-                    allMusicController: widget.allMusicController,
-                    favoriteController: widget.favoriteController,
-                    audioController: widget.audioController,
                     // here no currentsong, need to take
                     currentSong: currentSong,
                   ),
                 );
               }),
-          floatingActionButton:
-              // AllFiles.files.value.isNotEmpty
-              //     ?
-              FloatingButtonOnBottom(
-            allMusicController: widget.allMusicController,
+          floatingActionButton: FloatingButtonOnBottom(
             currentSong: currentSong,
-            audioController: widget.audioController,
-            favoriteController: widget.favoriteController,
           )
           // : const SizedBox(),
           ),

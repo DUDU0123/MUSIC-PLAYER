@@ -3,42 +3,28 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/allsongslist.dart';
-import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
-import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
+import 'package:music_player/models/playlist_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/common_widgets/music_play_page_open.dart';
 import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
-import 'package:music_player/views/playlist/add_songs_in_playlist_from_selecting_songs.dart';
+import 'package:music_player/views/playlist/pages/add_songs_in_playlist_from_selecting_songs.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class PlaylistSongListPage extends StatefulWidget {
   const PlaylistSongListPage({
     super.key,
-    required this.playlistName,
-    required this.playlistId,
-    required this.favoriteController,
     required this.songModel,
-    this.playlistSongsList,
-    required this.audioController,
-    required this.playlistController,
-    required this.allMusicController,
+    required this.playlist,
   });
-  final String playlistName;
-  final int playlistId;
-  final FavoriteController favoriteController;
   final AllMusicsModel songModel;
-  final List<AllMusicsModel>? playlistSongsList;
-  final AudioController audioController;
-  final PlaylistController playlistController;
-  final AllMusicController allMusicController;
-
+  final Playlist playlist;
   @override
   State<PlaylistSongListPage> createState() => PlaylistSongListPageState();
 }
@@ -50,22 +36,17 @@ class PlaylistSongListPageState extends State<PlaylistSongListPage> {
 
   @override
   Widget build(BuildContext context) {
-    widget.playlistController.loadPlaylist(widget.playlistId);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: SideTitleAppBarCommon(
           onPressed: () {
-            Navigator.pop(
-                context,
-                widget.playlistSongsList != null
-                    ? widget.playlistSongsList!.length
-                    : 0);
+            Navigator.pop(context);
           },
-          appBarText: widget.playlistName,
+          appBarText: widget.playlist.name,
           actions: [
             GetBuilder<PlaylistController>(
-                init: widget.playlistController,
+                init: PlaylistController.to,
                 builder: (controller) {
                   return IconButton(
                     onPressed: () async {
@@ -74,9 +55,7 @@ class PlaylistSongListPageState extends State<PlaylistSongListPage> {
                           builder: (context) =>
                               AddSongInPlaylistFromSelectingSongs(
                             instance: this,
-                            playlistController: widget.playlistController,
-                            audioController: widget.audioController,
-                            playListID: widget.playlistId,
+                            playlist: widget.playlist,
                           ),
                         ),
                       );
@@ -91,17 +70,13 @@ class PlaylistSongListPageState extends State<PlaylistSongListPage> {
             TextButton(
               onPressed: () {
                 // need to send the list of song in the playlist
-                if (widget.playlistSongsList != null) {
+                if (widget.playlist.playlistSongs != null) {
                   Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) => SongEditPage(
-                        allMusicController: widget.allMusicController,
-                        playlistController: widget.playlistController,
-                        audioController: widget.audioController,
                         song: widget.songModel,
-                        favoriteController: widget.favoriteController,
                         pageType: PageTypeEnum.playListPage,
-                        songList: widget.playlistSongsList!,
+                        songList: widget.playlist.playlistSongs!,
                       ),
                     ),
                   );
@@ -116,62 +91,62 @@ class PlaylistSongListPageState extends State<PlaylistSongListPage> {
           ],
         ),
       ),
-      body: widget.playlistSongsList != null
-          ? widget.playlistSongsList!.isNotEmpty
-              ? ValueListenableBuilder(
-                  valueListenable: AllFiles.files,
-                  builder: (BuildContext context, List<AllMusicsModel> songs,
-                      Widget? _) {
-                    return GetBuilder<PlaylistController>(
-                        init: widget.playlistController,
+      body: widget.playlist.playlistSongs != null
+          ? widget.playlist.playlistSongs!.isNotEmpty
+              ? 
+              // ValueListenableBuilder(
+              //     valueListenable: AllFiles.files,
+              //     builder: (BuildContext context, List<AllMusicsModel> songs,
+              //         Widget? _) {
+              //       return 
+                    GetBuilder<PlaylistController>(
+                        init: PlaylistController.to,
                         builder: (controller) {
                           return ListView.builder(
-                            itemCount: widget.playlistSongsList!.length,
+                            itemCount: widget.playlist.playlistSongs!.length,
                             itemBuilder: (context, index) {
-                              if (index < widget.playlistSongsList!.length) {
+                              if (index <
+                                  widget.playlist.playlistSongs!.length) {
                                 return Padding(
                                   padding:
                                       EdgeInsets.symmetric(horizontal: 15.w),
                                   child: MusicTileWidget(
                                     onTap: () {
-                                      widget.audioController.isPlaying.value =
-                                          true;
-                                      widget.audioController.playSong(
-                                          widget.playlistSongsList![index]);
+                                      AudioController.to.isPlaying.value = true;
+                                      AudioController.to.playSong(widget
+                                          .playlist.playlistSongs![index]);
                                       musicPlayPageOpenPage(
                                         context: context,
-                                        song: widget.playlistSongsList![index],
-                                        allMusicController:
-                                            widget.allMusicController,
-                                        favoriteController:
-                                            widget.favoriteController,
-                                        audioController: widget.audioController,
+                                        song: widget
+                                            .playlist.playlistSongs![index],
                                       );
                                     },
-                                    audioController: widget.audioController,
-                                    playListID: widget.playlistId,
-                                    songModel: widget.playlistSongsList![index],
-                                    favoriteController:
-                                        widget.favoriteController,
-                                    musicUri: widget
-                                        .playlistSongsList![index].musicUri,
-                                    albumName: widget.playlistSongsList![index]
-                                        .musicAlbumName,
-                                    artistName: widget.playlistSongsList![index]
-                                        .musicArtistName,
-                                    songTitle: widget
-                                        .playlistSongsList![index].musicName,
-                                    songFormat: widget
-                                        .playlistSongsList![index].musicFormat,
+                                    playListID: widget.playlist.id,
+                                    songModel:
+                                        widget.playlist.playlistSongs![index],
+                                    musicUri: widget.playlist
+                                        .playlistSongs![index].musicUri,
+                                    albumName: widget.playlist
+                                        .playlistSongs![index].musicAlbumName,
+                                    artistName: widget.playlist
+                                        .playlistSongs![index].musicArtistName,
+                                    songTitle: widget.playlist
+                                        .playlistSongs![index].musicName,
+                                    songFormat: widget.playlist
+                                        .playlistSongs![index].musicFormat,
                                     songSize:
                                         AppUsingCommonFunctions.convertToMBorKB(
-                                            widget.playlistSongsList![index]
+                                            widget
+                                                .playlist
+                                                .playlistSongs![index]
                                                 .musicFileSize),
                                     songPathIndevice: widget
-                                        .playlistSongsList![index]
+                                        .playlist
+                                        .playlistSongs![index]
                                         .musicPathInDevice,
                                     pageType: PageTypeEnum.playListPage,
-                                    songId: widget.playlistSongsList![index].id,
+                                    songId: widget
+                                        .playlist.playlistSongs![index].id,
                                   ),
                                 );
                               } else {
@@ -179,8 +154,8 @@ class PlaylistSongListPageState extends State<PlaylistSongListPage> {
                               }
                             },
                           );
-                        });
-                  })
+                        })
+                  // })
               : const DefaultCommonWidget(
                   text: "No songs available",
                 )

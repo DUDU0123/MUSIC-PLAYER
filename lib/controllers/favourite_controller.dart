@@ -8,6 +8,7 @@ import 'package:music_player/models/favourite_model.dart';
 import 'package:music_player/views/common_widgets/snackbar_common_widget.dart';
 
 class FavoriteController extends GetxController {
+  static FavoriteController get to => Get.find();
   RxList<FavoriteModel> favoriteSongs = <FavoriteModel>[].obs;
   int initialFavoriteSongsLength = 0;
   AudioController audioController = Get.put(AudioController());

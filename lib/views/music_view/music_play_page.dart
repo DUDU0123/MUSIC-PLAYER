@@ -3,10 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
-import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/favourite_controller.dart';
-import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/favourite_model.dart';
@@ -20,32 +18,9 @@ class MusicPlayPage extends StatelessWidget {
   const MusicPlayPage({
     super.key,
     required this.songModel,
-    // required this.lastPlayedPosition,
-    required this.songId,
-    required this.songTitle,
-    required this.artistName,
-    required this.albumName,
-    required this.songFormat,
-    required this.songSize,
-    required this.songPathIndevice,
-    required this.audioController,
-    required this.musicUri,
-    required this.favoriteController,
-    required this.allMusicController,
   });
 
   final AllMusicsModel songModel;
-  final int songId;
-  final String songTitle;
-  final String artistName;
-  final String albumName;
-  final String songFormat;
-  final String songSize;
-  final String songPathIndevice;
-  final AudioController audioController;
-  final String musicUri;
-  final FavoriteController favoriteController;
-  final AllMusicController allMusicController;
 
   FavoriteModel getFavoriteModelFromAllMusicModel(AllMusicsModel allMusic) {
     return FavoriteModel(
@@ -111,11 +86,12 @@ class MusicPlayPage extends StatelessWidget {
                         ),
                         child: Obx(() {
                           return ArtWorkWidgetMusicPlayingPage(
-                              songId: audioController
-                                          .currentPlayingSong.value !=
-                                      null
-                                  ? audioController.currentPlayingSong.value!.id
-                                  : songId);
+                              songId:
+                                  AudioController.to.currentPlayingSong.value !=
+                                          null
+                                      ? AudioController
+                                          .to.currentPlayingSong.value!.id
+                                      : songModel.id);
                         }),
                       ),
                     ),
@@ -129,14 +105,14 @@ class MusicPlayPage extends StatelessWidget {
                         min: const Duration(microseconds: 0)
                             .inSeconds
                             .toDouble(),
-                        max: audioController.duration.value != null
-                            ? audioController.duration.value.inSeconds
+                        max: AudioController.to.duration.value != null
+                            ? AudioController.to.duration.value.inSeconds
                                 .toDouble()
                             : 0.0,
-                        value:
-                            audioController.position.value.inSeconds.toDouble(),
+                        value: AudioController.to.position.value.inSeconds
+                            .toDouble(),
                         onChanged: (value) {
-                          audioController.changeToSeconds(value.toInt());
+                          AudioController.to.changeToSeconds(value.toInt());
                           value = value;
                         },
                       );
@@ -149,7 +125,7 @@ class MusicPlayPage extends StatelessWidget {
                         children: [
                           Obx(() {
                             return TextWidgetCommon(
-                              text: audioController.position.value
+                              text: AudioController.to.position.value
                                   .toString()
                                   .split(".")[0],
                               fontSize: 10.sp,
@@ -158,7 +134,7 @@ class MusicPlayPage extends StatelessWidget {
                           }),
                           Obx(() {
                             return TextWidgetCommon(
-                              text: audioController.duration.value
+                              text: AudioController.to.duration.value
                                   .toString()
                                   .split(".")[0],
                               fontSize: 10.sp,
@@ -185,12 +161,12 @@ class MusicPlayPage extends StatelessWidget {
                               return TextWidgetCommon(
                                 textAlign: TextAlign.center,
                                 overflow: TextOverflow.ellipsis,
-                                text:
-                                    audioController.currentPlayingSong.value !=
-                                            null
-                                        ? audioController
-                                            .currentPlayingSong.value!.musicName
-                                        : songTitle,
+                                text: AudioController
+                                            .to.currentPlayingSong.value !=
+                                        null
+                                    ? AudioController
+                                        .to.currentPlayingSong.value!.musicName
+                                    : songModel.musicName,
                                 fontSize: 23.sp,
                                 color: kWhite,
                                 fontWeight: FontWeight.w500,
@@ -202,15 +178,19 @@ class MusicPlayPage extends StatelessWidget {
                           Obx(() {
                             return TextWidgetCommon(
                               overflow: TextOverflow.ellipsis,
-                              text: audioController.currentPlayingSong.value !=
-                                      null
-                                  ? audioController.currentPlayingSong.value!
-                                              .musicArtistName ==
-                                          '<unknown>'
-                                      ? 'Unknown Artist'
-                                      : audioController.currentPlayingSong
-                                          .value!.musicArtistName
-                                  : artistName,
+                              text:
+                                  AudioController.to.currentPlayingSong.value !=
+                                          null
+                                      ? AudioController.to.currentPlayingSong
+                                                  .value!.musicArtistName ==
+                                              '<unknown>'
+                                          ? 'Unknown Artist'
+                                          : AudioController
+                                              .to
+                                              .currentPlayingSong
+                                              .value!
+                                              .musicArtistName
+                                      : songModel.musicArtistName,
                               fontSize: 10.sp,
                               color: kGrey,
                               fontWeight: FontWeight.w400,
@@ -225,7 +205,7 @@ class MusicPlayPage extends StatelessWidget {
                           // play back button
                           GestureDetector(
                             onTap: () {
-                              audioController.playPreviousSong();
+                              AudioController.to.playPreviousSong();
                             },
                             child: Image.asset(
                               'assets/play_back.png',
@@ -236,13 +216,13 @@ class MusicPlayPage extends StatelessWidget {
                           // play and pause button
                           GestureDetector(
                             onTap: () {
-                              if (audioController.isPlaying.value) {
-                                audioController.pauseSong();
+                              if (AudioController.to.isPlaying.value) {
+                                AudioController.to.pauseSong();
                               } else {
-                                audioController.audioPlayer.play();
+                                AudioController.to.audioPlayer.play();
                               }
-                              audioController.isPlaying.value =
-                                  !audioController.isPlaying.value;
+                              AudioController.to.isPlaying.value =
+                                  !AudioController.to.isPlaying.value;
                             },
                             child: Container(
                               padding: EdgeInsets.symmetric(
@@ -252,7 +232,7 @@ class MusicPlayPage extends StatelessWidget {
                                   color: kRed),
                               child: Obx(() {
                                 return Icon(
-                                  audioController.isPlaying.value
+                                  AudioController.to.isPlaying.value
                                       ? Icons.pause
                                       : Icons.play_arrow,
                                   size: 40,
@@ -264,7 +244,7 @@ class MusicPlayPage extends StatelessWidget {
                           // play next button
                           GestureDetector(
                             onTap: () {
-                              audioController.playNextSong();
+                              AudioController.to.playNextSong();
                             },
                             child: Image.asset(
                               'assets/play_next.png',
@@ -280,16 +260,13 @@ class MusicPlayPage extends StatelessWidget {
                         children: [
                           // song current playlist show icon
                           GetBuilder<AudioController>(
-                              init: audioController,
+                              init: AudioController.to,
                               builder: (controller) {
                                 return IconButton(
                                   onPressed: () {
                                     Navigator.of(context).push(
                                       MaterialPageRoute(
                                         builder: (context) => MusicLyricsPage(
-                                          allMusicController:
-                                              allMusicController,
-                                          // currentPlayingsongs:  ,
                                           songModel: controller
                                                       .currentPlayingSong
                                                       .value !=
@@ -297,12 +274,6 @@ class MusicPlayPage extends StatelessWidget {
                                               ? controller
                                                   .currentPlayingSong.value!
                                               : songModel,
-                                          songId: controller.currentPlayingSong
-                                                      .value !=
-                                                  null
-                                              ? controller
-                                                  .currentPlayingSong.value!.id
-                                              : songId,
                                         ),
                                       ),
                                     );
@@ -323,7 +294,9 @@ class MusicPlayPage extends StatelessWidget {
                                     onPressed: () {
                                       FavoriteModel favoriteMusic =
                                           getFavoriteModelFromAllMusicModel(
-                                              audioController.currentPlayingSong
+                                              AudioController
+                                                      .to
+                                                      .currentPlayingSong
                                                       .value ??
                                                   songModel);
                                       favoriteController.onTapFavorite(
@@ -331,10 +304,13 @@ class MusicPlayPage extends StatelessWidget {
                                     },
                                     icon: Icon(
                                       favoriteController.isFavorite(
-                                              audioController.currentPlayingSong
+                                              AudioController
+                                                          .to
+                                                          .currentPlayingSong
                                                           .value !=
                                                       null
-                                                  ? audioController
+                                                  ? AudioController
+                                                      .to
                                                       .currentPlayingSong
                                                       .value!
                                                       .id
@@ -343,10 +319,13 @@ class MusicPlayPage extends StatelessWidget {
                                           : Icons.favorite_border,
                                       size: 30,
                                       color: favoriteController.isFavorite(
-                                              audioController.currentPlayingSong
+                                              AudioController
+                                                          .to
+                                                          .currentPlayingSong
                                                           .value !=
                                                       null
-                                                  ? audioController
+                                                  ? AudioController
+                                                      .to
                                                       .currentPlayingSong
                                                       .value!
                                                       .id
@@ -363,9 +342,9 @@ class MusicPlayPage extends StatelessWidget {
                           Obx(() {
                             return GestureDetector(
                               onTap: () {
-                                audioController.songLoopModesControlling();
+                                AudioController.to.songLoopModesControlling();
                               },
-                              child: audioController.isLoopOneSong.value
+                              child: AudioController.to.isLoopOneSong.value
                                   ? Image.asset(
                                       "assets/loop_one.png",
                                       scale: 15.sp,
@@ -381,84 +360,36 @@ class MusicPlayPage extends StatelessWidget {
 
                           // song settings icon
                           GetBuilder<PlaylistController>(
-                            init: PlaylistController(),
-                            builder: (controller) {
-                              return IconButton(
-                                onPressed: () {
-                                  showModalBottomSheet(
-                                    backgroundColor: kMenuBtmSheetColor,
-                                    context: context,
-                                    builder: (context) {
-                                      return MenuBottomSheet(
-                                        favouriteController: favoriteController,
-                                        song: audioController
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? audioController
-                                                .currentPlayingSong.value!
-                                            : songModel,
-                                        songId: songId,
-                                        musicUri: audioController
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? audioController
-                                                .currentPlayingSong.value!.musicUri
-                                            : musicUri,
-                                        kScreenHeight: kScreenHeight,
-                                        pageType: PageTypeEnum.musicViewPage,
-                                        songName: audioController
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? audioController
-                                                .currentPlayingSong.value!.musicName
-                                            : songTitle,
-                                        artistName: audioController
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? audioController.currentPlayingSong
-                                                .value!.musicArtistName
-                                            : artistName,
-                                        albumName: audioController
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? audioController.currentPlayingSong
-                                                .value!.musicAlbumName
-                                            : albumName,
-                                        songFormat: audioController
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? audioController.currentPlayingSong
-                                                .value!.musicFormat
-                                            : songFormat,
-                                        songSize:
-                                            AppUsingCommonFunctions.convertToMBorKB(
-                                                audioController.currentPlayingSong
-                                                            .value !=
-                                                        null
-                                                    ? audioController
-                                                        .currentPlayingSong
-                                                        .value!
-                                                        .musicFileSize
-                                                    : AppUsingCommonFunctions
-                                                        .parseSongSize(songSize)),
-                                        songPathIndevice: audioController
-                                                    .currentPlayingSong.value !=
-                                                null
-                                            ? audioController.currentPlayingSong
-                                                .value!.musicPathInDevice
-                                            : songPathIndevice,
-                                      );
-                                    },
-                                  );
-                                },
-                                icon: Icon(
-                                  Icons.more_horiz,
-                                  size: 30,
-                                  color: kWhite,
-                                ),
-                              );
-                            }
-                          ),
+                              init: PlaylistController(),
+                              builder: (controller) {
+                                return IconButton(
+                                  onPressed: () {
+                                    showModalBottomSheet(
+                                      backgroundColor: kMenuBtmSheetColor,
+                                      context: context,
+                                      builder: (context) {
+                                        return MenuBottomSheet(
+                                          song: AudioController
+                                                      .to
+                                                      .currentPlayingSong
+                                                      .value !=
+                                                  null
+                                              ? AudioController
+                                                  .to.currentPlayingSong.value!
+                                              : songModel,
+                                          kScreenHeight: kScreenHeight,
+                                          pageType: PageTypeEnum.musicViewPage,
+                                        );
+                                      },
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.more_horiz,
+                                    size: 30,
+                                    color: kWhite,
+                                  ),
+                                );
+                              }),
                         ],
                       )
                     ],

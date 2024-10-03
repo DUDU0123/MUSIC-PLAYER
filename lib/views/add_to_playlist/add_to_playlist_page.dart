@@ -8,12 +8,22 @@ import 'package:music_player/views/common_widgets/new_playlist_dialog_widget.dar
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 
-class AddToPlaylistPage extends StatelessWidget {
-  AddToPlaylistPage({super.key, required this.song});
+class AddToPlaylistPage extends StatefulWidget {
+  const AddToPlaylistPage({super.key, required this.song});
   final AllMusicsModel song;
 
+  @override
+  State<AddToPlaylistPage> createState() => _AddToPlaylistPageState();
+}
+
+class _AddToPlaylistPageState extends State<AddToPlaylistPage> {
   TextEditingController newPlaylistController = TextEditingController();
-  PlaylistController playlistController = Get.put(PlaylistController());
+
+  @override
+  void dispose() {
+    newPlaylistController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,54 +37,63 @@ class AddToPlaylistPage extends StatelessWidget {
           },
         ),
       ),
-      body: Obx(() {
-        return ListView.builder(
-          padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 5.w),
-          itemCount: PlaylistController.to.listOfPlaylist.length + 1,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return ListTile(
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return NewPlayListDialogBoxWidget(
-                        editOrNew: "Create Playlist and\nClick on the created playlist to add the song",
-                        playlsitNameGiverController: newPlaylistController,
-                        onPressed: () {
-                          PlaylistController.to.playlistCreation(
-                            index: index,
-                            playlistName: newPlaylistController.text,
-                          );
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
-                  );
-                },
-                title: TextWidgetCommon(
-                  text: "New Playlist",
-                  fontSize: 16.sp,
-                  color: kWhite,
-                ),
-              );
-            }
-            PlaylistController.to.getPlaylistIDFromAddToPlaylist.value =
-                PlaylistController.to.getPlaylistID(index: index - 1);
-            return ListTile(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            ListTile(
               onTap: () {
-                PlaylistController.to.addSongsToDBPlaylist([song],
-                    PlaylistController.to.getPlaylistID(index: index - 1));
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return NewPlayListDialogBoxWidget(
+                      editOrNew:
+                          "Create Playlist and\nClick on the created playlist to add the song",
+                      playlsitNameGiverController: newPlaylistController,
+                      onPressed: () {
+                        PlaylistController.to.playlistCreation(
+                          playlistName: newPlaylistController.text,
+                        );
+                        Navigator.pop(context);
+                      },
+                    );
+                  },
+                );
               },
               title: TextWidgetCommon(
-                text: PlaylistController.to.getPlaylistName(index: index - 1),
+                text: "New Playlist",
                 fontSize: 16.sp,
                 color: kWhite,
               ),
-            );
-          },
-        );
-      }),
+            ),
+            GetBuilder<PlaylistController>(
+              init: PlaylistController.to,
+              builder: (playlistController) {
+                return ListView.builder(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  padding: EdgeInsets.symmetric(vertical: 1.h, horizontal: 5.w),
+                  itemCount: PlaylistController.to.getAllPlaylist().length,
+                  itemBuilder: (context, index) {
+                    final playlists = PlaylistController.to.getAllPlaylist();
+                    return ListTile(
+                      onTap: () {
+                        PlaylistController.to.addSongsToDBPlaylist(
+                            playlistNewSongsToAdd: [widget.song],
+                            playlist: playlists[index]);
+                      },
+                      title: TextWidgetCommon(
+                        text: playlists[index].name,
+                        fontSize: 16.sp,
+                        color: kWhite,
+                      ),
+                    );
+                  },
+                );
+              }
+            )
+          ],
+        ),
+      ),
     );
   }
 }

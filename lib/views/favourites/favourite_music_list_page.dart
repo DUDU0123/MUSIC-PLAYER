@@ -14,31 +14,21 @@ import 'package:music_player/views/common_widgets/music_tile_widget.dart';
 import 'package:music_player/views/common_widgets/side_title_appbar_common.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
-import 'package:music_player/views/playlist/music_playlist_page.dart';
+import 'package:music_player/views/playlist/pages/music_playlist_page.dart';
 import 'package:music_player/views/song_edit_page.dart/song_edit_page.dart';
 
 class FavouriteMusicListPage extends StatelessWidget {
   const FavouriteMusicListPage({
     super.key,
     required this.songModel,
-    required this.audioController,
-    required this.favouriteController,
-    required this.playlistController,
     required this.instance,
-    required this.allMusicController,
-    // required this.favouriteController,
   });
-  final FavoriteController favouriteController;
-  // final FavoriteController favouriteController = Get.put(FavoriteController());
   final AllMusicsModel songModel;
-  final AudioController audioController;
-  final PlaylistController playlistController;
   final MusicPlaylistPageState instance;
-  final AllMusicController allMusicController;
 
   @override
   Widget build(BuildContext context) {
-    favouriteController.loadFavoriteSongs();
+    FavoriteController.to.loadFavoriteSongs();
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
@@ -54,14 +44,11 @@ class FavouriteMusicListPage extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => SongEditPage(
-                      allMusicController: allMusicController,
-                      playlistController: playlistController,
-                      audioController: audioController,
+
                       song: songModel,
-                      favoriteController: favouriteController,
                       pageType: PageTypeEnum.favoritePage,
                       songList:
-                          favouriteController.favoriteSongs.value.map((e) {
+                          FavoriteController.to.favoriteSongs.value.map((e) {
                         return AllMusicsModel(
                           id: e.id,
                           musicName: e.musicName,
@@ -89,13 +76,13 @@ class FavouriteMusicListPage extends StatelessWidget {
         ),
       ),
       body: Obx(() {
-        return favouriteController.favoriteSongs.isEmpty
+        return FavoriteController.to.favoriteSongs.isEmpty
             ? const DefaultCommonWidget(text: "No songs available")
             : ListView.builder(
-                itemCount: favouriteController.favoriteSongs.length,
+                itemCount: FavoriteController.to.favoriteSongs.length,
                 itemBuilder: (context, index) {
                   List<AllMusicsModel> songModel =
-                      favouriteController.favoriteSongs
+                      FavoriteController.to.favoriteSongs
                           .map((favmodel) => AllMusicsModel(
                                 id: favmodel.id,
                                 musicName: favmodel.musicName,
@@ -107,45 +94,38 @@ class FavouriteMusicListPage extends StatelessWidget {
                                 musicFileSize: favmodel.musicFileSize,
                               ))
                           .toList();
-
-                  favouriteController.favoriteSongs.toList().toSet();
+                  final favoriteSongs =FavoriteController.to.favoriteSongs;
+                 FavoriteController.to.favoriteSongs.toList().toSet();
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10.h),
                     child: MusicTileWidget(
+                      
                       onTap: () {
-                        audioController.isPlaying.value = true;
-                        audioController.playSong(songModel[index]);
+                        
+                        AudioController.to.isPlaying.value = true;
+                        AudioController.to.playSong(songModel[index]);
                         musicPlayPageOpenPage(
                           context: context,
                           song: songModel[index],
-                          allMusicController: allMusicController,
-                          favoriteController: favouriteController,
-                          audioController: audioController,
                         );
                       },
-                      audioController: audioController,
                       songModel: songModel[index],
-                      favoriteController: favouriteController,
                       musicUri:
-                          favouriteController.favoriteSongs[index].musicUri,
+                          favoriteSongs[index].musicUri,
                       // audioPlayer: audioPlayer,
                       // musicBox: musicBox,
-                      albumName: favouriteController
-                          .favoriteSongs[index].musicAlbumName,
-                      artistName: favouriteController
-                          .favoriteSongs[index].musicArtistName,
+                      albumName: favoriteSongs[index].musicAlbumName,
+                      artistName: favoriteSongs[index].musicArtistName,
                       // isPlaying: false,
                       songTitle:
-                          favouriteController.favoriteSongs[index].musicName,
+                          favoriteSongs[index].musicName,
                       songFormat:
-                          favouriteController.favoriteSongs[index].musicFormat,
+                          favoriteSongs[index].musicFormat,
                       songSize: AppUsingCommonFunctions.convertToMBorKB(
-                          favouriteController
-                              .favoriteSongs[index].musicFileSize),
-                      songPathIndevice: favouriteController
-                          .favoriteSongs[index].musicPathInDevice,
+                          favoriteSongs[index].musicFileSize),
+                      songPathIndevice: favoriteSongs[index].musicPathInDevice,
                       pageType: PageTypeEnum.favoritePage,
-                      songId: favouriteController.favoriteSongs[index].id,
+                      songId: favoriteSongs[index].id,
                     ),
                   );
                 },

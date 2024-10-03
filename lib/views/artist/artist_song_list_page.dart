@@ -5,9 +5,7 @@ import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/allsongslist.dart';
 import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
-import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
-import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/common_widgets/music_play_page_open.dart';
@@ -21,19 +19,11 @@ class ArtistSongListPage extends StatefulWidget {
     super.key,
     required this.artistName,
     required this.artistSongs,
-    required this.favoriteController,
     required this.songModel,
-    required this.audioController,
-    required this.allMusicController,
-    required this.playlistController,
   });
   final String artistName;
-  final FavoriteController favoriteController;
   final List<AllMusicsModel> artistSongs;
   final AllMusicsModel songModel;
-  final AudioController audioController;
-  final AllMusicController allMusicController;
-  final PlaylistController playlistController;
 
   @override
   State<ArtistSongListPage> createState() => _ArtistSongListPageState();
@@ -42,7 +32,7 @@ class ArtistSongListPage extends StatefulWidget {
 class _ArtistSongListPageState extends State<ArtistSongListPage> {
   @override
   void initState() {
-    widget.allMusicController.fetchAllArtistMusicData();
+    AllMusicController.to.fetchAllArtistMusicData();
     super.initState();
   }
 
@@ -79,8 +69,7 @@ class _ArtistSongListPageState extends State<ArtistSongListPage> {
               valueListenable: AllFiles.files,
               builder: (BuildContext context, List<AllMusicsModel> songs,
                   Widget? _) {
-                final List<AllMusicsModel> artistSongs = widget
-                    .allMusicController
+                final List<AllMusicsModel> artistSongs = AllMusicController.to
                     .getSongsOfArtist(songs, widget.artistName);
                 return ListView.builder(
                   itemCount: artistSongs.length,
@@ -89,19 +78,14 @@ class _ArtistSongListPageState extends State<ArtistSongListPage> {
                   itemBuilder: (context, index) {
                     return MusicTileWidget(
                       onTap: () {
-                        widget.audioController.isPlaying.value = true;
-                        widget.audioController.playSong(artistSongs[index]);
+                        AudioController.to.isPlaying.value = true;
+                        AudioController.to.playSong(artistSongs[index]);
                         musicPlayPageOpenPage(
                           context: context,
                           song: artistSongs[index],
-                          allMusicController: widget.allMusicController,
-                          favoriteController: widget.favoriteController,
-                          audioController: widget.audioController,
                         );
                       },
-                      audioController: widget.audioController,
                       songModel: artistSongs[index],
-                      favoriteController: widget.favoriteController,
                       musicUri: artistSongs[index].musicUri,
                       songId: artistSongs[index].id,
                       pageType: PageTypeEnum.artistSongListPage,

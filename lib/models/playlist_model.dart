@@ -8,12 +8,25 @@ class Playlist extends HiveObject{
   @HiveField(1)
   final String name;
   @HiveField(2)
-  final List<AllMusicsModel>? playlistSongs;
+  List<AllMusicsModel>? playlistSongs;
   Playlist({
      this.id,
     required this.name,
     this.playlistSongs = const <AllMusicsModel>[],
   });
+
+   Playlist copyWith({
+    int? id,
+    String? name,
+    List<AllMusicsModel>? playlistSongs,
+  }) {
+    return Playlist(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      playlistSongs: playlistSongs ?? this.playlistSongs,
+    );
+  }
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

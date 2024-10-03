@@ -35,7 +35,7 @@ class AllMusicsModel extends HiveObject {
     required this.musicUri,
     required this.musicFileSize,
     this.musicSelected,
-    this.musicLyrics,
+    this.musicLyrics = '',
   });
 
   factory AllMusicsModel.fromSongModel(SongModel songModel) {
@@ -50,6 +50,32 @@ class AllMusicsModel extends HiveObject {
       musicFileSize: songModel.size,
       musicSelected: false,
       musicLyrics: '',
+    );
+  }
+
+  AllMusicsModel copyWith({
+    int? id,
+    String? musicName,
+    String? musicAlbumName,
+    String? musicArtistName,
+    String? musicPathInDevice,
+    String? musicFormat,
+    String? musicUri,
+    int? musicFileSize,
+    bool? musicSelected,
+    String? musicLyrics,
+  }) {
+    return AllMusicsModel(
+      id: id ?? this.id,
+      musicName: musicName ?? this.musicName,
+      musicAlbumName: musicAlbumName ?? this.musicAlbumName,
+      musicArtistName: musicArtistName ?? this.musicArtistName,
+      musicPathInDevice: musicPathInDevice ?? this.musicPathInDevice,
+      musicFormat: musicFormat ?? this.musicFormat,
+      musicUri: musicUri ?? this.musicUri,
+      musicFileSize: musicFileSize ?? this.musicFileSize,
+      musicSelected: musicSelected ?? this.musicSelected,
+      musicLyrics: musicLyrics ?? this.musicLyrics,
     );
   }
 

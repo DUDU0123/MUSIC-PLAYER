@@ -2,17 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/height_width.dart';
+import 'package:music_player/controllers/functions_default.dart';
+import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
 import 'package:music_player/views/view_details_page.dart/widgets/details_row_widget.dart';
 
 class ViewDetailsPage extends StatelessWidget {
-  const ViewDetailsPage({super.key, required this.songName, required this.artistName, required this.albumName, required this.songFormat, required this.songSize, required this.songPathIndevice});
-  final String songName;
-  final String artistName;
-  final String albumName;
-  final String songFormat;
-  final String songSize;
-  final String songPathIndevice;
+  const ViewDetailsPage({super.key,required this.currentSong,});
+
+  final AllMusicsModel currentSong;
 
   @override
   Widget build(BuildContext context) {
@@ -55,33 +53,33 @@ class ViewDetailsPage extends StatelessWidget {
           children: [
             DetailsRowWidget(
               fieldName: "Name",
-              fieldValue: songName,
+              fieldValue: currentSong.musicName,
             ),
             kHeight20,
             DetailsRowWidget(
               fieldName: "Artist",
-              fieldValue: artistName=='<unknown>'?"Unknown Artist":artistName,
+              fieldValue: currentSong.musicArtistName=='<unknown>'?"Unknown Artist":currentSong.musicArtistName,
             ),
             kHeight20,
             DetailsRowWidget(
               fieldName: "Album",
-              fieldValue: albumName,
+              fieldValue: currentSong.musicAlbumName,
             ),
             kHeight20,
             DetailsRowWidget(
               fieldName: "Format",
-              fieldValue: songFormat,
+              fieldValue: currentSong.musicFormat,
             ),
             kHeight20,
             DetailsRowWidget(
               fieldName: "Size",
-              fieldValue: songSize,
+              fieldValue: AppUsingCommonFunctions.convertToMBorKB(currentSong.musicFileSize),
             ),
             kHeight20,
             DetailsRowWidget(
               fieldName: "Path",
               fieldValue:
-                  songPathIndevice,
+                  currentSong.musicPathInDevice,
             )
           ],
         ),

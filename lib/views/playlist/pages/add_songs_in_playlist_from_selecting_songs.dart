@@ -3,25 +3,21 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/allsongslist.dart';
-import 'package:music_player/controllers/audio_controller.dart';
 import 'package:music_player/controllers/playlist_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
+import 'package:music_player/models/playlist_model.dart';
 import 'package:music_player/views/common_widgets/center_title_appbar_common_widget.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
 import 'package:music_player/views/common_widgets/text_widget_common.dart';
-import 'package:music_player/views/playlist/playlist_song_list_page.dart';
+import 'package:music_player/views/playlist/pages/playlist_song_list_page.dart';
 
 class AddSongInPlaylistFromSelectingSongs extends StatefulWidget {
   const AddSongInPlaylistFromSelectingSongs({
     super.key,
-    required this.playListID,
-    required this.audioController,
-    required this.playlistController,
+    required this.playlist,
     this.instance,
   });
-  final int playListID;
-  final AudioController audioController;
-  final PlaylistController playlistController;
+  final Playlist playlist;
   final PlaylistSongListPageState? instance;
   @override
   State<AddSongInPlaylistFromSelectingSongs> createState() =>
@@ -32,7 +28,7 @@ class _AddSongInPlaylistFromSelectingSongsState
     extends State<AddSongInPlaylistFromSelectingSongs> {
   @override
   void initState() {
-    widget.playlistController.addingAllSongsToList();
+    PlaylistController.to.addingAllSongsToList();
     super.initState();
   }
 
@@ -41,7 +37,6 @@ class _AddSongInPlaylistFromSelectingSongsState
 
   @override
   Widget build(BuildContext context) {
-    //final kScreenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
@@ -63,7 +58,7 @@ class _AddSongInPlaylistFromSelectingSongsState
           ? Stack(
               children: [
                 GetBuilder<PlaylistController>(
-                    init: widget.playlistController,
+                    init: PlaylistController.to,
                     builder: (controller) {
                       return ListView.builder(
                         shrinkWrap: true,
@@ -115,7 +110,7 @@ class _AddSongInPlaylistFromSelectingSongsState
                 Container(
                   alignment: Alignment.bottomCenter,
                   child: GetBuilder<PlaylistController>(
-                      init: widget.playlistController,
+                      init: PlaylistController.to,
                       builder: (controller) {
                         return GestureDetector(
                           onTap: () {
@@ -125,7 +120,9 @@ class _AddSongInPlaylistFromSelectingSongsState
                                 .toList();
 
                             PlaylistController.to.addSongsToDBPlaylist(
-                                selectedSongList, widget.playListID);
+                              playlist: widget.playlist,
+                              playlistNewSongsToAdd: selectedSongList,
+                            );
                             widget.instance?.refresh();
                             Get.back();
                           },
@@ -167,7 +164,7 @@ class _AddSongInPlaylistFromSelectingSongsState
 
   selectAllSongs() {
     for (var element
-        in widget.playlistController.fullSongListToAddToPlaylist.value) {
+        in PlaylistController.to.fullSongListToAddToPlaylist.value) {
       setState(() {
         element.musicSelected = true;
         isSelected = true;
@@ -178,7 +175,7 @@ class _AddSongInPlaylistFromSelectingSongsState
 
   deselectAllSongs() {
     for (var element
-        in widget.playlistController.fullSongListToAddToPlaylist.value) {
+        in PlaylistController.to.fullSongListToAddToPlaylist.value) {
       setState(() {
         element.musicSelected = false;
         isSelected = false;

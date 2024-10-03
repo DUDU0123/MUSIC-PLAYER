@@ -8,6 +8,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:music_player/constants/colors.dart';
 import 'package:music_player/constants/allsongslist.dart';
 import 'package:music_player/controllers/permission_request_class.dart';
+import 'package:music_player/controllers/recently_played_controller.dart';
 import 'package:music_player/models/allmusics_model.dart';
 import 'package:music_player/models/recently_played_model.dart';
 import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
@@ -15,6 +16,7 @@ import 'package:on_audio_query/on_audio_query.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class AudioController extends GetxController {
+  static AudioController get to => Get.find();
   final AudioPlayer audioPlayer = AudioPlayer();
   RxList<AllMusicsModel> allSongsListFromDevice = <AllMusicsModel>[].obs;
   RxInt currentSongIndex = RxInt(0);

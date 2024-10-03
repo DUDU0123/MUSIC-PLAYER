@@ -9,26 +9,28 @@ import 'package:music_player/views/common_widgets/text_widget_common.dart';
 class MusicLyricsPage extends StatefulWidget {
   const MusicLyricsPage({
     super.key,
-    required this.songId,
     required this.songModel,
-    required this.allMusicController,
   });
-  final int songId;
   final AllMusicsModel songModel;
-  final AllMusicController allMusicController;
 
   @override
   State<MusicLyricsPage> createState() => _MusicLyricsPageState();
 }
 
 class _MusicLyricsPageState extends State<MusicLyricsPage> {
-  late TextEditingController lyricsTextController;
+  TextEditingController lyricsTextController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     lyricsTextController = TextEditingController(
-        text: widget.allMusicController.getLyricsForSong(widget.songModel.id));
+        text: AllMusicController.to.getLyricsForSong(widget.songModel.id));
+  }
+
+  @override
+  void dispose() {
+    lyricsTextController.dispose();
+    super.dispose();
   }
 
   @override
@@ -52,13 +54,18 @@ class _MusicLyricsPageState extends State<MusicLyricsPage> {
         ),
         actions: [
           GetBuilder<AllMusicController>(
-            init: widget.allMusicController,
+            init: AllMusicController.to,
             builder: (controller) {
               return GestureDetector(
                 onTap: () async {
                   final String lyrics = lyricsTextController.text;
-                  // Save lyrics to the database
-                  await controller.saveLyrics(widget.songModel.id, lyrics);
+                  if (lyrics.isNotEmpty) {
+                    final updatedSongModel = widget.songModel.copyWith(
+                      musicLyrics: lyrics,
+                    );
+                    // Save lyrics to the database
+                    await controller.saveLyrics(song: updatedSongModel);
+                  }
                 },
                 child: Container(
                   margin: EdgeInsets.only(right: 10.sp, bottom: 10.sp),
@@ -91,7 +98,7 @@ class _MusicLyricsPageState extends State<MusicLyricsPage> {
               colors: [kTileColor, kBlack]),
         ),
         child: GetBuilder<AllMusicController>(
-            init: widget.allMusicController,
+            init: AllMusicController.to,
             builder: (controller) {
               return Container(
                   margin:

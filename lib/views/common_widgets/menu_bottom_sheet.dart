@@ -18,33 +18,14 @@ class MenuBottomSheet extends StatelessWidget {
     super.key,
     required this.kScreenHeight,
     required this.pageType,
-    required this.songName,
-    required this.artistName,
-    required this.albumName,
-    required this.songFormat,
-    required this.songSize,
-    required this.songPathIndevice,
-    required this.songId,
-    required this.musicUri,
     required this.song,
-    required this.favouriteController,
     this.playListID,
   });
 
   final double kScreenHeight;
   final PageTypeEnum pageType;
-  final String songName;
-  final String artistName;
-  final String albumName;
-  final String songFormat;
-  final String songSize;
-  final String songPathIndevice;
-  final String musicUri;
-  final int songId;
   final AllMusicsModel song;
-  final FavoriteController favouriteController;
   final int? playListID;
-  AudioController audioController = Get.put(AudioController());
 
   FavoriteModel? favsong;
 
@@ -104,12 +85,7 @@ class MenuBottomSheet extends StatelessWidget {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ViewDetailsPage(
-                    songName: songName,
-                    artistName: artistName,
-                    albumName: albumName,
-                    songFormat: songFormat,
-                    songSize: songSize,
-                    songPathIndevice: songPathIndevice,
+                    currentSong: song,
                   ),
                 ),
               );
@@ -120,13 +96,13 @@ class MenuBottomSheet extends StatelessWidget {
                   init: PlaylistController(),
                   builder: (controller) {
                     return OnTapTextWidget(
-                      text: PlaylistController.to.isInPlaylist(songId)
+                      text: PlaylistController.to.isInPlaylist(song.id)
                           ? "Remove from Playlist"
                           : "Add to Playlist",
                       onTap: () {
-                        PlaylistController.to.isInPlaylist(songId)
+                        PlaylistController.to.isInPlaylist(song.id)
                             ? PlaylistController.to.onTapRemovefromPlaylistAddToPlaylistPage(
-                                songId: songId,
+                                songId: song.id,
                                 playlistId: PlaylistController.to.getPlaylistIDFromAddToPlaylist.value,
                               )
                             : Get.to(() => AddToPlaylistPage(
@@ -159,7 +135,7 @@ class MenuBottomSheet extends StatelessWidget {
                       onTap: () {
                         if (playListID != null) {
                           controller.onTapRemoveFromPlaylist(
-                            songId: songId,
+                            songId: song.id,
                             playlistId: playListID!,
                           );
                         }
@@ -173,7 +149,7 @@ class MenuBottomSheet extends StatelessWidget {
                   pageType != PageTypeEnum.musicViewPage &&
                   pageType != PageTypeEnum.searchPage
               ? GetBuilder<AudioController>(
-                  init: audioController,
+                  init: AudioController.to,
                   builder: (controller) {
                     return OnTapTextWidget(
                       text: "Delete Song",
@@ -186,7 +162,7 @@ class MenuBottomSheet extends StatelessWidget {
                               contentText: "Do you want to delete the song?",
                               deleteAction: () async {
                                 controller
-                                    .deleteSongsPermentaly([songId], context);
+                                    .deleteSongsPermentaly([song.id], context);
                                 Get.back();
                               },
                             );

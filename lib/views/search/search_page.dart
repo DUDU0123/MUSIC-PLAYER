@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:music_player/constants/colors.dart';
-import 'package:music_player/controllers/all_music_controller.dart';
 import 'package:music_player/controllers/audio_controller.dart';
-import 'package:music_player/controllers/favourite_controller.dart';
 import 'package:music_player/controllers/functions_default.dart';
 import 'package:music_player/controllers/search_controller.dart';
 import 'package:music_player/views/common_widgets/default_common_widget.dart';
@@ -17,14 +15,7 @@ import 'package:music_player/views/enums/page_and_menu_type_enum.dart';
 class SearchPage extends StatefulWidget {
   const SearchPage({
     super.key,
-    required this.favoriteController,
-    required this.audioController,
-    required this.allMusicController,
   });
-
-  final FavoriteController favoriteController;
-  final AudioController audioController;
-  final AllMusicController allMusicController;
 
   @override
   State<SearchPage> createState() => _SearchPageState();
@@ -96,15 +87,12 @@ class _SearchPageState extends State<SearchPage> {
                           searchFilterController.filteredSongs.value;
                       return MusicTileWidget(
                         onTap: () {
-                          widget.audioController.isPlaying.value = true;
-                          widget.audioController.playSong(
+                          AudioController.to.isPlaying.value = true;
+                          AudioController.to.playSong(
                               searchFilterController.filteredSongs[index]);
                           musicPlayPageOpenPage(
                             context: context,
                             song: searchFilterController.filteredSongs[index],
-                            allMusicController: widget.allMusicController,
-                            favoriteController: widget.favoriteController,
-                            audioController: widget.audioController,
                           );
                         },
                         songTitle: searchSong[index].musicName,
@@ -118,8 +106,6 @@ class _SearchPageState extends State<SearchPage> {
                         musicUri: searchSong[index].musicUri,
                         albumName: searchSong[index].musicAlbumName,
                         artistName: searchSong[index].musicArtistName,
-                        audioController: widget.audioController,
-                        favoriteController: widget.favoriteController,
                       );
                     },
                   );

@@ -48,12 +48,6 @@ class _MusicBoxSplashScreenState extends State<MusicBoxSplashScreen> {
             context,
             MaterialPageRoute(
               builder: (context) => TabScreen(
-                
-                audioController: audioController,
-                favoriteController: favoriteController,
-                allMusicController: allMusicController,
-                playlistController: playlistController,
-                tabHandleController: tabHandleController,
                 sortMethod: sortMethod,
                 pageController: pageController,
                 pageTypeEnum: pageTypeEnum,
